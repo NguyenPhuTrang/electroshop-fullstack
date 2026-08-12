@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Logs
+*.log
+
+# Prisma
+*.db
+*.db-journal
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Development tool / AI agent files
+.agents/
+.claude/
+.windsurf/
+
+# AI / Development files
+.agents/
+.claude/
+.windsurf/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
