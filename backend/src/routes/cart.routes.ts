@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { clearCartController, getCartController, updateCartItemController } from "../controllers/cart.controller";
+import { addCartItemController, clearCartController, getCartController, updateCartItemController } from "../controllers/cart.controller";
 import { authMiddleware } from "../middlewares/auth.middlesware";
-import { updateCartItem } from "../services/cart.service";
+import { addCartItem, updateCartItem } from "../services/cart.service";
 
 const routes =  Router();
 
@@ -20,5 +20,10 @@ routes.delete(
     "/",
     authMiddleware,
     clearCartController
+)
+routes.post(
+    "/items",
+    authMiddleware,
+    addCartItemController
 )
 export default routes;
