@@ -4,6 +4,8 @@ import { addCartItemSchema, updateCartItemSchema } from "../validations/cart.val
 import { success } from "zod";
 import fa from "zod/v4/locales/fa.js";
 import { error } from "node:console";
+import { OrderStatus } from "../generated/prisma/enums";
+import { getAllOrders } from "../services/order.service";
 
 export const getCartController = async (
     req: Request,
@@ -221,5 +223,59 @@ export const clearCartController = async (
         });
     }
 };
+
+export const  getAllOrdersController = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const page = req.query.page === undefined ? 1 : Number(req.query.page);
+        const limit = req.query.limit === undefined ? 10 : Number(req.query.limit);
+        const status = req.query.status === undefined ? undefined : String(req.query.status);
+
+        if(
+            !Number.isInteger(page) || !Number.isInteger(limit) || page <= 0 || limit <= 0
+        )
+        {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid pagination parameters",
+            });
+        }
+        if (
+            status !== undefined &&
+            !Object.values(OrderStatus).includes(
+                status as OrderStatus
+            )
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order status",
+            });
+        }
+
+        const result = await getAllOrders(
+            page,
+            limit,
+            status as OrderStatus | undefined
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Orders retrieved successfully",
+            data: result.orders,
+            pagination: result.pagination
+        });
+    }
+    catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve orders",
+        });
+    }
+};
+
 
 

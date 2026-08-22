@@ -1,13 +1,47 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middlesware";
-import { createOrderController } from "../controllers/order.controller";
+import {
+    createOrderController,
+    getOrdersController,
+    getOrderByIdController,
+    updateOrderStatusController,
+    getAllOrdersController
+} from "../controllers/order.controller";
+import { requireRole } from "../middlewares/role.middlewre";
 
-const router = Router();
+const routes = Router();
 
-router.post(
+routes.post(
     "/",
     authMiddleware,
     createOrderController
 );
 
-export default router;
+routes.get(
+    "/",
+    authMiddleware,
+    getOrdersController
+);
+
+routes.get(
+    "/admin",
+    authMiddleware,
+    requireRole("ADMIN"),
+    getAllOrdersController
+);
+
+routes.get(
+    "/:id",
+    authMiddleware,
+    getOrderByIdController
+);
+
+routes.patch(
+    "/:id/status",
+    authMiddleware,
+    requireRole("ADMIN"),
+    updateOrderStatusController
+);
+
+
+export default routes;

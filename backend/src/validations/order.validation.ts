@@ -28,3 +28,14 @@ export const createOrderSchema = z.object({
 
     paymentMethod: z.enum(PaymentMethod),
 });
+
+export const updateOrderStatusSchema = z.object({
+    status: z.enum([
+        "PENDING",
+        "CONFIRMED",
+        "PROCESSING",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+    ]),
+});
