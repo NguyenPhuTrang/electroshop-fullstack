@@ -6,6 +6,7 @@ import cartRoutes from "./routes/cart.routes";
 import orderRoutes from "./routes/order.routes";
 import paymentRoutes from "./routes/payment.routes";
 import reviewRoutes from "./routes/review.routes";
+import addressRoutes from"./routes/address.routes";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api", reviewRoutes);
+app.use("/api/addresses", addressRoutes);
 
 app.get("/", (req, res) => {
     res.json({
