@@ -8,6 +8,7 @@ import paymentRoutes from "./routes/payment.routes";
 import reviewRoutes from "./routes/review.routes";
 import addressRoutes from"./routes/address.routes";
 import categoryRoutes from"./routes/category.routes"
+import brandRoutes from "./routes/brand.routes"
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api", reviewRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/brands", brandRoutes);
+
 
 app.get("/", (req, res) => {
     res.json({
