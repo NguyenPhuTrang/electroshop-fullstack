@@ -31,56 +31,71 @@ export const addCartItem = async (
     quantity: number
 ) => {
     const product = await prisma.product.findUnique({
-        where:{
+        where: {
             id: productId,
         },
     });
-    if(!product){
+
+    if (!product) {
         throw new Error("Product not found");
     }
 
     let cart = await prisma.cart.findUnique({
-        where:{
+        where: {
             userId,
         },
     });
 
-    if(!cart)
+    if (!cart) {
         cart = await prisma.cart.create({
-            data:{
+            data: {
                 userId,
             },
         });
+    }
 
     const existingItem = await prisma.cartItem.findUnique({
-        where:{
-            cartId_productId:{
+        where: {
+            cartId_productId: {
                 cartId: cart.id,
                 productId,
             },
         },
     });
 
-    if(existingItem) {
+    // Product đã có trong Cart
+    if (existingItem) {
+        const newQuantity = existingItem.quantity + quantity;
+
+        if (newQuantity > product.stock) {
+            throw new Error("Insufficient stock");
+        }
+
         return prisma.cartItem.update({
-            where:{
-                id:existingItem.id,
+            where: {
+                id: existingItem.id,
             },
-            data:{
-                quantity:existingItem.quantity + quantity,
+            data: {
+                quantity: newQuantity,
             },
-            include : {
+            include: {
                 product: true,
             },
         });
     }
+
+    // Product chưa có trong Cart
+    if (quantity > product.stock) {
+        throw new Error("Insufficient stock");
+    }
+
     return prisma.cartItem.create({
-        data:{
+        data: {
             cartId: cart.id,
             productId,
             quantity,
         },
-        include:{
+        include: {
             product: true,
         },
     });
@@ -92,37 +107,52 @@ export const updateCartItem = async (
     quantity: number
 ) => {
     const cart = await prisma.cart.findUnique({
-        where:{
+        where: {
             userId,
         },
     });
 
-    if(!cart) {
+    if (!cart) {
         throw new Error("Cart not found");
     }
 
     const cartItem = await prisma.cartItem.findUnique({
-        where:{
-            cartId_productId:{
+        where: {
+            cartId_productId: {
                 cartId: cart.id,
                 productId,
             },
         },
     });
-   if (!cartItem) {
-    throw new Error("Cart item not found");
+
+    if (!cartItem) {
+        throw new Error("Cart item not found");
+    }
+
+    const product = await prisma.product.findUnique({
+        where: {
+            id: productId,
+        },
+    });
+
+    if (!product) {
+        throw new Error("Product not found");
+    }
+
+    if (quantity > product.stock) {
+        throw new Error("Insufficient stock");
     }
 
     return prisma.cartItem.update({
-        where:{
+        where: {
             id: cartItem.id,
         },
-        data:{
-            quantity
+        data: {
+            quantity,
         },
-        include:{
+        include: {
             product: true,
-        }
+        },
     });
 };
 
@@ -169,7 +199,7 @@ export const clearCart = async (userId: number) => {
     });
     
     if(!cart){
-        throw new Error ("Cart not Found");
+        throw new Error ("Cart not found");
     }
 
     await prisma.cartItem.deleteMany({

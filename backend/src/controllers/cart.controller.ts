@@ -72,6 +72,16 @@ export const addCartItemController = async (
             });
         }
 
+        if (
+            error instanceof Error &&
+            error.message === "Insufficient stock"
+        ) {
+            return res.status(409).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
         return res.status(500).json({
             success: false,
             message: "Failed to add product to cart",
@@ -129,6 +139,16 @@ export const updateCartItemController = async (
             });
         }
 
+         if (
+            error instanceof Error &&
+            error.message === "Insufficient stock"
+        ) {
+            return res.status(409).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
         if (
             error instanceof Error &&
             error.message === "Cart item not found"
@@ -154,7 +174,7 @@ export const removeCartItemController = async (
         const userId = req.user!.userId;
         const productId = Number(req.params.productId);
 
-        if(!Number.isInteger(productId) || productId < 0)
+        if(!Number.isInteger(productId) || productId <= 0)
         {
             return res.status(400).json({
                 success: false,
