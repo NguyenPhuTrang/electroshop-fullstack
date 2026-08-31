@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { createBrandSchema, updateBrandSchema } from "../validations/brand.validation"
-import { success } from "zod";
-import console, { error } from "node:console";
+import console from "node:console";
 import { createBrand, deleteBrand, getBrandById, getBrands, updateBrand } from "../services/brand.service";
 
 
