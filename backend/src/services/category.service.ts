@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma";
+import { AppError } from "../utils/AppError";
 
 export const createCategory = async (
     data: {
@@ -24,11 +25,11 @@ export const createCategory = async (
     {
         if(existingCategory.name === data.name)
         {
-            throw new Error("Category name already exists");
+            throw new AppError("Category name already exists", 409);
         }
-        if(existingCategory.name === data.slug)
+        if(existingCategory.slug === data.slug)
         {
-            throw new Error("Category slug already exists");
+            throw new AppError("Category slug already exists", 409);
         }
     }
 
@@ -53,11 +54,16 @@ export const getCategories = async () => {
 export const getCategoryById = async (
     categoryId: number
 ) => {
-    return prisma.category.findUnique({
+    const category = await prisma.category.findUnique({
         where: {
             id: categoryId
         },
     });
+    if(!category)
+    {
+        throw new AppError("Category not found", 404);
+    }
+    return category;
 };
 
 export const updateCategory = async(
@@ -76,7 +82,7 @@ export const updateCategory = async(
 
     if(!existingCategory) 
     {
-        throw new Error("Category not found");
+        throw new AppError("Category not found", 404);
     }
 
     if(data.name !== undefined){
@@ -91,7 +97,7 @@ export const updateCategory = async(
 
         if(nameExists)
         {
-            throw new Error("Category name already exists");
+            throw new AppError("Category name already exists", 409);
         }
     } 
 
@@ -105,7 +111,7 @@ export const updateCategory = async(
 
         if(slugExits)
         {
-            throw new Error("Category slug already exists")
+            throw new AppError("Category slug already exists", 409);
         }
     }
 
@@ -142,12 +148,12 @@ export const deleteCategory = async (
 
     if(!existingCategory)
     {
-        throw new Error("Category not found");
+        throw new AppError("Category not found", 404);
     }
 
     if(existingCategory.products.length > 0)
     {
-        throw new Error("Cannot delete category because it has product");
+        throw new AppError("Cannot delete category because it has product", 409);
     }
 
       return prisma.category.delete({

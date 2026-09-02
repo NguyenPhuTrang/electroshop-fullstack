@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma"
+import { AppError } from "../utils/AppError";
 
 export const createBrand = async (
     data : {
@@ -24,12 +25,12 @@ export const createBrand = async (
     {
         if(existingBrand.name === data.name)
         {
-            throw new Error("Brand name already exists");
+            throw new AppError("Brand name already exists", 409);
         }
         
         if(existingBrand.slug === data.slug)
         {
-            throw new Error("Brand slug already exists");
+            throw new AppError("Brand slug already exists", 409);
         }
     }
 
@@ -54,11 +55,15 @@ export const getBrands = async () =>{
 export const getBrandById = async(
     brandId : number
 ) => {
-    return prisma.brand.findUnique({
+    const brand= await prisma.brand.findUnique({
         where: {
-            id: brandId
+            id: brandId,
         },
     });
+    if (!brand) {
+        throw new AppError("Brand not found", 404);
+    }
+    return brand;
 };
 
 export const updateBrand = async (
@@ -77,7 +82,7 @@ export const updateBrand = async (
     })
     if(!existingBrand)
     {
-        throw new Error("Brand not found")
+         throw new AppError("Brand not found", 404);
     }
 
     if (data.name !== undefined) {
@@ -92,7 +97,7 @@ export const updateBrand = async (
 
         if(nameExists)
         {
-           throw new Error("Brand name already exists");
+           throw new AppError("Brand name already exists", 409);
         }
     }
 
@@ -107,7 +112,7 @@ export const updateBrand = async (
         });
 
         if (slugExists) {
-            throw new Error("Brand slug already exists");
+            throw new AppError("Brand slug already exists", 409);
         }
     }
 
@@ -124,6 +129,9 @@ export const updateBrand = async (
             }),
             ...(data.description !== undefined && {
                 description: data.description
+            }),
+            ...(data.logo !== undefined && {
+                logo: data.logo
             })
         },
     });
@@ -143,12 +151,12 @@ export const deleteBrand = async (
     });
 
     if(!existingBrand){
-        throw new Error("Brand not found")
+         throw new AppError("Brand not found", 404);
     }
 
     if(existingBrand.products.length > 0)
     {
-        throw new Error("Can not delete brand because it has product")
+        throw new AppError("Can not delete brand because it has product", 409);
     }
 
     return prisma.brand.delete({

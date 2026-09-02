@@ -1,13 +1,13 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { createOrderSchema } from "../validations/order.validation";
 import { createOrder, getAllOrders, getOrderById, getOrdersByUserId, updateOrderStatus } from "../services/order.service";
-import { object, success } from "zod";
 import { OrderStatus } from "../generated/prisma/enums";
 
 
 export const createOrderController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         // 1. Validate request body
@@ -37,40 +37,14 @@ export const createOrderController = async (
             data: resultOrder,
         });
     } catch (error) {
-        console.error(error);
-
-        // Cart không tồn tại hoặc Cart không có sản phẩm
-        if (
-            error instanceof Error &&
-            error.message === "Cart is empty"
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        // Stock không đủ
-        if (
-            error instanceof Error &&
-            error.message.startsWith("Insufficient stock")
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to create order",
-        });
+        next(error);
     }
 };
 
 export const getOrdersController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const userId = req.user!.userId;
@@ -83,18 +57,14 @@ export const getOrdersController = async (
             data: orders,
         });
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve orders",
-        });
+        next(error);
     }
 };
 
 export const getOrderByIdController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const orderId = Number(req.params.id);
@@ -119,28 +89,14 @@ export const getOrderByIdController = async (
             data: order,
         });
     } catch (error) {
-        console.error(error);
-
-        if (
-            error instanceof Error &&
-            error.message === "Order not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve order",
-        });
+       next(error);
     }
 };
 
 export const updateOrderStatusController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const orderId = Number(req.params.id);
@@ -170,27 +126,15 @@ export const updateOrderStatusController = async (
         });
 
     } catch (error){
-        console.error(error);
-            if (
-            error instanceof Error &&
-            error.message === "Invalid order status transition"
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: error.message,
-            });
-        }
-        return res.status(500).json({
-            success: false,
-            message: "Failed to update orders status",
-        });
+       next(error);
     }
     
 };
 
 export const getAllOrdersController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const page = req.query.page === undefined ? 1 : Number(req.query.page);
@@ -233,11 +177,6 @@ export const getAllOrdersController = async (
         });
     }
     catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve orders",
-        });
+       next(error);
     }
 };

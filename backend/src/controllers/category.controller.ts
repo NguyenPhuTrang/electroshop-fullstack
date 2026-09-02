@@ -1,12 +1,11 @@
-import { number, success } from "zod";
 import { createCategorySchema, updateCategorySchema } from "../validations/category.validation"
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { createCategory, deleteCategory, getCategories, getCategoryById, updateCategory } from "../services/category.service";
-import { error } from "node:console";
 
 export const createCategoryController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const validation = createCategorySchema.safeParse(req.body);
@@ -23,37 +22,18 @@ export const createCategoryController = async (
 
         return res.status(201).json({
             success: true,
-            massage: "Create category successfully",
+            message: "Create category successfully",
             data: category
         })
     } catch (error) {
-        console.error(error)
-
-        if(error instanceof Error && error.message === "Category slug already exists")
-        {
-            return res.status(409).json({
-                success: false,
-                message: "Ctegory slug already exists"
-            });
-        }
-
-        if(error instanceof Error && error.message === "Category name already exists"){
-            return res.status(409).json({
-                success: false,
-                message: "Category name already exists"
-            })
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to post category"
-        })
+       next(error);
     }
 };
 
 export const getCategoriesController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try{
     const categories = await getCategories();
@@ -63,17 +43,14 @@ export const getCategoriesController = async (
         data: categories
     });
 } catch(error){
-    console.log(error);
-    return res.status(500).json({
-        success: false,
-        message: "Failed to retrieve categories"
-    });
+   next(error);
     }
 };
 
 export const getCategoryByIdController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try{
         const categoryId =Number(req.params.id);
@@ -87,13 +64,6 @@ export const getCategoryByIdController = async (
 
          const category = await getCategoryById(categoryId);
 
-         if(!category){
-            res.status(404).json({
-                success: false,
-                message: "Category not found"
-            });
-         }
-
          return res.status(200).json({
             success: true,
             message: "Category retrieved successfully",
@@ -102,17 +72,14 @@ export const getCategoryByIdController = async (
 
     } catch(error)
     {
-        console.log(error)
-        return res.status(500).json({
-            success:false,
-            message: "Failed to retrieve category"
-        });
+        next(error);
     }
 };
 
 export const updateCategoryController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const categoryId = Number(req.params.id);
@@ -147,42 +114,14 @@ export const updateCategoryController = async (
         })
  
     } catch(error){
-        console.log(error);
-
-        if(error instanceof Error && error.message === "Category not found")
-        {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found"
-            });
-        }
-
-        if(error instanceof Error && error.message === "Category slug already exists")
-        {
-            return res.status(409).json({
-                success: false,
-                message: "Category slug already exists"
-            });
-        }
-
-        if(error instanceof Error && error.message === "Category name already exists")
-        {
-            return res.status(409).json({
-                success: false,
-                message: "Category name already exists"
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to update category"
-        });
+        next(error);
     };
 };
 
 export const deleteCategoryController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const categoryId = Number(req.params.id);
@@ -202,25 +141,6 @@ export const deleteCategoryController = async (
             message: "Category deleted successfully"
         });
     } catch(error){
-        console.log(error);
-        if(error instanceof Error && error.message === "Category not found")
-        {
-            res.status(404).json({
-                success: false,
-                message: "Invalid category Id"
-            });
-        }
-        if(error instanceof Error && error.message ==="Category slug already exits")
-        {
-            return res.status(409).json({
-                success: false,
-                message: "Category slug already exits"
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to delete category"
-        });
+        next(error);
     }
 }

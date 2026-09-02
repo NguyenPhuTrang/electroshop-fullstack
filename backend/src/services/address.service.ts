@@ -1,4 +1,5 @@
 import {prisma} from "../config/prisma";
+import { AppError } from "../utils/AppError";
 
 export const createAddress = async (
     userId: number,
@@ -56,7 +57,7 @@ export const getAddressById = async(
 export const getAddresses = async (
     userId: number
 ) => {
-    return prisma.address.findMany({
+  const address = prisma.address.findMany({
         where: {
             userId,
         },
@@ -69,6 +70,10 @@ export const getAddresses = async (
             },
         ],
     });
+      if (!address) {
+        throw new AppError("Address not found", 404);
+    }
+    return address;
 };
 
 export const updateAddress = async (
@@ -92,7 +97,7 @@ export const updateAddress = async (
     });
     if(!existingAddress)
     {
-        throw new Error("Address not found");
+        throw new AppError("Address not found",404);
     }
     if(data.isDefault === true)
     {
@@ -154,7 +159,7 @@ export const deleteAddress = async (
 
     if(!existingAddress)
     {
-        throw new Error("Address not found");
+        throw new AppError("Address not found",404);
     }
 
     return prisma.address.delete({

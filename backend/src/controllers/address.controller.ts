@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
     createAddress,
     getAddresses,
@@ -7,13 +7,13 @@ import {
     deleteAddress,
 } from "../services/address.service";
 import { createAddressSChema, updateAddressSchema } from "../validations/address.validation";
-import { boolean, json, success } from "zod";
 
 
 
 export const createAddressController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
     const userId = req.user!.userId;
@@ -41,18 +41,14 @@ export const createAddressController = async (
     });
 
     }catch(error){
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to create address",
-        });
+        next(error);
     }   
 };
 
 export const getAddressController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try{
         const userId = req.user!.userId;
@@ -64,18 +60,14 @@ export const getAddressController = async (
             data: addresses,
         });
     } catch(error){
-        console.log(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve addresses",
-        });
+        next(error);
     }
 };
 
 export const getAddressByIdController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try{
         const userId = req.user!.userId;
@@ -93,30 +85,21 @@ export const getAddressByIdController = async (
             userId,
             addressId
         );
-
-        if(!address){
-            return res.status(404).json({
-                success: false,
-                message: "Address not found"
-            });
-        }
-
+        
         return res.status(200).json({
             success: true,
             message: "Address retrieved successfully ",
             data: address
         });
     } catch(error) {
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieved address"
-        });
+        next(error);
     }
 };
 
 export const updateAddressController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try{
         const userId = req.user!.userId;
@@ -126,7 +109,7 @@ export const updateAddressController = async (
         {
             return res.status(400).json({
                 success: false,
-                message: "Invalid address Id"
+                message: "Invalid address data"
             });
         }
 
@@ -155,26 +138,14 @@ export const updateAddressController = async (
             data: address,
         });
     } catch (error){
-        console.error(error);
-        if(
-            error instanceof Error && error.message === "Address not found"
-        )
-        {
-            return res.status(404).json({
-                success: false,
-                message: "Address not found"
-            });
-        }
-        return res.status(500).json({
-            success:false,
-            message: "Failed to update address",
-        });
+        next(error);
     }
 };
 
 export const deleteAddressController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
         try {
         const userId = req.user!.userId;
@@ -195,21 +166,6 @@ export const deleteAddressController = async (
             message: "Address deleted successfully",
         });
 } catch (error) {
-        console.error(error);
-
-        if (
-            error instanceof Error &&
-            error.message === "Address not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: "Address not found",
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to delete address",
-        });
+       next(error);
     }
 };

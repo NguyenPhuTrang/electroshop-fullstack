@@ -1,160 +1,161 @@
 import { prisma } from "../config/prisma";
+import { AppError } from "../utils/AppError";
 
-export const createProductImage = async(
-    productId: number,
-    data: {
-        url: string,
-        alt?: string,
-        isPrimary?: boolean,
-        sortOder?: number
-    }
+export const createProductImage = async (
+  productId: number,
+  data: {
+    url: string;
+    alt?: string;
+    isPrimary?: boolean;
+    sortOder?: number;
+  }
 ) => {
-    const product = await prisma.product.findUnique({
-        where: {
-            id: productId
-        },
+  const product = await prisma.product.findUnique({
+    where: {
+      id: productId,
+    },
+  });
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  // Nếu ảnh mới là ảnh chính,
+  // tắt isPrimary của ảnh chính cũ
+  if (data.isPrimary === true) {
+    await prisma.productImage.updateMany({
+      where: {
+        productId,
+        isPrimary: true,
+      },
+      data: {
+        isPrimary: false,
+      },
     });
+  }
 
-    if(!product)
-    {
-        throw new Error("Product not found");
-    }
-
-    if(data.isPrimary == true) // thêm ảnh mới và tắt trạng thái isPrimary của ảnh cũ đi 
-    {
-        await prisma.productImage.updateMany({
-            where: {
-                productId,
-                isPrimary: true
-            },
-            data: {
-                isPrimary: false
-            }
-        });
-    }
-
-    return prisma.productImage.create({
-        data: {
-            productId,
-            url: data.url,
-            alt: data.alt,
-            isPrimary: data.isPrimary ?? false,
-            sortOrder: data.sortOder ?? 0
-        }
-    });
+  return prisma.productImage.create({
+    data: {
+      productId,
+      url: data.url,
+      alt: data.alt,
+      isPrimary: data.isPrimary ?? false,
+      sortOrder: data.sortOder ?? 0,
+    },
+  });
 };
 
 export const getProductImages = async (
-    productId: number
+  productId: number
 ) => {
-    const product = await prisma.product.findUnique({
-        where: {
-            id: productId
-        },
-    });
-    
-    if(!product)
-    {
-        throw new Error("Product not found")
-    }
+  const product = await prisma.product.findUnique({
+    where: {
+      id: productId,
+    },
+  });
 
-    return prisma.productImage.findMany({
-        where: {
-            productId
-        },
-        orderBy: {
-            sortOrder: "desc"
-        }
-    });
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  return prisma.productImage.findMany({
+    where: {
+      productId,
+    },
+    orderBy: {
+      sortOrder: "desc",
+    },
+  });
 };
 
 export const getProductImageById = async (
-    imageId: number
+  imageId: number
 ) => {
-    const image = await prisma.productImage.findUnique({
-        where: {
-            id: imageId,
-        },
-    });
+  const image = await prisma.productImage.findUnique({
+    where: {
+      id: imageId,
+    },
+  });
 
-    if (!image) {
-        throw new Error("Product image not found");
-    }
+  if (!image) {
+    throw new AppError("Product image not found", 404);
+  }
 
-    return image;
+  return image;
 };
 
-export const updateProductImage = async(
-    imageId: number,
-    data: {
-        url?: string,
-        alt?: string,
-        isPrimary?: boolean,
-        sortOrder?: number
-    }
+export const updateProductImage = async (
+  imageId: number,
+  data: {
+    url?: string;
+    alt?: string;
+    isPrimary?: boolean;
+    sortOrder?: number;
+  }
 ) => {
-    const existingImage = await prisma.productImage.findUnique({
-        where: {
-            id: imageId
-        },
-    });
-    
-    if(!existingImage)
-    {
-        throw new Error("Product image not found")
-    }
+  const existingImage = await prisma.productImage.findUnique({
+    where: {
+      id: imageId,
+    },
+  });
 
-    if(data.isPrimary === true) // nếu muốn sửa isPrimary thành ảnh chính
+  if (!existingImage) {
+    throw new AppError("Product image not found", 404);
+  }
+
+  // Nếu muốn ảnh này trở thành ảnh chính
+  if (data.isPrimary === true) {
     await prisma.productImage.updateMany({
-        where: {
-            productId: existingImage.productId,
-            isPrimary: true,
-            NOT: {
-                id: imageId
-            },
+      where: {
+        productId: existingImage.productId,
+        isPrimary: true,
+        NOT: {
+          id: imageId,
         },
-        data: {
-            isPrimary: false
-        }
+      },
+      data: {
+        isPrimary: false,
+      },
     });
+  }
 
-    return prisma.productImage.update({
-        where: {
-            id: imageId
-        },
-        data: {
-            ...(data.url !== undefined && {
-                url: data.url
-            }),
-            ...(data.alt !== undefined && {
-                alt: data.alt
-            }),
-             ...(data.isPrimary !== undefined && {
-                isPrimary: data.isPrimary
-            }),
-             ...(data.sortOrder !== undefined && {
-                sortOrder: data.sortOrder
-            }),
-        },
-    });
+  return prisma.productImage.update({
+    where: {
+      id: imageId,
+    },
+    data: {
+      ...(data.url !== undefined && {
+        url: data.url,
+      }),
+      ...(data.alt !== undefined && {
+        alt: data.alt,
+      }),
+      ...(data.isPrimary !== undefined && {
+        isPrimary: data.isPrimary,
+      }),
+      ...(data.sortOrder !== undefined && {
+        sortOrder: data.sortOrder,
+      }),
+    },
+  });
 };
 
-export const deleteProductImage = async(
-    imageId: number
+export const deleteProductImage = async (
+  imageId: number
 ) => {
-    const imageExisting = await prisma.productImage.findUnique({
-        where: {
-            id: imageId
-        }
-    });
-    if(!imageExisting)
-    {
-        throw new Error("Product image not found")
-    }
-    return prisma.productImage.delete({
-        where: {
-            id: imageId
-        },
-    });
-};
+  const imageExisting = await prisma.productImage.findUnique({
+    where: {
+      id: imageId,
+    },
+  });
 
+  if (!imageExisting) {
+    throw new AppError("Product image not found", 404);
+  }
+
+  return prisma.productImage.delete({
+    where: {
+      id: imageId,
+    },
+  });
+};

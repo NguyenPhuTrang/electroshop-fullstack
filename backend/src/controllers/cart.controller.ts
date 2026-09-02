@@ -1,15 +1,13 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { addCartItem, clearCart, getCart, removeCartItem, updateCartItem } from "../services/cart.service";
 import { addCartItemSchema, updateCartItemSchema } from "../validations/cart.validation";
-import { success } from "zod";
-import fa from "zod/v4/locales/fa.js";
-import { error } from "node:console";
 import { OrderStatus } from "../generated/prisma/enums";
 import { getAllOrders } from "../services/order.service";
 
 export const getCartController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const userId = req.user!.userId;
@@ -22,18 +20,14 @@ export const getCartController = async (
             data: cart,
         });
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve cart",
-        });
+        next(error);
     }
 };
 
 export const addCartItemController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction      
 ) => {
     try {
         const result = addCartItemSchema.safeParse(req.body);
@@ -60,39 +54,15 @@ export const addCartItemController = async (
             data: item,
         });
     } catch (error) {
-        console.error(error);
-
-        if (
-            error instanceof Error &&
-            error.message === "Product not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        if (
-            error instanceof Error &&
-            error.message === "Insufficient stock"
-        ) {
-            return res.status(409).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to add product to cart",
-        });
+        next(error);
     }
 };
 
 
 export const updateCartItemController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const result = updateCartItemSchema.safeParse(req.body);
@@ -127,48 +97,14 @@ export const updateCartItemController = async (
             data: item,
         });
     } catch (error) {
-        console.error(error);
-
-        if (
-            error instanceof Error &&
-            error.message === "Cart not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-         if (
-            error instanceof Error &&
-            error.message === "Insufficient stock"
-        ) {
-            return res.status(409).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        if (
-            error instanceof Error &&
-            error.message === "Cart item not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to update cart item",
-        });
+        next(error);
     }
 };
 
 export const removeCartItemController = async (
     req : Request,
-    res : Response
+    res : Response,
+    next: NextFunction
 ) => {
     try {
         const userId = req.user!.userId;
@@ -189,31 +125,15 @@ export const removeCartItemController = async (
             message: "Cart item removed successfully"
         });
     } catch (error) {
-        console.error(error);
-
-        if(
-            error instanceof Error &&
-            (
-                error.message === "Cart not found" || 
-                error.message === "Cart item not found"
-            )
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message
-            })
-        }
-        return res.status(500).json({
-            success: false,
-            message: "Failed to remove cart item",
-        });
-
+        next(error);
     }
 };
 
 export const clearCartController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
+
 ) => {
     try {
         const userId = req.user!.userId;
@@ -225,77 +145,11 @@ export const clearCartController = async (
             message: "Cart cleared successfully",
         });
     } catch (error) {
-        console.error(error);
-
-        if (
-            error instanceof Error &&
-            error.message === "Cart not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to clear cart",
-        });
+        next(error);
     }
 };
 
-export const  getAllOrdersController = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const page = req.query.page === undefined ? 1 : Number(req.query.page);
-        const limit = req.query.limit === undefined ? 10 : Number(req.query.limit);
-        const status = req.query.status === undefined ? undefined : String(req.query.status);
 
-        if(
-            !Number.isInteger(page) || !Number.isInteger(limit) || page <= 0 || limit <= 0
-        )
-        {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid pagination parameters",
-            });
-        }
-        if (
-            status !== undefined &&
-            !Object.values(OrderStatus).includes(
-                status as OrderStatus
-            )
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid order status",
-            });
-        }
-
-        const result = await getAllOrders(
-            page,
-            limit,
-            status as OrderStatus | undefined
-        );
-
-        return res.status(200).json({
-            success: true,
-            message: "Orders retrieved successfully",
-            data: result.orders,
-            pagination: result.pagination
-        });
-    }
-    catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve orders",
-        });
-    }
-};
 
 
 

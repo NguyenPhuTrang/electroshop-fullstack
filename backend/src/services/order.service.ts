@@ -1,6 +1,6 @@
-import { error } from "node:console";
 import { prisma } from "../config/prisma";
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../generated/prisma/enums";
+import { AppError } from "../utils/AppError";
 
 interface CreateOrderData {
     shippingName: string;
@@ -33,7 +33,7 @@ export const createOrder = async (
 
         // 2. Kiểm tra Cart
         if (!cart || cart.items.length === 0) {
-            throw new Error("Cart is empty");
+            throw new AppError("Cart is empty", 400);
         }
 
         // 3. Tính subtotal
@@ -92,40 +92,29 @@ export const createOrder = async (
         });
 
         // 8. Trừ stock (atomic - tự kiểm tra đủ hàng ngay trong update)
+       // 8. Trừ stock (atomic)
         for (const item of cart.items) {
             const updateResult = await tx.product.updateMany({
                 where: {
                     id: item.productId,
-                    stock: { gte: item.quantity }, // chỉ trừ nếu đủ hàng
+                    stock: {
+                        gte: item.quantity,
+                    },
                 },
                 data: {
-                    stock: { decrement: item.quantity },
+                    stock: {
+                        decrement: item.quantity,
+                    },
                 },
             });
 
-            // Nếu không có dòng nào được update -> không đủ hàng
-            // -> throw Error -> Prisma tự rollback toàn bộ transaction (order, v.v...)
-           if (!cart || cart.items.length === 0) {
-                throw new Error("Cart is empty");
-            }
-
-            // 3. Kiểm tra stock
-            for (const item of cart.items) {
-                if (item.product.stock < item.quantity) {
-                    throw new Error(
-                        `Insufficient stock for product: ${item.product.name}`
-                    );
-                }
-            }
-
-            // 4. Tính subtotal
-            const subtotal = cart.items.reduce((sum, item) => {
-                return (
-                    sum +
-                    Number(item.product.salePrice ?? item.product.price) *
-                        item.quantity
+            // Không update được nghĩa là stock không đủ
+            if (updateResult.count === 0) {
+                throw new AppError(
+                    `Insufficient stock for product: ${item.product.name}`,
+                    400
                 );
-            }, 0);
+            }
         }
 
         // 9. Tạo Payment record (trạng thái pending, chưa gọi API bên ngoài)
@@ -183,7 +172,7 @@ export const getOrderById = async (
     });
 
     if(!order) {
-        throw new Error("Order not found");
+        throw new AppError("Order not found", 404);
     }
 
     return order;
@@ -203,7 +192,7 @@ export const updateOrderStatus = async (
     if(!order)
 
     {
-        throw new Error ("Order not found");
+        throw new AppError ("Order not found", 404);
     }
     const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
         PENDING: ["CONFIRMED", "CANCELLED"],
@@ -217,7 +206,7 @@ export const updateOrderStatus = async (
     const allowedStatues = allowedTransitions[order.status];
 
     if(!allowedStatues.includes(status)){
-        throw new Error ("Invalid order status transition");
+        throw new AppError ("Invalid order status transition", 400);
     }
 
     return prisma.order.update({

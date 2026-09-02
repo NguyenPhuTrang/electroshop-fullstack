@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middlesware";
-import { createProductImageController, deldeteProductImageController, getProductImageByIdController, getProductImagesController, updateProductImageController } from "../controllers/ProductImage.controller";
+import { createProductImageController, deleteProductImageController, getProductImageByIdController, getProductImagesController, updateProductImageController } from "../controllers/ProductImage.controller";
 
 const routes = Router();
 
@@ -31,7 +31,7 @@ routes.patch(
 routes.delete(
      "/images/:id",
     authMiddleware,
-    deldeteProductImageController
+    deleteProductImageController
 );
 
 export default routes;

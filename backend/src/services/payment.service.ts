@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma";
 import { PaymentStatus } from "../generated/prisma/enums";
+import { AppError } from "../utils/AppError";
 
 export const getPaymentById = async (
     paymentId: number,
@@ -19,7 +20,7 @@ export const getPaymentById = async (
     
     if(!payment)
     {
-        throw new Error("Payment not found");
+        throw new AppError("Payment not found", 404);
     }
 
     return payment;
@@ -36,7 +37,7 @@ export const updatePaymentStatus = async (
     });
 
     if(!payment) {
-        throw new Error ("Payment not found");
+        throw new AppError ("Payment not found", 404);
     }
 
     const updatePayment = await prisma.payment.update({

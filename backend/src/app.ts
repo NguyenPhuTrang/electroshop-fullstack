@@ -11,6 +11,8 @@ import categoryRoutes from "./routes/category.routes";
 import brandRoutes from "./routes/brand.routes";
 import productImageRoutes from "./routes/productImage.routes";
 
+import {errorMiddleware} from "./middlewares/error.middleware"
+
 const app = express();
 
 app.use(express.json());
@@ -27,6 +29,8 @@ app.use("/api", reviewRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/brands", brandRoutes);
+
+app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
     res.json({

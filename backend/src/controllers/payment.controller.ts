@@ -1,12 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { getPaymentById, updatePaymentStatus } from "../services/payment.service";
-import { date, success } from "zod";
 import { updatePaymentStatusSchema } from "../validations/payment.validation";
-import { error } from "node:console";
 
 export const getPaymentByIdController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
             const paymentId = Number(req.params.id)
@@ -29,28 +28,14 @@ export const getPaymentByIdController = async (
                 data: payment,
             });
     }  catch (error) {
-        console.error(error);
-
-        if (
-            error instanceof Error &&
-            error.message === "Payment not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve payment",
-        });
+        next(error);
     }
 };
 
 export const updatePaymentStatusController = async (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const paymentId = Number (req.params.id);
@@ -81,24 +66,9 @@ export const updatePaymentStatusController = async (
         return res.status(200).json({
             success: true,
             message: "Payment status updated successfully",
-            date: payment,  
+            data: payment,  
         });
     } catch (error) {
-        console.error(error);
-
-        if (
-            error instanceof Error &&
-            error.message === "Payment not found"
-        ) {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to update payment status",
-        });
+      next(error);
     }
 };
