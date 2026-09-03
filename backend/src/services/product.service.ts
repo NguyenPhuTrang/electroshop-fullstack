@@ -2,18 +2,110 @@ import z from "zod";
 import { prisma } from "../config/prisma";
 import { createProductSchema } from "../validations/product.validation";
 import { AppError } from "../utils/AppError";
+import { Prisma } from "../generated/prisma/client";
 
-export const getProducts = async () => {
-  return prisma.product.findMany({
+export const getProducts = async (
+  search?: string,
+  categoryId?: number,
+  brandId?: number,
+  minPrice? : number,
+  maxPrice? : number,
+  sort?: string,
+  page : number = 1,
+  limit : number = 10
+) => {
+  let orderBy;
+    switch (sort) {
+      case "price_asc":
+        orderBy = {
+            price: "asc" as const // asc sắp xếp tăng dần
+            };
+          break;
+      
+      case "price_desc": 
+          orderBy = {
+              price: "desc" as const // desc sắp xếp giảm dần
+              };
+          break;
+
+      case "newest":
+          default: 
+          orderBy = {
+            createdAt: "desc" as const // giảm dần thời gian mới nhất sẽ ở đầu danh sách
+          };
+          break;
+        }
+      
+  const skip = (page - 1) * limit;
+
+
+  const where: Prisma.ProductWhereInput = {
+      ...(search && {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            description: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      }),
+
+      ...(categoryId !== undefined && {
+        categoryId,
+      }),
+
+      ...(brandId !== undefined && {
+        brandId,
+      }),
+
+      ...(minPrice !== undefined || maxPrice !== undefined
+        ? {
+            price: {
+              ...(minPrice !== undefined && {
+                gte: minPrice,
+              }),
+              ...(maxPrice !== undefined && {
+                lte: maxPrice,
+              }),
+            },
+          }
+        : {}),
+  };
+
+  const products = await prisma.product.findMany({
+    where,
     include: {
       brand: true,
       category: true,
-      images: true,
+      images: true
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy,
+    skip,
+    take: limit
   });
+
+  const total = await prisma.product.count({
+    where,
+  });
+
+  const totalPages = Math.ceil(total/limit)
+
+    return {
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages
+      }
+    }
 };
 
 export const getProductById = async (id: number) => {
