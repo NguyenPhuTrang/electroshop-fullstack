@@ -1,3 +1,4 @@
+import { stat } from "node:fs";
 import { prisma } from "../config/prisma";
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../generated/prisma/enums";
 import { AppError } from "../utils/AppError";
@@ -182,42 +183,84 @@ export const updateOrderStatus = async (
     orderId: number,
     status: OrderStatus
 ) => {
-    
-    const order = await prisma.order.findUnique({
-        where: {
-            id: orderId,
-        },
+    return prisma.$transaction(async (tx) => {
+
+        const order = await tx.order.findUnique({
+            where: {
+                id: orderId,
+            },
+            include: {
+                items: true,
+                payment: true,
+            },
+        });
+
+        if (!order) {
+            throw new AppError("Order not found", 404);
+        }
+
+        const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
+            PENDING: ["CONFIRMED", "CANCELLED"],
+            CONFIRMED: ["PROCESSING", "CANCELLED"],
+            PROCESSING: ["SHIPPED"],
+            SHIPPED: ["DELIVERED"],
+            DELIVERED: [],
+            CANCELLED: [],
+        };
+
+        const allowedStatues = allowedTransitions[order.status];
+
+        if (!allowedStatues.includes(status)) {
+            throw new AppError(
+                "Invalid order status transition",
+                400
+            );
+        }
+
+        if (status === "CANCELLED") {
+            for (const item of order.items) {
+                const updateResult = await tx.product.updateMany({
+                    where: {
+                        id: item.productId,
+                    },
+                    data: {
+                        stock: {
+                            increment: item.quantity,
+                        },
+                    },
+                });
+
+                if (updateResult.count === 0) {
+                    throw new AppError(
+                        `Product not found: ${item.productName}`, 
+                        404
+                    );
+                }
+            }
+
+            if(order.payment){
+                    if(order.payment.status === PaymentStatus.PENDING || order.payment.status === PaymentStatus.PROCESSING){
+                    await tx.payment.update({
+                        where: {
+                            id: order.payment.id,
+                        },
+                        data: {
+                            status: PaymentStatus.CANCELLED,
+                        },
+                    });
+                }
+            }
+        }
+
+        return tx.order.update({
+            where: {
+                id: orderId,
+            },
+            data: {
+                status,
+            },
+        });
     });
-
-    if(!order)
-
-    {
-        throw new AppError ("Order not found", 404);
-    }
-    const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
-        PENDING: ["CONFIRMED", "CANCELLED"],
-        CONFIRMED: ["PROCESSING", "CANCELLED"],
-        PROCESSING: ["SHIPPED"],
-        SHIPPED: ["DELIVERED"],
-        DELIVERED: [],
-        CANCELLED: [],
-    };
-
-    const allowedStatues = allowedTransitions[order.status];
-
-    if(!allowedStatues.includes(status)){
-        throw new AppError ("Invalid order status transition", 400);
-    }
-
-    return prisma.order.update({
-        where: {
-            id: orderId,
-        },
-        data: {
-            status,
-        },
-    });
-
 };
 
 export const getAllOrders = async (

@@ -214,6 +214,7 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+  CANCELLED
 }
 
 model Payment {
