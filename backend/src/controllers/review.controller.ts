@@ -4,11 +4,9 @@ import {
   createReview,
   deleteReview,
   getReviewsByProductId,
-  updateReview,
 } from "../services/review.service";
 import {
   createReviewSchema,
-  updateReviewSchema,
 } from "../validations/review.validations";
 
 export const createReviewController = async (
@@ -75,49 +73,6 @@ export const getReviewsByProductIdController = async (
       success: true,
       message: "Reviews retrieved successfully",
       data: reviews,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const updateReviewController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = req.user!.userId;
-    const reviewId = Number(req.params.id);
-
-    if (!Number.isInteger(reviewId) || reviewId <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid review ID",
-      });
-    }
-
-    const result = updateReviewSchema.safeParse(req.body);
-
-    if (!result.success) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid review data",
-        errors: result.error.flatten(),
-      });
-    }
-
-    const review = await updateReview(
-      userId,
-      reviewId,
-      result.data.rating,
-      result.data.comment
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Review updated successfully",
-      data: review,
     });
   } catch (error) {
     next(error);

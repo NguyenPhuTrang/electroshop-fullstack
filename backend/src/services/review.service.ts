@@ -20,16 +20,9 @@ export const createReview = async (
   const purchased = await prisma.orderItem.findFirst({
     where: {
       productId,
-      order: {
+        order: {
         userId,
-        status: {
-          in: [
-            "CONFIRMED",
-            "PROCESSING",
-            "SHIPPED",
-            "DELIVERED",
-          ],
-        },
+        status: "DELIVERED",
       },
     },
   });
@@ -99,40 +92,6 @@ export const getReviewsByProductId = async (
     },
     orderBy: {
       createdAt: "desc",
-    },
-  });
-};
-
-export const updateReview = async (
-  userId: number,
-  reviewId: number,
-  rating?: number,
-  comment?: string
-) => {
-  const review = await prisma.review.findUnique({
-    where: {
-      id: reviewId,
-    },
-  });
-
-  if (!review) {
-    throw new AppError("Review not found", 404);
-  }
-
-  if (review.userId !== userId) {
-    throw new AppError(
-      "You can only update your own review",
-      403
-    );
-  }
-
-  return prisma.review.update({
-    where: {
-      id: reviewId,
-    },
-    data: {
-      ...(rating !== undefined && { rating }),
-      ...(comment !== undefined && { comment }),
     },
   });
 };

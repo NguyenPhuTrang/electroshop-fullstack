@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middlesware";
-import { adminDeleteReviewController, createReviewController, deleteReviewController, getReviewsByProductIdController, updateReviewController } from "../controllers/review.controller";
+import { adminDeleteReviewController, createReviewController, deleteReviewController, getReviewsByProductIdController } from "../controllers/review.controller";
 import { requireRole } from "../middlewares/role.middlewre";
 
 const routes = Router();
@@ -14,12 +14,6 @@ routes.post(
 routes.get(
     "/:productId/reviews",
     getReviewsByProductIdController
-);
-
-routes.put(
-    "/reviews/:id",
-    authMiddleware,
-    updateReviewController
 );
 
 routes.delete(
