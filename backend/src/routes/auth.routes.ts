@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginController, refreshTokenController, registerController, } from "../controllers/auth.controller";
+import { loginController, logoutController, refreshTokenController, registerController, } from "../controllers/auth.controller";
 import { authMiddleware } from "../middlewares/auth.middlesware";
 import { requireRole } from "../middlewares/role.middlewre";
 
@@ -30,6 +30,11 @@ router.get(
             user: req.user,
         });
     }
+);
+
+router.post(
+    "/logout",
+    logoutController
 );
 
 export default router;
