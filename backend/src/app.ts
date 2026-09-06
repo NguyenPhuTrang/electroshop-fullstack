@@ -10,10 +10,19 @@ import addressRoutes from "./routes/address.routes";
 import categoryRoutes from "./routes/category.routes";
 import brandRoutes from "./routes/brand.routes";
 import productImageRoutes from "./routes/productImage.routes";
+import cors from "cors";
 
 import {errorMiddleware} from "./middlewares/error.middleware"
 
+
+
 const app = express();
+
+app.use(
+    cors({
+        origin: "http://localhost:3001",
+    })
+);
 
 app.use(express.json());
 app.use(cookieParser());
