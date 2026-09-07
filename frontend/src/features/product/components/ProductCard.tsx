@@ -4,6 +4,7 @@ import Link from "next/link";
 type ProductCardProps = {
   name: string;
   price: string;
+  salePrice: string | null;
   image?: string;
   slug: string;
   priority?: boolean;
@@ -12,12 +13,18 @@ type ProductCardProps = {
 export default function ProductCard({
   name,
   price,
+  salePrice,
   image,
   slug,
   priority = false,
 }: ProductCardProps) {
-  const formattedPrice = Number(price).toLocaleString("vi-VN");
 
+const formattedPrice = Number(price).toLocaleString("vi-VN");
+
+const formattedSalePrice = salePrice
+  ? Number(salePrice).toLocaleString("vi-VN")
+  : null;
+  
   return (
     <Link href={`/products/${slug}`}>
       <div className="overflow-hidden rounded-lg border bg-white">
@@ -42,10 +49,24 @@ export default function ProductCard({
           <h2 className="text-lg font-semibold">
             {name}
           </h2>
+            
+          <div className="mt-2">
+            {formattedSalePrice ? (
+              <>
+                <p className="text-lg font-bold">
+                  {formattedSalePrice} VND
+                </p>
 
-          <p className="mt-2">
-            {formattedPrice} VND
-          </p>
+                <p className="text-sm text-gray-500 line-through">
+                  {formattedPrice} VND
+                </p>
+              </>
+            ) : (
+              <p className="text-lg font-bold">
+                {formattedPrice} VND
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </Link>

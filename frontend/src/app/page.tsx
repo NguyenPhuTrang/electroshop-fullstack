@@ -55,6 +55,7 @@ const [products, setProducts] = useState<Product[]>([]);
             key={product.id}
             name={product.name}
             price={product.price}
+            salePrice={product.salePrice}
             image={product.images[0]?.url}
             slug={product.slug}
             priority={index === 0}
