@@ -50,11 +50,14 @@ const [products, setProducts] = useState<Product[]>([]);
       </h1>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {products.map((product) => (
+       {products.map((product, index) => (
           <ProductCard
             key={product.id}
             name={product.name}
             price={product.price}
+            image={product.images[0]?.url}
+            slug={product.slug}
+            priority={index === 0}
           />
         ))}
       </div>
