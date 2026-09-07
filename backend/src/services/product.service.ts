@@ -127,6 +127,25 @@ export const getProductById = async (id: number) => {
   return product;
 };
 
+export const getProductBySlug = async (slug: string) => {
+  const product = await prisma.product.findUnique({
+    where: {
+      slug,
+    },
+    include: {
+      category: true,
+      brand: true,
+      images: true,
+    },
+  });
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  return product;
+};
+
 export const createProduct = async (
   data: z.infer<typeof createProductSchema>
 ) => {

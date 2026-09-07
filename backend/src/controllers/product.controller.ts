@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createProduct, deleteProduct, getProductById, getProducts, updateProduct } from "../services/product.service";
+import { createProduct, deleteProduct, getProductById, getProductBySlug, getProducts, updateProduct } from "../services/product.service";
 import {
   createProductSchema,
   updateProductSchema,
@@ -150,6 +150,32 @@ export const getProductByIdController = async (
           });
         }
     const product = await getProductById(id);
+
+    return res.status(200).json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProductBySlugController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { slug } = req.params;
+
+    if (typeof slug !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product slug",
+      });
+    }
+
+    const product = await getProductBySlug(slug);
 
     return res.status(200).json({
       success: true,
