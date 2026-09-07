@@ -11,11 +11,11 @@ router.get("/slug/:slug", getProductBySlugController);
 
 router.get("/:id",authMiddleware, getProductByIdController);
 
-router.post("/", authMiddleware, requireRole("Admin"), createProductController);
+router.post("/", authMiddleware, requireRole("ADMIN"), createProductController);
 
-router.put("/:id", authMiddleware, requireRole("Admin"), updateProductController);
+router.put("/:id", authMiddleware, requireRole("ADMIN"), updateProductController);
 
-router.delete("/:id", authMiddleware, requireRole("Admin"), deleteProductController); 
+router.delete("/:id", authMiddleware, requireRole("ADMIN"), deleteProductController); 
 
 
 export default router;

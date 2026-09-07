@@ -180,12 +180,13 @@ export const createProduct = async (
 
 export const updateProduct = async (
   id: number,
-  data: {
+ data: {
     name?: string;
     slug?: string;
     sku?: string;
     description?: string;
     price?: number;
+    salePrice?: number | null;
     stock?: number;
     categoryId?: number;
     brandId?: number;
