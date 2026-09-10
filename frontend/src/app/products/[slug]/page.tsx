@@ -23,7 +23,8 @@ export default async function ProductDetailPage({
           productName={product.name}
         />
 
-        <ProductInfor
+       <ProductInfor
+          productId={product.id}
           name={product.name}
           price={product.price}
           salePrice={product.salePrice}
