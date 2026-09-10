@@ -19,9 +19,10 @@ import {errorMiddleware} from "./middlewares/error.middleware"
 const app = express();
 
 app.use(
-    cors({
-        origin: "http://localhost:3001",
-    })
+  cors({
+    origin: "http://localhost:3001",
+    credentials: true,
+  })
 );
 
 app.use(express.json());
