@@ -7,7 +7,7 @@ import { Product } from "../features/product/types/product";
 
 export default function Home() {
 const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [Loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const [products, setProducts] = useState<Product[]>([]);
     fetchProducts();
 }, []);
 
-  if (loading) {
+  if (Loading) {
     return (
       <main className="mx-auto max-w-7xl p-4">
         <p>Đang tải sản phẩm...</p>
