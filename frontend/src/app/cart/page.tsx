@@ -1,6 +1,9 @@
 "use client";
 
-import { clearCart, getCart } from "@/src/features/cart/services/cart.service";
+import {
+  clearCart,
+  getCart,
+} from "@/src/features/cart/services/cart.service";
 import CartItem from "@/src/features/cart/components/CartItem";
 import type { Cart } from "@/src/features/cart/types/cart";
 import { useEffect, useState } from "react";
@@ -35,32 +38,51 @@ export default function CartPage() {
     });
   };
 
+  const handleQuantityChange = (
+    productId: number,
+    quantity: number
+  ) => {
+    if (!cart) return;
+
+    setCart({
+      ...cart,
+      items: cart.items.map((item) =>
+        item.productId === productId
+          ? {
+              ...item,
+              quantity,
+            }
+          : item
+      ),
+    });
+  };
+
+  const handleClearCart = async () => {
+    if (!cart) return;
+
+    try {
+      await clearCart();
+
+      setCart({
+        ...cart,
+        items: [],
+      });
+    } catch (error) {
+      console.error("Failed to clear cart", error);
+    }
+  };
+
   if (!cart) {
     return <p className="p-6">Loading...</p>;
   }
 
-    const handleClearCart = async () => {
-    try {
-        await clearCart();
-
-        setCart({
-        ...cart!,
-        items: [],
-        });
-    } catch (error) {
-        console.error("Failed to clear cart", error);
-    }
-    };
-
-    const total = cart.items.reduce((sum, item) => {
+  const total = cart.items.reduce((sum, item) => {
     const price = Number(
-        item.product.salePrice ?? item.product.price
+      item.product.salePrice ?? item.product.price
     );
 
     return sum + price * item.quantity;
-    }, 0);
-
-    
+  }, 0);
 
   return (
     <main className="mx-auto max-w-5xl p-6">
@@ -68,15 +90,15 @@ export default function CartPage() {
         My Cart
       </h1>
 
-    {cart.items.length > 0 && (
+      {cart.items.length > 0 && (
         <button
-            type="button"
-            onClick={handleClearCart}
-            className="mt-4 rounded bg-red-500 px-4 py-2 text-white"
+          type="button"
+          onClick={handleClearCart}
+          className="mt-4 rounded bg-red-500 px-4 py-2 text-white"
         >
-            Clear Cart
+          Clear Cart
         </button>
-    )}
+      )}
 
       {cart.items.length === 0 ? (
         <p className="mt-6">
@@ -89,17 +111,17 @@ export default function CartPage() {
               key={item.id}
               item={item}
               onRemove={handleRemoveItem}
+              onQuantityChange={handleQuantityChange}
             />
           ))}
+
+          <div className="mt-6 border-t pt-4 text-right">
+            <p className="text-xl font-bold">
+              Total: {total.toLocaleString("vi-VN")} VND
+            </p>
+          </div>
         </div>
       )}
-            {cart.items.length > 0 && (
-                <div className="mt-6 border-t pt-4 text-right">
-                    <p className="text-xl font-bold">
-                    Total: {total.toLocaleString("vi-VN")} VND
-                    </p>
-                </div>
-            )}
     </main>
   );
 }

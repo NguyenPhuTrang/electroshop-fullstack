@@ -23,7 +23,7 @@ export async function updateCartItem(
     quantity: number
 ) {
     const respone = await api.patch(
-        `/cart/item/${productId}`,
+        `/cart/items/${productId}`,
         {
             quantity,
         }

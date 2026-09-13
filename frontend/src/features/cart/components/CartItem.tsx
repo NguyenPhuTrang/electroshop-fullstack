@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import type { CartItem as CartItemType } from "@/src/features/cart/types/cart";
-import { removeCartItem, updateCartItem } from "@/src/features/cart/services/cart.service";
+import {
+  removeCartItem,
+  updateCartItem,
+} from "@/src/features/cart/services/cart.service";
 
 type CartItemProps = {
   item: CartItemType;
   onRemove: (productId: number) => void;
+  onQuantityChange: (productId: number, quantity: number) => void;
 };
 
-export default function CartItem({ item, onRemove }: CartItemProps) {
-  const [quantity, setQuantity] = useState(item.quantity);
+export default function CartItem({
+  item,
+  onRemove,
+  onQuantityChange,
+}: CartItemProps) {
+  const quantity = item.quantity;
 
   const handleIncrease = async () => {
     if (quantity >= item.product.stock) {
@@ -21,7 +28,7 @@ export default function CartItem({ item, onRemove }: CartItemProps) {
 
     await updateCartItem(item.productId, newQuantity);
 
-    setQuantity(newQuantity);
+    onQuantityChange(item.productId, newQuantity);
   };
 
   const handleDecrease = async () => {
@@ -33,23 +40,20 @@ export default function CartItem({ item, onRemove }: CartItemProps) {
 
     await updateCartItem(item.productId, newQuantity);
 
-    setQuantity(newQuantity);
+    onQuantityChange(item.productId, newQuantity);
   };
 
   const handleRemove = async () => {
-  await removeCartItem(item.productId);
+    await removeCartItem(item.productId);
 
-  onRemove(item.productId);
-};
-
+    onRemove(item.productId);
+  };
 
   const price = Number(
     item.product.salePrice ?? item.product.price
   );
-  
-  const subtotal = price * quantity
 
-
+  const subtotal = price * quantity;
 
   return (
     <div className="flex items-center justify-between border-b py-4">
@@ -59,7 +63,7 @@ export default function CartItem({ item, onRemove }: CartItemProps) {
         </h2>
 
         <p className="mt-1">
-          Price: {Number(price).toLocaleString("vi-VN")} VND
+          Price: {price.toLocaleString("vi-VN")} VND
         </p>
 
         <div className="mt-2 flex items-center">
@@ -83,17 +87,19 @@ export default function CartItem({ item, onRemove }: CartItemProps) {
             +
           </button>
         </div>
+
         <button
-            type="button"
-            onClick={handleRemove}
-            className="mt-2 text-red-500"
-            >
-            Remove
+          type="button"
+          onClick={handleRemove}
+          className="mt-2 text-red-500"
+        >
+          Remove
         </button>
       </div>
-        <p className="mt-2 font-semibold">
-            Subtotal: {subtotal.toLocaleString("vi-VN")} VND
-        </p>
+
+      <p className="mt-2 font-semibold">
+        Subtotal: {subtotal.toLocaleString("vi-VN")} VND
+      </p>
     </div>
   );
 }
