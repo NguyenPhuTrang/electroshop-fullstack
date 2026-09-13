@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { createOrderSchema } from "../validations/order.validation";
-import { createOrder, getAllOrders, getOrderById, getOrdersByUserId, updateOrderStatus } from "../services/order.service";
+import { cancelOrder, createOrder, getAllOrders, getOrderById, getOrdersByUserId, updateOrderStatus } from "../services/order.service";
 import { OrderStatus } from "../generated/prisma/enums";
+import { success } from "zod";
 
 
 export const createOrderController = async (
@@ -178,5 +179,34 @@ export const getAllOrdersController = async (
     }
     catch (error) {
        next(error);
+    }
+};
+
+export const cancelOrderController = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const orderId = Number(req.params.id)
+
+        if(!Number.isInteger(orderId) || orderId <= 0)
+        {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order ID"
+            })
+        }
+        const userId = req.user!.userId;
+        const order = await cancelOrder(orderId, userId)
+
+        return res.status(200).json({
+            success: true,
+            message: "Order cancelled successfully",
+            data: order
+        });
+    }catch(error)
+    {
+        next(error);
     }
 };

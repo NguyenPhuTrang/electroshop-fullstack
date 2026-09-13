@@ -309,3 +309,57 @@ export const getAllOrders = async (
         },
     };
 };
+
+export const cancelOrder = async (
+  orderId: number,
+  userId: number
+) => {
+    const order = await prisma.order.findFirst({
+        where: {
+            id: orderId,
+            userId
+        },
+        include: {
+            payment: true
+        }
+    });
+    if(!order){
+        throw new AppError("Order not found", 404)
+    }
+    if(order.status !== "PENDING")
+    {
+        throw new AppError("Only pending orders can be cancelled", 400)
+    }
+
+    return prisma.$transaction(async (tx) => {
+        await tx.order.update({
+            where: {
+                id: orderId,
+            },
+            data: {
+                status: "CANCELLED",
+            },
+            });
+
+            if (order.payment) {
+            await tx.payment.update({
+                where: {
+                orderId,
+                },
+                data: {
+                status: "CANCELLED",
+                },
+            });
+            }
+
+            return tx.order.findUnique({
+            where: {
+                id: orderId,
+            },
+            include: {
+                items: true,
+                payment: true,
+            },
+        });
+    });
+};

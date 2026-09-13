@@ -5,7 +5,8 @@ import {
     getOrdersController,
     getOrderByIdController,
     updateOrderStatusController,
-    getAllOrdersController
+    getAllOrdersController,
+    cancelOrderController
 } from "../controllers/order.controller";
 import { requireRole } from "../middlewares/role.middlewre";
 
@@ -42,6 +43,12 @@ routes.patch(
     requireRole("ADMIN"),
     updateOrderStatusController
 );
+
+routes.patch(
+    "/:id/cancel",
+    authMiddleware,
+    cancelOrderController
+)
 
 
 export default routes;
