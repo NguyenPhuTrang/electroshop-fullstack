@@ -1,6 +1,9 @@
+
+
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middlesware";
-import { changeMyPasswordController, getMyProfileController, UpdateMyProfileController } from "../controllers/user.controller";
+import { changeMyPasswordController, getMyProfileController, updateMyProfileController, uploadAvatarController } from "../controllers/user.controller";
+import upload from "../middlewares/upload.middleware";
 
 const routes = Router();
 
@@ -13,7 +16,7 @@ routes.get(
 routes.patch(
   "/me",
   authMiddleware,
-  UpdateMyProfileController
+  updateMyProfileController
 );
 
 routes.patch(
@@ -22,4 +25,10 @@ routes.patch(
   changeMyPasswordController
 );
 
+routes.post(
+  "/me/avatar",
+  authMiddleware,
+  upload.single("avatar"),
+  uploadAvatarController
+)
 export default routes;

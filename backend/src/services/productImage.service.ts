@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma";
 import { AppError } from "../utils/AppError";
+import { uploadImageFromUrl } from "./upload.service";
 
 export const createProductImage = async (
   productId: number,
@@ -7,7 +8,7 @@ export const createProductImage = async (
     url: string;
     alt?: string;
     isPrimary?: boolean;
-    sortOder?: number;
+    sortOrder?: number;
   }
 ) => {
   const product = await prisma.product.findUnique({
@@ -19,6 +20,11 @@ export const createProductImage = async (
   if (!product) {
     throw new AppError("Product not found", 404);
   }
+
+  const result = await uploadImageFromUrl (
+    data.url,
+    "electroshop/products"
+  );
 
   // Nếu ảnh mới là ảnh chính,
   // tắt isPrimary của ảnh chính cũ
@@ -37,10 +43,10 @@ export const createProductImage = async (
   return prisma.productImage.create({
     data: {
       productId,
-      url: data.url,
+      url: result.secure_url,
       alt: data.alt,
       isPrimary: data.isPrimary ?? false,
-      sortOrder: data.sortOder ?? 0,
+      sortOrder: data.sortOrder ?? 0,
     },
   });
 };
@@ -103,6 +109,18 @@ export const updateProductImage = async (
     throw new AppError("Product image not found", 404);
   }
 
+   let cloudinaryUrl: string | undefined;
+
+  // Nếu có URL mới thì upload lên Cloudinary
+  if (data.url !== undefined) {
+    const result = await uploadImageFromUrl(
+      data.url,
+      "electroshop/products"
+    );
+
+    cloudinaryUrl = result.secure_url;
+  }
+
   // Nếu muốn ảnh này trở thành ảnh chính
   if (data.isPrimary === true) {
     await prisma.productImage.updateMany({
@@ -124,8 +142,8 @@ export const updateProductImage = async (
       id: imageId,
     },
     data: {
-      ...(data.url !== undefined && {
-        url: data.url,
+      ...(cloudinaryUrl !== undefined && {
+        url: cloudinaryUrl,
       }),
       ...(data.alt !== undefined && {
         alt: data.alt,

@@ -23,24 +23,24 @@ export const createProductImageSchema = z.object({
 });
 
 export const updateProductImageSchema = z.object({
-    url: z
-        .string()
-        .trim()
-        .min(1, "Image URL is required")
-        .optional(),
+  url: z
+    .string()
+    .trim()
+    .min(1, "Image URL is required")
+    .optional(),
 
-    alt: z
-        .string()
-        .trim()
-        .optional(),
+  alt: z
+    .string()
+    .trim()
+    .optional(),
 
-    isPrimary: z
-        .boolean()
-        .optional(),
+  isPrimary: z
+    .boolean()
+    .optional(),
 
-    sortOrder: z
-        .number()
-        .int()
-        .min(0)
-        .optional(),
+  sortOrder: z
+    .number()
+    .int()
+    .min(0)
+    .optional(),
 });

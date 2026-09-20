@@ -7,15 +7,16 @@ export const getMyProfile = async (userId: number) => {
         where: {
             id: userId,
         },
-        select: {
+            select: {
             id: true,
             name: true,
             email: true,
+            avatarUrl: true,
             role: true,
             status: true,
             createdAt: true,
-            updatedAt: true
-        },
+            updatedAt: true,
+            },
     });
 
     if(!user){

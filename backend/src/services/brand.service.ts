@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma"
 import { AppError } from "../utils/AppError";
+import { uploadImageFromUrl } from "./upload.service";
 
 export const createBrand = async (
     data : {
@@ -34,12 +35,24 @@ export const createBrand = async (
         }
     }
 
+    let logoUrl: string | undefined;
+
+    if (data.logo) {
+        const result = await uploadImageFromUrl(
+        data.logo,
+        "electroshop/brands"
+        );
+
+        logoUrl = result.secure_url;
+    }
+
+    
     return prisma.brand.create({
         data: {
-            name: data.name,
-            slug: data.slug,
-            description: data.description,
-            logo: data.logo
+        name: data.name,
+        slug: data.slug,
+        description: data.description,
+        logo: logoUrl,
         },
     });
 };
@@ -116,23 +129,35 @@ export const updateBrand = async (
         }
     }
 
+
+    let logoUrl: string | undefined;
+
+    if (data.logo !== undefined) {
+        const result = await uploadImageFromUrl(
+        data.logo,
+        "electroshop/brands"
+        );
+
+        logoUrl = result.secure_url;
+    }
+
     return prisma.brand.update({
         where: {
             id: brandId,
         },
-        data: {
+            data: {
             ...(data.name !== undefined && {
-                name: data.name
+                name: data.name,
             }),
             ...(data.slug !== undefined && {
-                slug: data.slug
+                slug: data.slug,
             }),
             ...(data.description !== undefined && {
-                description: data.description
+                description: data.description,
             }),
-            ...(data.logo !== undefined && {
-                logo: data.logo
-            })
+            ...(logoUrl !== undefined && {
+                logo: logoUrl,
+            }),
         },
     });
     

@@ -14,3 +14,17 @@ export const changePasswordSchema = z.object({
     .string()
     .min(6, "New password must be at least 6 characters"),
 });
+
+export const uploadAvatarUrlSchema = z.object({
+  imageUrl: z
+    .string()
+    .url("Invalid image URL")
+    .refine(
+      (value) =>
+        value.startsWith("http://") ||
+        value.startsWith("https://"),
+      {
+        message: "Image URL must use HTTP or HTTPS",
+      }
+    ),
+});
