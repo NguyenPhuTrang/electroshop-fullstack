@@ -1,10 +1,35 @@
 import api from "@/src/lib/axios";
 import type { Product } from "../types/product";
 
-export async function getProducts(): Promise<Product[]> {
-  const response = await api.get("/products");
+export type GetProductsParams = {
+  search?: string,
+  categoryId?: number,
+  brandId?: number,
+  minPrice?: number,
+  maxPrice?: number,
+  sort?: "price_asc" | "price_desc" | "newest";
+  page?: number;
+  limit?: number;
+};
 
-  return response.data.data.products;
+export type GetProductResponse = {
+  products: Product[];
+  pagination: {
+    page: number,
+    limit: number,
+    tatol: number,
+    totalPages: number;
+  };
+};
+
+export async function getProducts(
+  params?: GetProductsParams
+): Promise<GetProductResponse> {
+  const response = await api.get("/products", {
+    params
+  });
+
+  return response.data.data;
 }
 
 export async function getProductBySlug(
