@@ -1,13 +1,18 @@
 import api from "@/src/lib/axios";
 import type { Product } from "../types/product";
 
+export type ProductSort =
+  | "price_asc"
+  | "price_desc"
+  | "newest";
+
 export type GetProductsParams = {
   search?: string,
   categoryId?: number,
   brandId?: number,
   minPrice?: number,
   maxPrice?: number,
-  sort?: "price_asc" | "price_desc" | "newest";
+  sort?: ProductSort,
   page?: number;
   limit?: number;
 };
@@ -17,7 +22,7 @@ export type GetProductResponse = {
   pagination: {
     page: number,
     limit: number,
-    tatol: number,
+    total: number,
     totalPages: number;
   };
 };

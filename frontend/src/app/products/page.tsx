@@ -3,18 +3,32 @@
 import { useEffect, useState } from "react";
 
 import ProductCard from "@/src/features/product/components/ProductCard";
-import { getProducts } from "@/src/features/product/services/product.service";
+import { getProducts, ProductSort } from "@/src/features/product/services/product.service";
 import type { Product } from "@/src/features/product/types/product";
 import { getCategories } from "@/src/features/category/services/category.service";
 import { Category } from "@/src/features/category/types/category";
+import { Brand } from "@/src/features/brand/types/brand";
+import { getBrand } from "@/src/features/brand/services/brand.service";
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
-  const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState<Category[]>([]); //categories → toàn bộ danh sách category lấy từ backend
-  const [products, setProducts] = useState<Product[]>([]); // categoryId → category mà người dùng đang chọn
+  const [categoryId, setCategoryId] = useState("");// categoryId → category mà người dùng đang chọn
+  const [products, setProducts] = useState<Product[]>([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [brands, setBrands] = useState<Brand[]>([]); // Brands -> toàn bộ danh sách brands lấy từ backend
+  const [brandId, setBrandId]= useState("");// brandId -> brand mà người dùng đang chọn
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sort, setSort] = useState<ProductSort | "">("");
+  const [page, setPage] = useState(1);
+  const[pagination, setPagination] = useState({
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -25,12 +39,17 @@ export default function ProductsPage() {
 
           const data = await getProducts({
             search: search || undefined,
+            sort: sort || undefined,
             categoryId: categoryId ?Number(categoryId): undefined,
-            page: 1,
+            brandId: brandId ?Number(brandId): undefined,
+            minPrice: minPrice ?Number(minPrice): undefined,
+            maxPrice: maxPrice ?Number(maxPrice): undefined,
+            page,
             limit: 12,
           });
 
           setProducts(data.products);
+          setPagination(data.pagination);
         } catch (error) {
           console.error("Failed to get products:", error);
           setError("Failed to load products.");
@@ -45,7 +64,7 @@ export default function ProductsPage() {
     return () => {
       clearTimeout(timer);
     };
-  }, [search, categoryId]); 
+  }, [search, sort, categoryId, brandId, minPrice, maxPrice, page]); 
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -60,10 +79,24 @@ export default function ProductsPage() {
     fetchCategories()
   }, [])
     
+  useEffect(() => {
+      const fetchBrands = async () =>{
+        try{
+          const data = await getBrand();
+          setBrands(data);
+        }catch(error){
+          console.error("Falied to get brands", error)
+        }
+      }
+      fetchBrands();
+  },[])
+
+
+
 
  return (
   <main className="mx-auto max-w-7xl p-6">
-    <h1 className="text-3xl font-bold">
+    <h1 className="text-3xl font-bold">          
       Products
     </h1>
 
@@ -71,30 +104,97 @@ export default function ProductsPage() {
     <input
       type="text"
       value={search}
-      onChange={(e) => setSearch(e.target.value)}
+       onChange={(e) => {
+        setSearch(e.target.value);
+        setPage(1);
+      }}
       placeholder="Search products..."
       className="mt-6 w-full rounded border p-2"
     />
 
-    {/* Category */}
-    <select
-      value={categoryId}
-      onChange={(e) => setCategoryId(e.target.value)}
-      className="mt-4 rounded border p-2"
-    >
-      <option value="">
-        All Categories
-      </option>
-
-      {categories.map((category) => (
-        <option
-          key={category.id}
-          value={category.id}
-        >
-          {category.name}
+    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {/* Category */}
+      <select
+        value={categoryId}
+        onChange={(e) => {
+          setCategoryId(e.target.value);
+          setPage(1);
+        }}
+        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+      >
+        <option value="" disabled hidden>
+          Category
         </option>
-      ))}
-    </select>
+
+        {categories.map((category) => (
+          <option key={category.id} value={category.id}>
+            {category.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Brand */}
+      <select
+        value={brandId}
+       onChange={(e) => {
+        setBrandId(e.target.value);
+        setPage(1);
+       }}
+        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+      >
+        <option value="" disabled hidden>
+          Brand
+        </option>
+
+        {brands.map((brand) => (
+          <option key={brand.id} value={brand.id}>
+            {brand.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Min Price */}
+      <input
+        type="number"
+        value={minPrice}
+        onChange={(e) => {
+          setMinPrice(e.target.value);
+          setPage(1);
+        }}
+        placeholder="Min price"
+        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+      />
+
+      {/* Max Price */}
+      <input
+        type="number"
+        value={maxPrice}
+        onChange={(e) => {
+          setMaxPrice(e.target.value);
+          setPage(1);
+        }}
+        placeholder="Max price"
+        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+      />
+
+      {/* Sort */}
+      <select
+        value={sort}
+        onChange={(e) => {
+          setSort(e.target.value as ProductSort | "");
+          setPage(1);
+        }}
+        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+      >
+        <option value="" disabled hidden>
+          Sort by
+        </option>
+
+        <option value="newest">Newest</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+      </select>
+    </div>
 
     {/* Products */}
     <div className="mt-6">
@@ -127,6 +227,29 @@ export default function ProductsPage() {
         </div>
       )}
     </div>
+
+    <div className="mt-8 flex items-center justify-center gap-4">
+      <button
+        onClick={() => setPage((prev) => prev - 1)}
+        disabled={page === 1}
+        className="rounded border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Previous
+      </button>
+
+      <span>
+        Page {page} of {pagination.totalPages}
+      </span>
+
+      <button
+        onClick={() => setPage((prev) => prev + 1)}
+        disabled={page === pagination.totalPages}
+        className="rounded border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+
   </main>
 );
 }
