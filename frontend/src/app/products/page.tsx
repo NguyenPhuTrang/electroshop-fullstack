@@ -228,28 +228,24 @@ export default function ProductsPage() {
       )}
     </div>
 
-    <div className="mt-8 flex items-center justify-center gap-4">
-      <button
-        onClick={() => setPage((prev) => prev - 1)}
-        disabled={page === 1}
-        className="rounded border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Previous
+    <div className="mt-8 flex items-center justify-center gap-2">
+      {Array.from(
+        { length: pagination.totalPages },
+        (_, index) => index + 1
+      ).map((pageNumber) => (
+        <button
+            key={pageNumber}
+            onClick={() => setPage(pageNumber)}
+            className={`rounded border px-3 py-2 ${
+              page === pageNumber
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            {pageNumber}
       </button>
-
-      <span>
-        Page {page} of {pagination.totalPages}
-      </span>
-
-      <button
-        onClick={() => setPage((prev) => prev + 1)}
-        disabled={page === pagination.totalPages}
-        className="rounded border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Next
-      </button>
+      ))}
     </div>
-
   </main>
 );
 }

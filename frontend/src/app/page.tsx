@@ -6,26 +6,29 @@ import { getProducts } from "../features/product/services/product.service";
 import { Product } from "../features/product/types/product";
 
 export default function Home() {
-const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [Loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
-        try {
-            const data = await getProducts();
+      try {
+        const data = await getProducts({
+          page: 1,
+          limit: 6,
+        });
 
-            setProducts(data);
-        } catch (error) {
-            console.error(error);
-            setError("Không thể lấy danh sách sản phẩm");
-        } finally {
-            setLoading(false);
-        }
+        setProducts(data.products);
+      } catch (error) {
+        console.error(error);
+        setError("Không thể lấy danh sách sản phẩm");
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchProducts();
-}, []);
+  }, []);
 
   if (Loading) {
     return (
@@ -50,7 +53,7 @@ const [products, setProducts] = useState<Product[]>([]);
       </h1>
 
       <div className="grid gap-4 md:grid-cols-3">
-       {products.map((product, index) => (
+        {products.map((product, index) => (
           <ProductCard
             key={product.id}
             name={product.name}

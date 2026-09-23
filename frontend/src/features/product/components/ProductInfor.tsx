@@ -35,9 +35,17 @@ export default function ProductInfor({
         : null;
 
     const [quantity, setQuantity] = useState(1)
+    const [addingToCart, setAddingToCart] = useState(false); 
 
     const handleAddToCart = async () => {
-      await addCartItem(productId, quantity)
+      try{
+        setAddingToCart(true);
+        await addCartItem(productId, quantity)
+      }catch(error){
+        console.error("Failed to add product to cart", error)
+      }finally{
+        setAddingToCart(false);
+      }
     }
 
          return (
@@ -77,54 +85,62 @@ export default function ProductInfor({
       </p>
 
       <div className="mt-8">
-        <h2 className="mb-2 font-semibold">
-          Description
-        </h2>
+          <h2 className="mb-2 font-semibold">
+            Description
+          </h2>
 
-        <p className="text-gray-600">
-          {description}
-        </p>
-      </div>
+          <p className="text-gray-600">
+            {description}
+          </p>
+        </div>
 
         <div className="mt-8">
             <p className="mb-2 font-semibold">
               Quantity
             </p>
 
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() =>
-                  setQuantity((current) => Math.max(1, current - 1))
-                }
-                className="h-10 w-10 border"
-              >
-                -
-              </button>
+          <div className="flex items-center">
+            <button
+              type="button"
+              disabled={stock === 0}
+              onClick={() =>
+                setQuantity((current) => Math.max(1, current - 1))
+              }
+              className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              -
+            </button>
 
-              <span className="flex h-10 w-12 items-center justify-center border-y">
-                {quantity}
-              </span>
+            <span className="flex h-10 w-12 items-center justify-center border-y">
+              {quantity}
+            </span>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setQuantity((current) => Math.min(stock, current + 1))
-                }
-                className="h-10 w-10 border"
-              >
-                +
-              </button>
-            </div>
+            <button
+              type="button"
+              disabled={stock === 0}
+              onClick={() =>
+                setQuantity((current) => Math.min(stock, current + 1))
+              }
+              className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              +
+            </button>
           </div>
+      </div>
 
-      <button
+     <button
         onClick={handleAddToCart}
         type="button"
-        className="mt-8 rounded-lg bg-black px-6 py-3 text-white"
+        disabled={stock === 0 || addingToCart}
+        className="mt-8 rounded-lg bg-black px-6 py-3 text-white disabled:cursor-not-allowed disabled:bg-gray-400"
       >
-        Thêm vào giỏ hàng
-      </button>
+        {stock === 0
+          ? "Out of Stock"
+          : addingToCart
+            ? "Adding..."
+            : "Add to Cart"}
+    </button>
+
     </div>
   );
 }
