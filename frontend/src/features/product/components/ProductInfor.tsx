@@ -1,58 +1,80 @@
 "use client";
 import { addCartItem } from "@/src/features/cart/services/cart.service";
 import { useState } from "react";
-
+import { Review } from "../../review/types/review";
 
 type ProductInforProps = {
-    productId: number;
-    name: string,
-    price: string,
-    salePrice: string | null;
-    stock: number;
-    brandName: string;
-    categoryName: string;
-    description: string;
+  productId: number;
+  name: string;
+  price: string;
+  salePrice: string | null;
+  stock: number;
+  brandName: string;
+  categoryName: string;
+  description: string;
+  reviews: Review[];
 };
 
-
-
 export default function ProductInfor({
-    productId,
-    name,
-    price,
-    salePrice,
-    stock,
-    brandName,
-    categoryName,
-    description
+  productId,
+  name,
+  price,
+  salePrice,
+  stock,
+  brandName,
+  categoryName,
+  description,
+  reviews,
 }: ProductInforProps) {
-    
-     const formattedPrice = Number(price).toLocaleString("vi-VN");
+  const formattedPrice = Number(price).toLocaleString("vi-VN");
 
-     const formattedSalePrice = salePrice
+  const formattedSalePrice = salePrice
+    ? Number(salePrice).toLocaleString("vi-VN")
+    : null;
 
-        ? Number(salePrice).toLocaleString("vi-VN")
-        : null;
+  // Calculate average rating
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) /
+        reviews.length
+      : 0;
 
-    const [quantity, setQuantity] = useState(1)
-    const [addingToCart, setAddingToCart] = useState(false); 
+  const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
 
-    const handleAddToCart = async () => {
-      try{
-        setAddingToCart(true);
-        await addCartItem(productId, quantity)
-      }catch(error){
-        console.error("Failed to add product to cart", error)
-      }finally{
-        setAddingToCart(false);
-      }
+  const handleAddToCart = async () => {
+    try {
+      setAddingToCart(true);
+      await addCartItem(productId, quantity);
+    } catch (error) {
+      console.error("Failed to add product to cart", error);
+    } finally {
+      setAddingToCart(false);
     }
+  };
 
-         return (
+  return (
     <div>
       <h1 className="text-3xl font-bold">
         {name}
       </h1>
+
+      {/* ⭐ NEW: Rating + Review Count */}
+      <div className="mt-2 flex items-center gap-3">
+        <div className="text-yellow-500">
+          {"★".repeat(Math.round(averageRating))}
+          {"☆".repeat(5 - Math.round(averageRating))}
+        </div>
+
+        <span className="font-semibold">
+          {averageRating.toFixed(1)}
+        </span>
+
+        <span className="text-gray-500">
+          ({reviews.length}{" "}
+          {reviews.length === 1 ? "review" : "reviews"})
+        </span>
+      </div>
 
       <p className="mt-2 text-gray-500">
         {brandName}
@@ -85,50 +107,50 @@ export default function ProductInfor({
       </p>
 
       <div className="mt-8">
-          <h2 className="mb-2 font-semibold">
-            Description
-          </h2>
+        <h2 className="mb-2 font-semibold">
+          Description
+        </h2>
 
-          <p className="text-gray-600">
-            {description}
-          </p>
-        </div>
-
-        <div className="mt-8">
-            <p className="mb-2 font-semibold">
-              Quantity
-            </p>
-
-          <div className="flex items-center">
-            <button
-              type="button"
-              disabled={stock === 0}
-              onClick={() =>
-                setQuantity((current) => Math.max(1, current - 1))
-              }
-              className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              -
-            </button>
-
-            <span className="flex h-10 w-12 items-center justify-center border-y">
-              {quantity}
-            </span>
-
-            <button
-              type="button"
-              disabled={stock === 0}
-              onClick={() =>
-                setQuantity((current) => Math.min(stock, current + 1))
-              }
-              className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              +
-            </button>
-          </div>
+        <p className="text-gray-600">
+          {description}
+        </p>
       </div>
 
-     <button
+      <div className="mt-8">
+        <p className="mb-2 font-semibold">
+          Quantity
+        </p>
+
+        <div className="flex items-center">
+          <button
+            type="button"
+            disabled={stock === 0}
+            onClick={() =>
+              setQuantity((current) => Math.max(1, current - 1))
+            }
+            className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            -
+          </button>
+
+          <span className="flex h-10 w-12 items-center justify-center border-y">
+            {quantity}
+          </span>
+
+          <button
+            type="button"
+            disabled={stock === 0}
+            onClick={() =>
+              setQuantity((current) => Math.min(stock, current + 1))
+            }
+            className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      <button
         onClick={handleAddToCart}
         type="button"
         disabled={stock === 0 || addingToCart}
@@ -139,10 +161,7 @@ export default function ProductInfor({
           : addingToCart
             ? "Adding..."
             : "Add to Cart"}
-    </button>
-
+      </button>
     </div>
   );
 }
-
-
