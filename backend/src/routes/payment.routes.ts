@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPaymentByIdController, updatePaymentStatusController } from "../controllers/payment.controller"; 
+import { createMbQrPaymentController, getPaymentByIdController, updatePaymentStatusController } from "../controllers/payment.controller"; 
 import { authMiddleware } from "../middlewares/auth.middlesware";
 import { requireRole } from "../middlewares/role.middlewre";
 
@@ -16,6 +16,12 @@ routes.patch(
     authMiddleware,
     requireRole("ADMIN"),
     updatePaymentStatusController
+);
+
+routes.post(
+    "/:id/mbbank/qr",
+    authMiddleware,
+    createMbQrPaymentController
 );
 
 export default routes;

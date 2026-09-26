@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { getPaymentById, updatePaymentStatus } from "../services/payment.service";
 import { updatePaymentStatusSchema } from "../validations/payment.validation";
+import { success } from "zod";
+import { createMbQrPayment } from "../services/bank.service";
 
 export const getPaymentByIdController = async (
     req: Request,
@@ -72,3 +74,48 @@ export const updatePaymentStatusController = async (
       next(error);
     }
 };
+
+export const createMbQrPaymentController = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try{
+        const paymentId = Number(req.params.id)
+
+        if(!Number.isInteger(paymentId) || paymentId <= 0)
+        {
+            return res.status(400).json({
+                success: false,
+                message:"Invalid payment ID",
+            })
+        }
+
+        const userId = req.user!.userId;
+
+        const payment = await getPaymentById(
+            paymentId,
+            userId
+        );
+
+        if(payment.method !== "BANK_TRANSFER") {
+            return res.status(400).json({
+                success: false,
+                message: "Payment method is not BANK_TRANSFER"
+            })
+        }
+
+        const result = await createMbQrPayment({
+            orderNumber: payment.order.orderNumber,
+            amount: Number(payment.amount)
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "MB Bank QR payment created successfully",
+            data: result
+        });
+    }catch (error) {
+        next(error)
+    }
+}
