@@ -48,21 +48,36 @@ export default function CheckoutPage() {
           
         try{
             setIsSubmitting(true);
-            const result = await createOrder({
-                shippingName,
-                shippingPhone,
-                shippingAddress,
-                shippingCity,
-                shippingDistrict,
-                note,
-                paymentMethod
+           const result = await createOrder({
+              shippingName,
+              shippingPhone,
+              shippingAddress,
+              shippingCity,
+              shippingDistrict,
+              note,
+              paymentMethod
             });
-            
-            console.log("Order data", result)
 
-            router.push(`/orders/${result.order.id}`);
+            console.log("Order data", result);
 
-            
+            if (paymentMethod === "COD") {
+              router.push(`/orders/${result.order.id}`);
+            }
+
+            if (paymentMethod === "BANK_TRANSFER") {
+              router.push(`/orders/${result.order.id}`);
+            }
+
+            if (paymentMethod === "VNPAY") {
+              // Will handle VNPAY payment in the next step
+            }
+
+            if (paymentMethod === "CREDIT_CARD") {
+              // Will handle Credit Card payment in the next step
+            }
+
+            console.log("Order data", result);
+
         } catch(error){
             console.error("Failed to create order :", error);
             setIsSubmitting(false)

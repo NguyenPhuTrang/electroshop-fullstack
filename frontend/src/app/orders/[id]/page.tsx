@@ -104,6 +104,38 @@ export default async function OrderDetailPage({
               Amount:{" "}
               {Number(order.payment.amount).toLocaleString("vi-VN")} VND
             </p>
+
+            {order.payment.method === "BANK_TRANSFER" && (
+              <div className="mt-6 rounded border p-4">
+                <h3 className="font-semibold">
+                  Bank Transfer Information
+                </h3>
+
+                <div className="mt-3 space-y-2">
+                  <p>
+                    Bank: YOUR_BANK_NAME
+                  </p>
+
+                  <p>
+                    Account Number: YOUR_ACCOUNT_NUMBER
+                  </p>
+
+                  <p>
+                    Account Holder: YOUR_ACCOUNT_HOLDER
+                  </p>
+
+                  <p>
+                    Transfer Amount:{" "}
+                    {Number(order.payment.amount).toLocaleString("vi-VN")} VND
+                  </p>
+
+                  <p>
+                    Transfer Note: {order.orderNumber}
+                  </p>
+                </div>
+              </div>
+            )}
+
           </div>
         )}
       </section>
