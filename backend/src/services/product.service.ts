@@ -1,82 +1,85 @@
 import z from "zod";
+import crypto from "crypto";
+
 import { prisma } from "../config/prisma";
 import { createProductSchema } from "../validations/product.validation";
 import { AppError } from "../utils/AppError";
 import { Prisma } from "../generated/prisma/client";
+import cloudinary from "../config/cloudinary";
 
 export const getProducts = async (
   search?: string,
   categoryId?: number,
   brandId?: number,
-  minPrice? : number,
-  maxPrice? : number,
+  minPrice?: number,
+  maxPrice?: number,
   sort?: string,
-  page : number = 1,
-  limit : number = 10
+  page: number = 1,
+  limit: number = 10
 ) => {
   let orderBy;
-    switch (sort) {
-      case "price_asc":
-        orderBy = {
-            price: "asc" as const // asc sắp xếp tăng dần
-            };
-          break;
-      
-      case "price_desc": 
-          orderBy = {
-              price: "desc" as const // desc sắp xếp giảm dần
-              };
-          break;
 
-      case "newest":
-          default: 
-          orderBy = {
-            createdAt: "desc" as const // giảm dần thời gian mới nhất sẽ ở đầu danh sách
-          };
-          break;
-        }
-      
+  switch (sort) {
+    case "price_asc":
+      orderBy = {
+        price: "asc" as const,
+      };
+      break;
+
+    case "price_desc":
+      orderBy = {
+        price: "desc" as const,
+      };
+      break;
+
+    case "newest":
+    default:
+      orderBy = {
+        createdAt: "desc" as const,
+      };
+      break;
+  }
+
   const skip = (page - 1) * limit;
 
-
   const where: Prisma.ProductWhereInput = {
-      ...(search && {
-        OR: [
-          {
-            name: {
-              contains: search,
-              mode: "insensitive",
-            },
+    ...(search && {
+      OR: [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
           },
-          {
-            description: {
-              contains: search,
-              mode: "insensitive",
-            },
+        },
+        {
+          description: {
+            contains: search,
+            mode: "insensitive",
           },
-        ],
-      }),
+        },
+      ],
+    }),
 
-      ...(categoryId !== undefined && {
-        categoryId,
-      }),
+    ...(categoryId !== undefined && {
+      categoryId,
+    }),
 
-      ...(brandId !== undefined && {
-        brandId,
-      }),
+    ...(brandId !== undefined && {
+      brandId,
+    }),
 
-      ...(minPrice !== undefined || maxPrice !== undefined
-        ? {
-            price: {
-              ...(minPrice !== undefined && {
-                gte: minPrice,
-              }),
-              ...(maxPrice !== undefined && {
-                lte: maxPrice,
-              }),
-            },
-          }
-        : {}),
+    ...(minPrice !== undefined || maxPrice !== undefined
+      ? {
+          price: {
+            ...(minPrice !== undefined && {
+              gte: minPrice,
+            }),
+            ...(maxPrice !== undefined && {
+              lte: maxPrice,
+            }),
+          },
+        }
+      : {}),
   };
 
   const products = await prisma.product.findMany({
@@ -84,28 +87,28 @@ export const getProducts = async (
     include: {
       brand: true,
       category: true,
-      images: true
+      images: true,
     },
     orderBy,
     skip,
-    take: limit
+    take: limit,
   });
 
   const total = await prisma.product.count({
     where,
   });
 
-  const totalPages = Math.ceil(total/limit)
+  const totalPages = Math.ceil(total / limit);
 
-    return {
-      products,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages
-      }
-    }
+  return {
+    products,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  };
 };
 
 export const getProductById = async (id: number) => {
@@ -149,27 +152,69 @@ export const getProductBySlug = async (slug: string) => {
 export const createProduct = async (
   data: z.infer<typeof createProductSchema>
 ) => {
-  const existingProduct = await prisma.product.findFirst({
+  // Check duplicate slug
+  const existingProduct = await prisma.product.findUnique({
     where: {
-      OR: [
-        { slug: data.slug },
-        { sku: data.sku },
-      ],
+      slug: data.slug,
     },
   });
 
   if (existingProduct) {
-    if (existingProduct.slug === data.slug) {
-      throw new AppError("Product slug already exists", 409);
-    }
-
-    if (existingProduct.sku === data.sku) {
-      throw new AppError("Product SKU already exists", 409);
-    }
+    throw new AppError(
+      "Product slug already exists",
+      409
+    );
   }
 
+  // Generate unique SKU
+  let sku = generateSku(data.name);
+
+  while (
+    await prisma.product.findUnique({
+      where: {
+        sku,
+      },
+    })
+  ) {
+    sku = generateSku(data.name);
+  }
+
+  // Upload image URLs to Cloudinary
+  const uploadedImages = data.images
+    ? await Promise.all(
+        data.images.map(async (image) => {
+          const result = await cloudinary.uploader.upload(
+            image.url,
+            {
+              folder: "electroshop/products",
+              resource_type: "image",
+            }
+          );
+
+          return {
+            url: result.secure_url,
+            isPrimary: image.isPrimary,
+          };
+        })
+      )
+    : [];
+
+  // Remove images before creating Product
+  const { images, ...productData } = data;
+
   return prisma.product.create({
-    data,
+    data: {
+      ...productData,
+      sku,
+
+      images:
+        uploadedImages.length > 0
+          ? {
+              create: uploadedImages,
+            }
+          : undefined,
+    },
+
     include: {
       category: true,
       brand: true,
@@ -178,9 +223,10 @@ export const createProduct = async (
   });
 };
 
+
 export const updateProduct = async (
   id: number,
- data: {
+  data: {
     name?: string;
     slug?: string;
     sku?: string;
@@ -205,23 +251,35 @@ export const updateProduct = async (
   if (data.slug || data.sku) {
     const duplicateProduct = await prisma.product.findFirst({
       where: {
-          OR: [
-            ...(data.slug ? [{ slug: data.slug }] : []),
-            ...(data.sku ? [{ sku: data.sku }] : []),
-          ],
-              NOT: {
+        OR: [
+          ...(data.slug ? [{ slug: data.slug }] : []),
+          ...(data.sku ? [{ sku: data.sku }] : []),
+        ],
+        NOT: {
           id,
         },
       },
     });
 
     if (duplicateProduct) {
-      if (data.slug && duplicateProduct.slug === data.slug) {
-        throw new AppError("Product slug already exists", 409);
+      if (
+        data.slug &&
+        duplicateProduct.slug === data.slug
+      ) {
+        throw new AppError(
+          "Product slug already exists",
+          409
+        );
       }
 
-      if (data.sku && duplicateProduct.sku === data.sku) {
-        throw new AppError("Product SKU already exists", 409);
+      if (
+        data.sku &&
+        duplicateProduct.sku === data.sku
+      ) {
+        throw new AppError(
+          "Product SKU already exists",
+          409
+        );
       }
     }
   }
@@ -257,4 +315,22 @@ export const deleteProduct = async (id: number) => {
       id,
     },
   });
+};
+
+const generateSku = (name: string) => {
+  const prefix =
+    name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 12) || "PRODUCT";
+
+  const random = crypto
+    .randomBytes(3)
+    .toString("hex")
+    .toUpperCase();
+
+  return `${prefix}-${random}`;
 };
