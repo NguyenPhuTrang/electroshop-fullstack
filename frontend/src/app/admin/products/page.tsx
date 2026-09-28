@@ -1,22 +1,23 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
+
 import useBrands from "@/src/features/brand/hooks/useBrands";
 import { useCategories } from "@/src/features/category/hooks/useCategories";
 import { useProducts } from "@/src/features/product/hooks/useProducts";
 import { ProductSort } from "@/src/features/product/services/product.service";
 import { useState } from "react";
-import Image from "next/image";
 
-
-export default function AdminProductsPage(){
-  // Search/filter
+export default function AdminProductsPage() {
+  // Search / Filter
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brandId, setBrandId] = useState("");
   const [sort, setSort] = useState<ProductSort | "">("");
   const [page, setPage] = useState(1);
 
-  // product
+  // Products
   const {
     products,
     pagination,
@@ -24,22 +25,24 @@ export default function AdminProductsPage(){
     error,
   } = useProducts({
     search: search || undefined,
-    categoryId: categoryId ? Number(categoryId): undefined,
-    brandId: brandId ? Number(brandId): undefined,
+    categoryId: categoryId
+      ? Number(categoryId)
+      : undefined,
+    brandId: brandId
+      ? Number(brandId)
+      : undefined,
     sort: sort || undefined,
     page,
     limit: 10,
-  })
+  });
 
-  const {
-    categories,
-  } = useCategories();
+  // Categories
+  const { categories } = useCategories();
 
-  const{
-    brands,
-  } = useBrands();
-  
-    return (
+  // Brands
+  const { brands } = useBrands();
+
+  return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -53,12 +56,12 @@ export default function AdminProductsPage(){
           </p>
         </div>
 
-        <button
-          type="button"
+        <Link
+          href="/admin/products/create"
           className="rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
         >
           Add Product
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -72,7 +75,7 @@ export default function AdminProductsPage(){
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder="Search products or SKU..."
+            placeholder="Search products..."
             className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none transition focus:border-black"
           />
 
@@ -216,7 +219,7 @@ export default function AdminProductsPage(){
                     {/* Product */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                      {product.images?.[0]?.url ? (
+                        {product.images?.[0]?.url ? (
                           <Image
                             src={product.images[0].url}
                             alt={product.name}

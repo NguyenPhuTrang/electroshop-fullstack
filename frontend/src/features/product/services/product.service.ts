@@ -44,3 +44,26 @@ export async function getProductBySlug(
 
   return response.data.data;
 }
+
+export type CreateProductInput = {
+  name: string;
+  slug: string;
+  description?: string;
+  price: number;
+  salePrice?: number | null;
+  stock: number;
+  categoryId: number;
+  brandId: number;
+  images: {
+    url: string;
+    isPrimary: boolean;
+  }[];
+};
+
+export async function createProduct(
+  data: CreateProductInput
+): Promise<Product> {
+  const response = await api.post("/products", data);
+
+  return response.data.data;
+}
