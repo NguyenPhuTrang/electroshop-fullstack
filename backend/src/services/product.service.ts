@@ -6,8 +6,114 @@ import { createProductSchema } from "../validations/product.validation";
 import { AppError } from "../utils/AppError";
 import { Prisma } from "../generated/prisma/client";
 import cloudinary from "../config/cloudinary";
+import { error } from "console";
 
 export const getProducts = async (
+  search?: string,
+  categoryId?: number,
+  brandId?: number,
+  minPrice?: number,
+  maxPrice?: number,
+  sort?: string,
+  page: number = 1,
+  limit: number = 10,
+) => {
+  let orderBy;
+
+  switch (sort) {
+    case "price_asc":
+      orderBy = {
+        price: "asc" as const,
+      };
+      break;
+
+    case "price_desc":
+      orderBy = {
+        price: "desc" as const,
+      };
+      break;
+
+    case "newest":
+    default:
+      orderBy = {
+        createdAt: "desc" as const,
+      };
+      break;
+  }
+
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.ProductWhereInput = {
+    status: "ACTIVE",
+    ...(search && {
+      OR: [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+
+    ...(categoryId !== undefined && {
+      categoryId,
+    }),
+
+    ...(brandId !== undefined && {
+      brandId,
+    }),
+
+    ...(minPrice !== undefined || maxPrice !== undefined
+      ? {
+          price: {
+            ...(minPrice !== undefined && {
+              gte: minPrice,
+            }),
+            ...(maxPrice !== undefined && {
+              lte: maxPrice,
+            }),
+          },
+        }
+      : {}),
+  };
+
+  const products = await prisma.product.findMany({
+    where,
+    include: {
+      brand: true,
+      category: true,
+      images: true,
+    },
+    orderBy,
+    skip,
+    take: limit,
+  });
+
+  const total = await prisma.product.count({
+    where,
+  });
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    products,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  };
+};
+
+export const getAdminProducts = async (
   search?: string,
   categoryId?: number,
   brandId?: number,
@@ -111,10 +217,16 @@ export const getProducts = async (
   };
 };
 
-export const getProductById = async (id: number) => {
-  const product = await prisma.product.findUnique({
+export const getProductById = async (
+  id: number,
+  includeInactive: boolean = false
+) => {
+  const product = await prisma.product.findFirst({
     where: {
       id,
+      ...(!includeInactive && {
+        status: "ACTIVE",
+      }),
     },
     include: {
       category: true,
@@ -130,10 +242,16 @@ export const getProductById = async (id: number) => {
   return product;
 };
 
-export const getProductBySlug = async (slug: string) => {
-  const product = await prisma.product.findUnique({
+export const getProductBySlug = async (
+  slug: string,
+  isAdmin: boolean = false
+) => {
+  const product = await prisma.product.findFirst({
     where: {
       slug,
+      ...(!isAdmin && {
+        status: "ACTIVE",
+      }),
     },
     include: {
       category: true,
@@ -236,6 +354,10 @@ export const updateProduct = async (
     stock?: number;
     categoryId?: number;
     brandId?: number;
+    images?: {
+      url:string,
+      isPrimary: boolean;
+    }[];
   }
 ) => {
   const existingProduct = await prisma.product.findUnique({
@@ -261,6 +383,7 @@ export const updateProduct = async (
       },
     });
 
+
     if (duplicateProduct) {
       if (
         data.slug &&
@@ -284,19 +407,49 @@ export const updateProduct = async (
     }
   }
 
-  return prisma.product.update({
+  const { images, ...productData } = data; //Lấy images ra để xử lý riêng, còn toàn bộ dữ liệu sản phẩm còn lại cho vào productData , productData là phần nhận tất cả những property còn lại: product lấy ra qua id mà frontend truyền lên
+
+  await prisma.product.update({
     where: {
       id,
     },
-    data: {
-      ...data,
-    },
-    include: {
-      category: true,
-      brand: true,
-      images: true,
-    },
+    data: productData,
   });
+
+  if (images !== undefined) {
+    const uploadedImages = await Promise.all(
+      images.map(async (image) => {
+        const result = await cloudinary.uploader.upload(
+          image.url,
+          {
+            folder: "electroshop/products",
+            resource_type: "image",
+          }
+        );
+
+        return {
+          url: result.secure_url,
+          isPrimary: image.isPrimary,
+        };
+      })
+    );
+
+    await prisma.productImage.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+
+    if (uploadedImages.length > 0) {
+      await prisma.productImage.createMany({
+        data: uploadedImages.map((image) => ({
+          productId: id,
+          url: image.url,
+          isPrimary: image.isPrimary,
+        })),
+      });
+    }
+  }
 };
 
 export const deleteProduct = async (id: number) => {
@@ -304,18 +457,49 @@ export const deleteProduct = async (id: number) => {
     where: {
       id,
     },
+    include: {
+      _count: { // trong Prisma dùng để đếm số bản ghi liên quan
+        select: {
+          orderItems: true,
+          reviews: true,
+        },
+      },
+    },
   });
 
   if (!product) {
     throw new AppError("Product not found", 404);
   }
 
+  const hasRelatedData =
+    product._count.orderItems > 0 ||
+    product._count.reviews > 0;
+
+  // Keep product in database if it has order history or reviews
+  if (hasRelatedData) {
+    return prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        status: "INACTIVE",
+      },
+      include: {
+        category: true,
+        brand: true,
+        images: true,
+      },
+    });
+  }
+
+  // Hard delete if product has no order history or reviews
   return prisma.product.delete({
     where: {
       id,
     },
   });
 };
+
 
 const generateSku = (name: string) => {
   const prefix =

@@ -18,8 +18,5 @@ export const createProductSchema = z.object({
   images: z.array(productImageSchema).optional(),
 });
 
-export const updateProductSchema = createProductSchema
-  .omit({
-    images: true,
-  })
-  .partial();
+export const updateProductSchema =
+  createProductSchema.partial();
