@@ -5,11 +5,13 @@ import Link from "next/link";
 
 import useBrands from "@/src/features/brand/hooks/useBrands";
 import { useCategories } from "@/src/features/category/hooks/useCategories";
-import { useProducts } from "@/src/features/product/hooks/useProducts";
-import { ProductSort } from "@/src/features/product/services/product.service";
+import { useAdminProducts } from "@/src/features/product/hooks/useAdminProducts";
+import { deleteProduct, ProductSort } from "@/src/features/product/services/product.service";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminProductsPage() {
+  const router = useRouter();
   // Search / Filter
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -17,13 +19,15 @@ export default function AdminProductsPage() {
   const [sort, setSort] = useState<ProductSort | "">("");
   const [page, setPage] = useState(1);
 
-  // Products
+  const[deletingId, setDeletingId] = useState<number | null>(null);
+
   const {
     products,
     pagination,
     loading,
     error,
-  } = useProducts({
+    refetch,
+  } = useAdminProducts({
     search: search || undefined,
     categoryId: categoryId
       ? Number(categoryId)
@@ -41,6 +45,31 @@ export default function AdminProductsPage() {
 
   // Brands
   const { brands } = useBrands();
+
+  const handleDeleteProduct = async (id:number) =>{
+    
+    const confirmed = window.confirm("Are you sure you want to delete this product");
+
+    if(!confirmed)
+    {
+      return;
+    }
+  
+    try{
+      setDeletingId(id);
+
+      await deleteProduct(id);
+
+      await refetch();
+      
+    } catch(error){
+      console.error("Failed to delete product",error);
+    }finally{
+      setDeletingId(null)
+    }
+  
+  }
+
 
   return (
     <div className="space-y-6">
@@ -204,6 +233,10 @@ export default function AdminProductsPage() {
                     Stock
                   </th>
 
+                  <th className="px-6 py-4 font-semibold text-gray-700">
+                    Status
+                  </th>
+
                   <th className="px-6 py-4 text-right font-semibold text-gray-700">
                     Actions
                   </th>
@@ -256,10 +289,7 @@ export default function AdminProductsPage() {
 
                     {/* Price */}
                     <td className="px-6 py-4 font-medium text-gray-900">
-                      {Number(
-                        product.price
-                      ).toLocaleString("vi-VN")}{" "}
-                      VND
+                      {Number(product.price).toLocaleString("vi-VN")} VND
                     </td>
 
                     {/* Stock */}
@@ -277,21 +307,41 @@ export default function AdminProductsPage() {
                       </span>
                     </td>
 
+                    {/* Status */}
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                          product.status === "ACTIVE"
+                            ? "bg-green-100 text-green-700"
+                            : product.status === "INACTIVE"
+                            ? "bg-gray-100 text-gray-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {product.status}
+                      </span>
+                    </td>
+
                     {/* Actions */}
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
-                        <button
+                       <button
                           type="button"
+                          onClick={() =>
+                            router.push(`/admin/products/${product.id}/edit`)
+                          }
                           className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                         >
                           Edit
-                        </button>
+                      </button>
 
                         <button
                           type="button"
-                          className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                          onClick={() => handleDeleteProduct(product.id)}
+                          disabled={deletingId === product.id}
+                          className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          Delete
+                          {deletingId === product.id ? "Deleting..." : "Delete"}
                         </button>
                       </div>
                     </td>

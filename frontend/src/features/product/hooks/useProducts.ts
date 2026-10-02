@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getProducts, GetProductsParams } from "../services/product.service";
 import { Product } from "../types/product";
 
@@ -29,38 +29,32 @@ export function useProducts(params: GetProductsParams) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        const timer = setTimeout(async () => { // debounce đang áp dụng cho tất cả các param nằm trong dependency của useEffect
-            try{
-                setLoading(true);
-                setError("");
 
-                const data = await getProducts({
-                    search,
-                    sort,
-                    categoryId,
-                    brandId,
-                    minPrice,
-                    maxPrice,
-                    page,
-                    limit,
-                });
+    const fetchProducts = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError("");
 
-                setProducts(data.products);
-                setPagination(data.pagination);
-            }catch(error){
-                console.error("Failed to get products", error);
-                setError("Faile to load products");
-            }finally{
-                setLoading(false)
-            }
-        }, 500);
+            const data = await getProducts({
+            search,
+            sort,
+            categoryId,
+            brandId,
+            minPrice,
+            maxPrice,
+            page,
+            limit,
+            });
 
-        return () => {
-            clearTimeout(timer);
-        };
-
-    }, [
+            setProducts(data.products);
+            setPagination(data.pagination);
+        } catch (error) {
+            console.error("Failed to get products", error);
+            setError("Failed to load products");
+        } finally {
+            setLoading(false);
+        }
+        }, [
         search,
         sort,
         categoryId,
@@ -69,12 +63,23 @@ export function useProducts(params: GetProductsParams) {
         maxPrice,
         page,
         limit,
-    ]);
+]);
 
-   return {
+   useEffect(() => {
+  const timer = setTimeout(() => { // debounce đang áp dụng cho tất cả các param nằm trong dependency của useEffect
+    fetchProducts();
+  }, 500);
+
+  return () => {
+    clearTimeout(timer);
+  };
+}, [fetchProducts]);
+
+    return {
     products,
     pagination,
     loading,
     error,
-  };
+    refetch: fetchProducts,
+    };
 }
