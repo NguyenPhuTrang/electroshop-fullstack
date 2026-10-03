@@ -179,6 +179,33 @@ export const getOrderById = async (
     return order;
 }
 
+export const getAdminOrderById = async (
+    orderId: number
+) => {
+    const order = await prisma.order.findUnique({
+        where: {
+            id: orderId,
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+            items: true,
+            payment: true,
+        },
+    });
+    
+      if (!order) {
+        throw new AppError("Order not found", 404);
+    }
+
+    return order;
+}
+
 export const updateOrderStatus = async (
     orderId: number,
     status: OrderStatus
