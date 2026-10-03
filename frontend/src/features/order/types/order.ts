@@ -37,23 +37,35 @@ export type OrderPayment = {
   updatedAt: string;
 };
 
+export type OrderUser = {
+  id: number;
+  name: string;
+  email: string;
+};
+
 export type Order = {
   id: number;
   userId: number;
   orderNumber: string;
   status: string;
+
   shippingName: string;
   shippingPhone: string;
   shippingAddress: string;
   shippingCity: string;
   shippingDistrict: string;
+
   subtotal: string;
   shippingFee: string;
   discount: string;
   total: string;
+
   note: string | null;
+
   createdAt: string;
   updatedAt: string;
+
+  user: OrderUser;
   items: OrderItem[];
   payment: OrderPayment | null;
 };
