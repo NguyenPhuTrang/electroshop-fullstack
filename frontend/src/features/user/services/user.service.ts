@@ -1,5 +1,5 @@
 import api from "@/src/lib/axios";
-import { ChangePasswordData, UpdateProfileData, User } from "../types/user";
+import { AdminUserParams, AdminUsersResponse, ChangePasswordData, UpdateProfileData, User } from "../types/user";
 
 
 export const getMyProfile = async (): Promise<User> => {
@@ -47,3 +47,37 @@ export const uploadAvatar = async (source: File | string) => {
 
   return response.data.data;
 };
+
+export const getAdminUsers = async(
+  params?: AdminUserParams
+): Promise<AdminUsersResponse> => {
+
+  const response = await api.get("/users/admin",{
+    params
+  });
+
+  return{
+    users: response.data.data,
+    pagination: response.data.pagination
+  }
+}
+
+export const getAdminUserById = async (
+  userId : number
+): Promise<User> => {
+  const response = await api.get(
+    `/users/admin/${userId}`
+  );
+
+  return response.data.data;
+
+}
+
+export const updateAdminUserStatus = async (
+  userId: number,
+  status: string
+): Promise<User> => {
+  const response = await api.patch(`/users/admin/${userId}/status`,{status}); // { status } là object gửi lên backend. ví dụ const status = "BANNED";
+
+  return response.data.data;
+}

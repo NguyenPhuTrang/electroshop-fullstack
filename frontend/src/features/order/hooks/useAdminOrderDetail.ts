@@ -14,7 +14,7 @@ export function useAdminOrderDetail(id: number) {
     const [error, setError] = useState("");
 
     // Dùng khi component bên ngoài muốn chủ động tải lại order
-    const refetch = useCallback(async () => {
+    const refetchOrderDetail = useCallback(async () => {
         try {
             setLoading(true);
             setError("");
@@ -79,9 +79,7 @@ useEffect(() => {
     return {
     order,
     loading,
-    error: isValidId
-        ? error
-        : "Invalid order ID",
-    refetch,
+    error: isValidId ? error : "Invalid order ID",
+    refetch: refetchOrderDetail,
     };
 }

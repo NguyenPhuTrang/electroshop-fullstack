@@ -18,3 +18,21 @@ export type ChangePasswordData = {
   currentPassword: string;
   newPassword: string;
 };
+
+export type AdminUserParams = {
+  page?: number;
+  limit?: number;
+  role?: string;
+  status?: string;
+  search?: string;
+};
+
+export type AdminUsersResponse = {
+  users: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
