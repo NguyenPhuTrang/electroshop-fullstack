@@ -1,4 +1,5 @@
 import {prisma} from "../config/prisma";
+import { Address } from "../generated/prisma/client";
 import { AppError } from "../utils/AppError";
 
 export const createAddress = async (
@@ -168,3 +169,25 @@ export const deleteAddress = async (
         },
     });
 };
+
+export const getAdminAddressesByUserId = async (
+    userId : number,
+) => {
+    const addresses = await prisma.address.findMany({
+        where: {
+            userId
+        },
+        orderBy: [
+            {
+                isDefault: "desc", // DESC = giảm dần (descending).
+            },
+            {
+                createdAt: "desc"
+            }
+        ]
+    });
+
+    return addresses;
+}
+
+

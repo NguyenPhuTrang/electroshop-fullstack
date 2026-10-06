@@ -7,7 +7,8 @@ import {
     updateOrderStatusController,
     getAllOrdersController,
     cancelOrderController,
-    getAdminOrderByIdController
+    getAdminOrderByIdController,
+    getAdminOrdersByUserIdController
 } from "../controllers/order.controller";
 import { requireRole } from "../middlewares/role.middlewre";
 
@@ -36,6 +37,13 @@ routes.get(
     "/:id",
     authMiddleware,
     getOrderByIdController
+);
+
+routes.get(
+    "/admin/users/:userId",
+    authMiddleware,
+    requireRole("ADMIN"),
+    getAdminOrdersByUserIdController
 );
 
 routes.get(

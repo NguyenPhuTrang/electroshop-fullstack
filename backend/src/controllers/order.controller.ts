@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { createOrderSchema } from "../validations/order.validation";
-import { cancelOrder, createOrder, getAdminOrderById, getAllOrders, getOrderById, getOrdersByUserId, updateOrderStatus } from "../services/order.service";
+import { cancelOrder, createOrder, getAdminOrderById, getAdminOrdersByUserId, getAllOrders, getOrderById, getOrdersByUserId, updateOrderStatus } from "../services/order.service";
 import { OrderStatus } from "../generated/prisma/enums";
+import { success } from "zod";
 
 
 export const createOrderController = async (
@@ -76,7 +77,7 @@ export const getOrderByIdController = async (
             });
         }
 
-        const userId = req.user!.userId;
+        const userId = req.user!.userId; // → lấy userId từ access token
 
         const order = await getOrderById(
             orderId,
@@ -233,6 +234,65 @@ export const cancelOrderController = async(
         });
     }catch(error)
     {
+        next(error);
+    }
+};
+
+export const getAdminOrdersByUserIdController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = Number(req.params.userId);
+
+        if (!Number.isInteger(userId) || userId <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid user Id",
+            });
+        }
+
+        const page = req.query.page === undefined ? 1 : Number(req.query.page);
+        const limit = req.query.limit === undefined ? 10 : Number(req.query.limit);
+        const status = req.query.status === undefined ? undefined : String(req.query.status).toUpperCase();
+        const search = req.query.search === undefined ? undefined : String(req.query.search).trim();
+
+        if (
+            !Number.isInteger(page) || !Number.isInteger(limit) || page <= 0 || limit <= 0
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid pagination parameters",
+            });
+        }
+
+        const validStatuses = Object.values(OrderStatus).filter(
+            (v) => typeof v === "string"
+        ) as string[];
+
+        if (status !== undefined && !validStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order status",
+            });
+        }
+
+        const result = await getAdminOrdersByUserId(
+            userId,
+            page,
+            limit,
+            status as OrderStatus | undefined,
+            search
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "User order retrieved successfully",
+            data: result.orders,
+            pagination: result.pagination,
+        });
+    } catch (error) {
         next(error);
     }
 };

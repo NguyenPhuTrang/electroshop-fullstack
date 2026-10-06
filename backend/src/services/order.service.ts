@@ -390,3 +390,48 @@ export const cancelOrder = async (
         });
     });
 };
+
+export const getAdminOrdersByUserId = async (
+    userId: number,
+    page: number,
+    limit: number,
+    status?: OrderStatus,
+    search?: string
+) => {
+    const skip = (page - 1) * limit;
+
+    const where = {
+        userId,
+        ...(status && { status }),
+        ...(search && {
+            orderNumber: {
+                contains: search,
+                mode: "insensitive" as const,
+            },
+        }),
+    };
+
+    const [orders, total] = await Promise.all([
+        prisma.order.findMany({
+            where,
+            skip,
+            take: limit,
+            include: {
+                items: true,
+                payment: true,
+            },
+            orderBy: { createdAt: "desc" },
+        }),
+        prisma.order.count({ where }),
+    ]);
+
+    return {
+        orders,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
+};

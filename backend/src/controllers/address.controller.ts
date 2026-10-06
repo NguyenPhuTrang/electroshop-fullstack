@@ -5,8 +5,10 @@ import {
     getAddressById,
     updateAddress,
     deleteAddress,
+    getAdminAddressesByUserId,
 } from "../services/address.service";
 import { createAddressSChema, updateAddressSchema } from "../validations/address.validation";
+import { success } from "zod";
 
 
 
@@ -169,3 +171,35 @@ export const deleteAddressController = async (
        next(error);
     }
 };
+
+export const getAdminaddressesController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+
+    try{
+        const userId = Number(req.params.userId);
+        
+        if(!Number.isInteger(userId) || userId <= 0)
+        {
+            res.status(400).json({
+                success: false,
+                massage: "Invalid user Id",
+            })
+        }
+        
+        const addresses = await getAdminAddressesByUserId(
+            userId
+        );
+        
+        return res.status(200).json({
+            success: true,
+            message: " User addresses retrieved successfully",
+            data: addresses,
+        });
+
+    }catch(error){
+        next(error);
+    }
+}

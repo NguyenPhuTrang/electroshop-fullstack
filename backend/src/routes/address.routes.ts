@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middlesware";
-import { createAddressController, deleteAddressController, getAddressByIdController, getAddressController, updateAddressController } from "../controllers/address.controller";
+import { createAddressController, deleteAddressController, getAddressByIdController, getAddressController, getAdminaddressesController, updateAddressController } from "../controllers/address.controller";
+import { requireRole } from "../middlewares/role.middlewre";
 
 const routes = Router();
 
@@ -33,5 +34,12 @@ routes.delete(
     authMiddleware,
     deleteAddressController
 )
+
+routes.get(
+    "/admin/users/:userId",
+    authMiddleware,
+    requireRole("ADMIN"),
+    getAdminaddressesController
+);
 
 export default routes;
