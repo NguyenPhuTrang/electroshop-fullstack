@@ -1,11 +1,21 @@
 "use client";
 
 import { useAdminOrderDetail } from "@/src/features/order/hooks/useAdminOrderDetail";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 export default function AdminOrderDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const userId = searchParams.get("userId");
+
+    const backPath = userId
+    ? `/admin/users/${userId}`
+    : "/admin/orders";
+
+    const backLabel = userId
+        ? "Back to User"
+        : "Back to Orders";
 
     const id = Number(params.id);
 
@@ -83,7 +93,11 @@ export default function AdminOrderDetailPage() {
                         <button
                             type="button"
                             onClick={() =>
-                                router.push("/admin/orders")
+                              router.push(
+                                    userId
+                                        ? `/admin/users/${userId}`
+                                        : "/admin/orders"
+                                )
                             }
                             className="mt-4 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 hover:text-gray-900"
                         >
@@ -105,12 +119,10 @@ export default function AdminOrderDetailPage() {
                         <div>
                             <button
                                 type="button"
-                                onClick={() =>
-                                    router.push("/admin/orders")
-                                }
+                                onClick={() => router.push(backPath)}
                                 className="mb-3 inline-flex items-center text-sm font-medium text-gray-500 transition hover:text-gray-900"
                             >
-                                ← Back to Orders
+                                ← {backLabel}
                             </button>
 
                             <h1 className="text-2xl font-semibold tracking-tight text-gray-900">

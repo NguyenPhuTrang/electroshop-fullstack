@@ -4,17 +4,19 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
   getAdminOrders,
+  getAdminOrdersByUser,
   type AdminOrderParams,
 } from "../services/order.service";
 
 import type { Order } from "../types/order";
 
-export function useAdminOrders(params: AdminOrderParams) {
+export function useAdminOrders(params: AdminOrderParams  & { userId?: number } ) {
   const {
     page = 1,
     limit = 10,
     search,
     status,
+    userId,
   } = params;
 
   const [orders, setOrders] = useState<Order[]>([]);
@@ -35,15 +37,31 @@ export function useAdminOrders(params: AdminOrderParams) {
       setLoading(true);
       setError("");
 
-      const data = await getAdminOrders({
-        page,
-        limit,
-        search,
-        status,
-      });
+     const data = userId ? await getAdminOrdersByUser(userId, {
+      page,
+      limit,
+      search,
+      status,
+    })
+  : await getAdminOrders({
+      page,
+      limit,
+      search,
+      status,
+    });
 
       setOrders(data.orders);
-      setPagination(data.pagination);
+
+      console.log("Admin orders data:", data);
+
+      setPagination(
+          data.pagination ?? {
+              page,
+              limit,
+              total: 0,
+              totalPages: 0,
+          }
+      );
     } catch (error) {
       console.error(
         "Failed to get admin orders",
@@ -59,6 +77,7 @@ export function useAdminOrders(params: AdminOrderParams) {
     limit,
     search,
     status,
+    userId
   ]);
 
   useEffect(() => {

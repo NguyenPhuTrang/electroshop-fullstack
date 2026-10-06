@@ -43,3 +43,13 @@ export const deleteAddress = async (
 
     return response.data;
 }
+
+export const getAdminAddresses = async (
+    userId: number
+): Promise<Address[]> => {
+    const response = await api.get(
+        `/addresses/admin/users/${userId}`
+    );
+
+    return response.data.data;
+};

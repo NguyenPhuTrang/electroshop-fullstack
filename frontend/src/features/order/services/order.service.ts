@@ -69,3 +69,28 @@ export const getAdminOrderById = async (
   return response.data.data;
 }
 
+export type AdminUserOrdersResponse = {
+  orders: Order[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export const getAdminOrdersByUser = async (
+  userId: number,
+  params?: AdminOrderParams
+): Promise<AdminUserOrdersResponse> => {
+  const response = await api.get(`/orders/admin/users/${userId}`, {
+    params,
+  });
+  console.log("raw response", response.data);
+  return{
+    orders: response.data.data,
+    pagination: response.data.pagination,
+
+  }
+  
+}

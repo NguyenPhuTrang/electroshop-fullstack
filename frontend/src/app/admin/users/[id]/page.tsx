@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
+import { useAdminUserAddresses } from "@/src/features/address/hooks/useAdminUserAddresses";
+import { useAdminOrders } from "@/src/features/order/hooks/useAdminOrders";
 
 export default function AdminUserDetailPage() {
     const params = useParams();
@@ -14,6 +16,7 @@ export default function AdminUserDetailPage() {
 
     const [status, setStatus] = useState("");
     const [updatingStatus, setUpdatingStatus] = useState(false);
+    const [ordersPage, setOrdersPage] = useState(1);
 
     const {
         user,
@@ -21,6 +24,23 @@ export default function AdminUserDetailPage() {
         error,
         updateUserStatus
     } = useAdminUserDetail(id);
+
+    const {
+        orders,
+        pagination: ordersPagination,
+        loading: ordersLoading,
+        error: ordersError,
+    } = useAdminOrders({
+        userId: id,
+        page: ordersPage,
+        limit: 10,
+    });
+
+    const {
+        addresses,
+        loading: addressesLoading,
+        error: addressesError,
+    } = useAdminUserAddresses(id);
 
     const formatDateTime = (value: string) => {
         return new Date(value).toLocaleString("en-US", {
@@ -321,6 +341,221 @@ export default function AdminUserDetailPage() {
                         </div>
                     </section>
                 </div>
+                <section className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div className="border-b border-gray-100 px-6 py-4">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                            Addresses
+                        </h2>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                            Saved addresses for this user
+                        </p>
+                    </div>
+
+                    <div className="p-6">
+                        {addressesLoading ? (
+                            <p className="text-sm text-gray-500">
+                                Loading addresses...
+                            </p>
+                        ) : addressesError ? (
+                            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+                                {addressesError}
+                            </div>
+                        ) : addresses.length === 0 ? (
+                            <p className="text-sm text-gray-500">
+                                No addresses found.
+                            </p>
+                        ) : (
+                            <div className="grid gap-4 lg:grid-cols-2">
+                                {addresses.map((address) => (
+                                    <div
+                                        key={address.id}
+                                        className="rounded-xl border border-gray-200 p-5"
+                                    >
+                                        <div className="mb-4 flex items-start justify-between gap-4">
+                                            <div>
+                                                <p className="font-semibold text-gray-900">
+                                                    {address.fullName}
+                                                </p>
+
+                                                <p className="mt-1 text-sm text-gray-500">
+                                                    {address.phone}
+                                                </p>
+                                            </div>
+
+                                            {address.isDefault && (
+                                                <span className="rounded-full border border-green-300 px-3 py-1 text-xs font-semibold text-green-700">
+                                                    Default
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-1.5 text-sm text-gray-600">
+                                            <p>{address.address}</p>
+
+                                            <p>
+                                                {address.district}, {address.city}
+                                            </p>
+
+                                            {address.postalCode && (
+                                                <p>
+                                                    Postal Code: {address.postalCode}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </section>
+                
+                <section className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div className="border-b border-gray-100 px-6 py-4">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                            Orders
+                        </h2>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                            Orders placed by this user
+                        </p>
+                    </div>
+
+                    <div className="p-6">
+                        {ordersLoading ? (
+                            <p className="text-sm text-gray-500">
+                                Loading orders...
+                            </p>
+                        ) : ordersError ? (
+                            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+                                {ordersError}
+                            </div>
+                        ) : orders.length === 0 ? (
+                            <p className="text-sm text-gray-500">
+                                No orders found.
+                            </p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full">
+                                    <thead className="border-b border-gray-200">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                Order
+                                            </th>
+
+                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                Total
+                                            </th>
+
+                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                Status
+                                            </th>
+
+                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                Created
+                                            </th>
+
+                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody className="divide-y divide-gray-200">
+                                        {orders.map((order) => (
+                                            <tr
+                                                key={order.id}
+                                                className="transition hover:bg-gray-50"
+                                            >
+                                                <td className="px-4 py-4">
+                                                    <p className="font-medium text-gray-900">
+                                                        {order.orderNumber}
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-gray-500">
+                                                        ID: {order.id}
+                                                    </p>
+                                                </td>
+
+                                                <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                                                    {Number(order.total).toLocaleString(
+                                                        "en-US",
+                                                        {
+                                                            style: "currency",
+                                                            currency: "USD",
+                                                        }
+                                                    )}
+                                                </td>
+
+                                                <td className="px-4 py-4">
+                                                    <span
+                                                        className={`inline-flex min-w-28 items-center justify-center rounded-xl px-3 py-2 text-xs font-bold ${getStatusClassName(
+                                                            order.status
+                                                        )}`}
+                                                    >
+                                                        {order.status}
+                                                    </span>
+                                                </td>
+
+                                                <td className="px-4 py-4 text-sm text-gray-600">
+                                                    {formatDateTime(order.createdAt)}
+                                                </td>
+
+                                                <td className="px-4 py-4">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                          router.push(`/admin/orders/${order.id}?userId=${user.id}`)
+                                                        }
+                                                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                                                    >
+                                                        View
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+
+                       {!ordersLoading && ordersPagination.totalPages > 1 && (
+                            <div className="mt-5 flex flex-col items-center justify-between gap-4 sm:flex-row">
+                                <p className="text-sm text-gray-500">
+                                    Page {ordersPagination.page} of{" "}
+                                    {ordersPagination.totalPages}
+                                </p>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        disabled={ordersPage <= 1}
+                                        onClick={() =>
+                                            setOrdersPage((current) => current - 1)
+                                        }
+                                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Previous
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        disabled={
+                                            ordersPage >= ordersPagination.totalPages
+                                        }
+                                        onClick={() =>
+                                            setOrdersPage((current) => current + 1)
+                                        }
+                                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        
+                    </div>
+                </section>
             </div>
         </div>
     );
