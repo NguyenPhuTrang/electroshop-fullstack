@@ -33,6 +33,7 @@ model User {
   cart      Cart?
   orders    Order[]
   reviews   Review[]
+  reviewReplies ReviewReply[] @relation("ReviewReplies")
 }
 
 model Address {
@@ -246,4 +247,17 @@ model Review {
 
   @@unique([userId, productId])
   @@index([productId])
+  reply ReviewReply?
+}
+
+model ReviewReply {
+  id        Int      @id @default(autoincrement())
+  reviewId  Int      @unique
+  adminId   Int
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  admin  User   @relation("ReviewReplies", fields: [adminId], references: [id])
 }

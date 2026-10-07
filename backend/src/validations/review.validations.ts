@@ -32,4 +32,19 @@ export const updateReviewSchema = z.object({
     }
 );
 
+export const createReviewReplySchema = z.object({
+    comment: z
+        .string()
+        .trim()
+        .min(1, "Reply comment is required")
+        .max(1000, "Reply comment must be at most 1000 characters"),
+});
+
+export const updateReviewReplySchema = z.object({
+    comment: z
+        .string()
+        .trim()
+        .min(1, "Reply comment is required")
+        .max(1000, "Reply comment must be at most 1000 characters"),
+});
 
