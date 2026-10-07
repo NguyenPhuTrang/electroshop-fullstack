@@ -68,6 +68,24 @@ export default function ReviewList({
                   {review.comment}
                 </p>
               )}
+
+              {review.reply && (
+                <div className="mt-4 border-l-2 border-gray-200 pl-4">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-gray-900">
+                      Electroshop Response
+                    </p>
+
+                    <span className="text-xs text-gray-400">
+                      {review.reply.admin.name}
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-sm leading-6 text-gray-600">
+                    {review.reply.comment}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>
