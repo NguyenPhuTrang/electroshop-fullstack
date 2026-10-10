@@ -13,8 +13,9 @@ export type GetProductsParams = {
   minPrice?: number,
   maxPrice?: number,
   sort?: ProductSort,
-  page?: number;
-  limit?: number;
+  page?: number,
+  limit?: number,
+  lowStock?: boolean
 };
 
 export type GetProductResponse = {
@@ -23,7 +24,7 @@ export type GetProductResponse = {
     page: number,
     limit: number,
     total: number,
-    totalPages: number;
+    totalPages: number
   };
 };
 
@@ -35,7 +36,7 @@ export async function getProducts(
   });
 
   return response.data.data;
-}
+};
 
 export async function getAdminProducts(
   params: GetProductsParams
@@ -45,7 +46,7 @@ export async function getAdminProducts(
   });
 
   return response.data.data;
-}
+};
 
 export async function getProductBySlug(
   slug: string
@@ -53,7 +54,7 @@ export async function getProductBySlug(
   const response = await api.get(`/products/slug/${slug}`);
 
   return response.data.data;
-}
+};
 
 export type CreateProductInput = {
   name: string;
@@ -116,4 +117,4 @@ export async function deleteProduct(
   const response = await api.delete(`/products/${id}`);
 
   return response.data.data;
-}
+};

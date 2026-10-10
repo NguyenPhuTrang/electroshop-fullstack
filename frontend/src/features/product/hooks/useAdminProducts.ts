@@ -18,6 +18,7 @@ export function useAdminProducts(params: GetProductsParams) {
     maxPrice,
     page,
     limit,
+    lowStock
   } = params;
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -46,6 +47,7 @@ export function useAdminProducts(params: GetProductsParams) {
         maxPrice,
         page,
         limit,
+        lowStock
       });
 
       setProducts(data.products);
@@ -65,6 +67,7 @@ export function useAdminProducts(params: GetProductsParams) {
     maxPrice,
     page,
     limit,
+    lowStock
   ]);
 
   useEffect(() => {
