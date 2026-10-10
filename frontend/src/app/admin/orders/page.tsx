@@ -1,8 +1,8 @@
 "use client";
 
 import { useAdminOrders } from "@/src/features/order/hooks/useAdminOrders";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 const ORDER_STATUSES = [
     "PENDING",
@@ -13,11 +13,14 @@ const ORDER_STATUSES = [
     "CANCELLED",
 ];
 
-export default function AdminOrderPage() {
+ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
     const router = useRouter();
+    const searchParams = useSearchParams(); // // useSearchParams() là hook của Next.js, dùng để đọc các query parameters trên URL.
+
+    // Next.js có thể cần một Suspense boundary khi xử lý useSearchParams() trong quá trình render trang. Vì vậy, chúng ta bọc component con như bên dưới
 
     const [search, setSearch] = useState("");
-    const [status, setStatus] = useState("");
+    const status = searchParams.get("status") ?? ""; // lấy trạng PENDING thái đơn hàng từ URL sau mỗi lần render và lưu vào state nếu không lấy được thì trả về " ";
     const [page, setPage] = useState(1);
 
     const limit = 10;
@@ -27,7 +30,7 @@ export default function AdminOrderPage() {
         pagination,
         loading,
         error,
-    } = useAdminOrders({
+    } = useAdminOrders({ // Lấy dữ liệu đơn hàng từ API và quản lý trạng thái tải dữ liệu
         search,
         status: status || undefined,
         page,
@@ -41,12 +44,27 @@ export default function AdminOrderPage() {
         setPage(1);
     };
 
-    const handleStatusChange = (
-        value: string
-    ) => {
-        setStatus(value);
-        setPage(1);
-    };
+const handleStatusChange = (value: string) => {
+    const params = new URLSearchParams(
+        searchParams.toString()
+    );
+
+    if (value) {
+        params.set("status", value);
+    } else {
+        params.delete("status");
+    }
+
+    const query = params.toString();
+
+    router.replace(
+        query
+            ? `/admin/orders?${query}`
+            : "/admin/orders"
+    );
+
+    setPage(1);
+};
 
     const formatPrice = (value: string) => {
         return Number(value).toLocaleString("en-US", {
@@ -363,5 +381,19 @@ export default function AdminOrderPage() {
                     </div>
                 )}
         </div>
+    );
+}
+
+export default function AdminOrderPage() { // Component chính của trang
+    return (
+        <Suspense //Xử lý trạng thái chờ của component con
+            fallback={ // Giao diện tạm thời khi component con đang chờ
+                <div className="flex min-h-40 items-center justify-center text-sm text-gray-500">
+                    Loading orders...
+                </div>
+            }
+        >
+            <AdminOrderContent />  
+        </Suspense> 
     );
 }
