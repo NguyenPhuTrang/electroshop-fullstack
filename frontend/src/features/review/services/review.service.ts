@@ -13,7 +13,8 @@ export type AdminReviewParams = {
     page?: number,
     limit?: number,
     search?: string,
-    rating?: number
+    rating?: number,
+    unanswered?: boolean;
 };
 
 export type AdminReviewResponse = {

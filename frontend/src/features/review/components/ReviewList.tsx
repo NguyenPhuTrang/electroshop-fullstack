@@ -69,23 +69,41 @@ export default function ReviewList({
                 </p>
               )}
 
-              {review.reply && (
-                <div className="mt-4 border-l-2 border-gray-200 pl-4">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-gray-900">
-                      Electroshop Response
+             {review.reply && (
+                  <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-medium text-gray-400">
+                        ↳
+                      </span>
+
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">
+                        E
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Electroshop
+                        </p>
+
+                        <p className="text-xs text-gray-500">
+                          Official response
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 rounded-md border-l-2 border-gray-300 pl-3">
+                      <p className="text-sm leading-6 text-gray-700">
+                        {review.reply.comment}
+                      </p>
+                    </div>
+
+                    <p className="mt-3 text-xs text-gray-400">
+                      {new Date(
+                        review.reply.createdAt
+                      ).toLocaleDateString("en-US")}
                     </p>
-
-                    <span className="text-xs text-gray-400">
-                      {review.reply.admin.name}
-                    </span>
                   </div>
-
-                  <p className="mt-2 text-sm leading-6 text-gray-600">
-                    {review.reply.comment}
-                  </p>
-                </div>
-              )}
+                )}
             </div>
           ))}
         </div>

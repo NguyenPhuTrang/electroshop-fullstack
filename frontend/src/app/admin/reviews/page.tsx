@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useAdminReviews } from "@/src/features/review/hooks/useAdminReviews";
 import { createReviewReply, updateReviewReply } from "@/src/features/review/services/review.service";
 import { Review } from "@/src/features/review/types/review";
+import { useSearchParams } from "next/navigation";
 
 const REVIEW_RATINGS = [5, 4, 3, 2, 1];
 
-export default function AdminReviewsPage() {
+function AdminReviewsContent() {
+
+    const searchParams = useSearchParams();
+
+    const unanswered = searchParams.get("unanswered") === "true";
+
     const [search, setSearch] = useState("");
+    
     const [rating, setRating] = useState("");
     const [page, setPage] = useState(1);
 
@@ -28,6 +35,7 @@ export default function AdminReviewsPage() {
     } = useAdminReviews({
         search: search || undefined,
         rating: rating ? Number(rating) : undefined,
+        unanswered,
         page,
         limit,
     });
@@ -141,8 +149,10 @@ const handleSubmitReply = async () => {
                     Review Management
                 </h1>
 
-                <p className="mt-1 text-sm text-gray-500">
-                    Manage customer product reviews
+               <p className="mt-1 text-sm text-gray-500">
+                    {unanswered
+                        ? "Showing reviews awaiting an Admin response"
+                        : "Manage customer product reviews"}
                 </p>
             </div>
 
@@ -476,5 +486,19 @@ const handleSubmitReply = async () => {
                     </div>
                 )}
         </div>
+    );
+}
+
+export default function AdminReviewsPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex min-h-40 items-center justify-center text-sm text-gray-500">
+                    Loading reviews...
+                </div>
+            }
+        >
+            <AdminReviewsContent />
+        </Suspense>
     );
 }

@@ -15,6 +15,7 @@ export function useAdminReviews(params: AdminReviewParams) {
         limit = 10,
         search,
         rating,
+        unanswered,
     } = params;
 
     const [reviews, setReviews] = useState<Review[]>([]);
@@ -40,6 +41,7 @@ export function useAdminReviews(params: AdminReviewParams) {
                 limit,
                 search,
                 rating,
+                unanswered,
             });
 
             setReviews(data.reviews);
@@ -59,6 +61,7 @@ export function useAdminReviews(params: AdminReviewParams) {
         limit,
         search,
         rating,
+        unanswered,
     ]);
 
     useEffect(() => {
