@@ -164,6 +164,7 @@ export type AdminReviewParams = {
   limit?: number;
   search?: string;
   rating?: number;
+  unanswered?: boolean;
 };
 
 export const getAdminReviews = async (
@@ -173,10 +174,18 @@ export const getAdminReviews = async (
   const limit = params.limit ?? 10;
   const search = params.search?.trim();
   const rating = params.rating;
+  const unanswered = params.unanswered ?? false;
 
   const skip = (page - 1) * limit;
 
   const where: Prisma.ReviewWhereInput = {
+    ...(unanswered
+    ? {
+        reply: {
+          is: null,
+        },
+      }
+    : {}),
     ...(rating // Nếu có rating thì thêm điều kiện rating vào object where; nếu không có thì không thêm gì.
       ? {
           rating,

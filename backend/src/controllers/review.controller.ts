@@ -151,6 +151,23 @@ export const getAdminReviewsController = async (
 
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
 
+    const unansweredQuery = req.query.unanswered;
+        let unanswered: boolean | undefined;
+
+        if (unansweredQuery !== undefined) {
+            if (
+                typeof unansweredQuery !== "string" ||
+                !["true", "false"].includes(unansweredQuery)
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid unanswered parameter",
+                });
+            }
+
+            unanswered = unansweredQuery === "true";
+        }
+
     if(!Number.isInteger(page) || page <=0){
       return res.status(400).json({
         success: false,
@@ -179,7 +196,8 @@ export const getAdminReviewsController = async (
       page,
       limit,
       search,
-      rating
+      rating,
+      unanswered,
     });
 
     return res.status(200).json({
