@@ -121,7 +121,8 @@ export const getAdminProducts = async (
   maxPrice?: number,
   sort?: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  lowStock: boolean = false
 ) => {
   let orderBy;
 
@@ -149,6 +150,14 @@ export const getAdminProducts = async (
   const skip = (page - 1) * limit;
 
   const where: Prisma.ProductWhereInput = {
+    ...(lowStock // ... lấy các thuộc tính của object được trả về và đưa chúng vào where.
+  ? {
+      status: "ACTIVE" as const, // lowStock = true → chỉ hiển thị sản phẩm ACTIVE có stock ≤ 10
+      stock: {
+        lte: 10,
+      },
+    }
+  : {}), // lowStock = false → chỉ hiển thị sản phẩm ACTIVE có stock ≤ 10 
     ...(search && {
       OR: [
         {

@@ -4,6 +4,7 @@ import {
   createProductSchema,
   updateProductSchema,
 } from "../validations/product.validation";
+import { success } from "zod";
 
 export const getProductsController = async (
   req: Request,
@@ -126,7 +127,7 @@ export const getProductsController = async (
       maxPrice,
       sort,
       page,
-      limit
+      limit,
     );
 
     return res.status(200).json({
@@ -173,6 +174,19 @@ export const getAdminProductsController = async (
     const limit = req.query.limit
       ? Number(req.query.limit)
       : 10;
+
+    const lowStockQuery = req.query.lowStock;
+
+    if(
+      lowStockQuery !== undefined && lowStockQuery !== "true" && lowStockQuery !== "false"
+    ){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lowStock value",
+      });
+    }
+
+    const lowStock = lowStockQuery === "true"
 
     if (!Number.isInteger(page) || page <= 0) {
       return res.status(400).json({
@@ -257,7 +271,8 @@ export const getAdminProductsController = async (
       maxPrice,
       sort,
       page,
-      limit
+      limit,
+      lowStock
     );
 
     return res.status(200).json({
