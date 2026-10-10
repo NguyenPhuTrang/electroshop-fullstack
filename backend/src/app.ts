@@ -12,6 +12,7 @@ import brandRoutes from "./routes/brand.routes";
 import productImageRoutes from "./routes/productImage.routes";
 import userRoutes from "./routes/user.routes";
 import adminProductRoutes from "./routes/admin-product.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 import cors from "cors";
 
 import {errorMiddleware} from "./middlewares/error.middleware"
@@ -43,6 +44,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin/products", adminProductRoutes);
+app.use("/api", dashboardRoutes);
 
 app.use(errorMiddleware);
 
