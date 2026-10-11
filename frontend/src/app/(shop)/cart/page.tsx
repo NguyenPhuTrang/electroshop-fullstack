@@ -7,25 +7,38 @@ import {
 import CartItem from "@/src/features/cart/components/CartItem";
 import type { Cart } from "@/src/features/cart/types/cart";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import Link from "next/link";
 
 export default function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null);
+const [isLoading, setIsLoading] = useState(true);
+const [requiresLogin, setRequiresLogin] = useState(false);
+const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const data = await getCart();
-
-        console.log("Cart", data);
-
-        setCart(data);
-      } catch (error) {
-        console.error("Failed to get cart", error);
+  const fetchCart = async () => {
+    try {
+      const data = await getCart();
+      setCart(data);
+    } catch (error) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response?.status === 401
+      ) {
+        setRequiresLogin(true);
+        return;
       }
-    };
 
-    fetchCart();
-  }, []);
+      console.error("Failed to get cart", error);
+      setLoadError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchCart();
+}, []);
 
   const handleRemoveItem = (productId: number) => {
     if (!cart) return;
@@ -72,9 +85,48 @@ export default function CartPage() {
     }
   };
 
-  if (!cart) {
-    return <p className="p-6">Loading...</p>;
-  }
+  if (isLoading) {
+  return (
+    <main className="mx-auto w-full max-w-7xl px-4 py-6">
+      <p>Loading cart...</p>
+    </main>
+  );
+}
+
+if (requiresLogin) {
+  return (
+    <main className="mx-auto w-full max-w-7xl px-4 py-6">
+      <h1 className="text-3xl font-bold">
+        My Cart
+      </h1>
+
+      <p className="mt-6">
+        Please log in to view your cart.
+      </p>
+
+      <Link
+        href="/login"
+        className="mt-4 inline-block rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
+      >
+        Log In
+      </Link>
+    </main>
+  );
+}
+
+if (loadError || !cart) {
+  return (
+    <main className="mx-auto w-full max-w-7xl px-4 py-6">
+      <h1 className="text-3xl font-bold">
+        My Cart
+      </h1>
+
+      <p className="mt-6 text-red-600">
+        Failed to load your cart. Please try again later.
+      </p>
+    </main>
+  );
+}
 
   const total = cart.items.reduce((sum, item) => {
     const price = Number(
