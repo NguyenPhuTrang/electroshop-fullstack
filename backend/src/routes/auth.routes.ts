@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { loginController, logoutController, refreshTokenController, registerController, } from "../controllers/auth.controller";
+import {
+  loginController,
+  logoutController,
+  refreshTokenController,
+  registerController,
+} from "../controllers/auth.controller";
 import { authMiddleware } from "../middlewares/auth.middlesware";
 import { requireRole } from "../middlewares/role.middlewre";
 
@@ -12,29 +17,26 @@ router.post("/login", loginController);
 router.post("/refresh-token", refreshTokenController);
 
 router.get("/me", authMiddleware, (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: "User information retrieved successfully",
-        user: req.user,
-    });
+  return res.status(200).json({
+    success: true,
+    message: "User information retrieved successfully",
+    user: req.user,
+  });
 });
 
 router.get(
-    "/admin-test",
-    authMiddleware,
-    requireRole("ADMIN"),
-    (req, res) => {
-        return res.status(200).json({
-            success: true,
-            message: "You are an admin",
-            user: req.user,
-        });
-    }
+  "/admin-test",
+  authMiddleware,
+  requireRole("ADMIN"),
+  (req, res) => {
+    return res.status(200).json({
+      success: true,
+      message: "You are an admin",
+      user: req.user,
+    });
+  }
 );
 
-router.post(
-    "/logout",
-    logoutController
-);
+router.post("/logout", logoutController);
 
 export default router;

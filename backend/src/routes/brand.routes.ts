@@ -12,13 +12,11 @@ routes.post(
 
 routes.get(
     "/",
-    authMiddleware,
     getBrandsController
 );
 
 routes.get(
     "/:id",
-    authMiddleware,
     getBrandByIdController
 );
 

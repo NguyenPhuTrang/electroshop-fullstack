@@ -12,12 +12,10 @@ createCategoryController
 
 routes.get(
     "/",
-    authMiddleware,
     getCategoriesController
 );
 routes.get(
     "/:id",
-    authMiddleware,
     getCategoryByIdController
 );
 routes.patch(
