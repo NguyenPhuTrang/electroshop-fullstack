@@ -1,4 +1,4 @@
-"use client";
+"use client"; // khôi phục trạng thái đăng nhập mỗi khi trang được tải lại.
 
 import { useEffect, useState } from "react";
 import axios from "axios";

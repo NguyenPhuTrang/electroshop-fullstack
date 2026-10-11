@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next"; // Root Layout toàn bộ ứng dụng
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";

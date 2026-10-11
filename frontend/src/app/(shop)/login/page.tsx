@@ -2,6 +2,7 @@
 
 import { getAccessToken, setAccessToken } from "@/src/features/auth/services/auth-token";
 import { login } from "@/src/features/auth/services/auth.service";
+import { useUser } from "@/src/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,6 +11,8 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
 
     const router = useRouter();
+
+    const {setUser} = useUser();
 
     const handleLogin = async () => {
       try {
@@ -21,8 +24,13 @@ export default function LoginPage() {
       console.log("accessToken received:", result.data.accessToken);
       setAccessToken(result.data.accessToken);
       console.log("accessToken after set:", getAccessToken()); 
+      setUser(result.data.user);
 
-      router.push("/");
+      if (result.data.user.role === "ADMIN") {
+        router.replace("/admin");
+      } else {
+        router.replace("/");
+      }
 
     }catch (error){
       console.error("Login failed", error)
