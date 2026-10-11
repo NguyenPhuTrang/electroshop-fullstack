@@ -27,6 +27,7 @@ export const registerUser = async (
       name: data.name,
       email: data.email,
       password: hashedPassword,
+      avatarUrl: data.avatarUrl || null
     },
   });
 

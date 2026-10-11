@@ -12,6 +12,13 @@ export const registerSchema = z.object({
   password: z
     .string()
     .min(6, "Password must be at least 6 characters"),
+
+    avatarUrl: z
+  .union([
+    z.string().url("Invalid avatar URL"),
+    z.literal(""),
+  ])
+  .optional(),
 });
 
 export const loginSchema = z.object({
@@ -23,3 +30,4 @@ export const loginSchema = z.object({
     .string()
     .min(6, "Password must be at least 6 characters"),
 });
+

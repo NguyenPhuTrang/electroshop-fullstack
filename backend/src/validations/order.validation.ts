@@ -35,3 +35,4 @@ export const createOrderSchema = z.object({
 export const updateOrderStatusSchema = z.object({
   status: z.enum(OrderStatus),
 });
+
