@@ -1,4 +1,6 @@
+
 "use client";
+
 import { addCartItem } from "@/src/features/cart/services/cart.service";
 import { useState } from "react";
 import { Review } from "../../review/types/review";
@@ -28,9 +30,28 @@ export default function ProductInfor({
 }: ProductInforProps) {
   const formattedPrice = Number(price).toLocaleString("vi-VN");
 
-  const formattedSalePrice = salePrice
+  const hasSalePrice = salePrice !== null && salePrice !== "";
+
+  const formattedSalePrice = hasSalePrice
     ? Number(salePrice).toLocaleString("vi-VN")
     : null;
+
+  const numericPrice = Number(price);
+  const numericSalePrice = Number(salePrice);
+
+  const hasDiscount =
+    hasSalePrice &&
+    Number.isFinite(numericPrice) &&
+    Number.isFinite(numericSalePrice) &&
+    numericPrice > 0 &&
+    numericSalePrice >= 0 &&
+    numericSalePrice < numericPrice;
+
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((numericPrice - numericSalePrice) / numericPrice) * 100
+      )
+    : 0;
 
   // Calculate average rating
   const averageRating =
@@ -42,126 +63,293 @@ export default function ProductInfor({
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
 
+  const [cartMessage, setCartMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   const handleAddToCart = async () => {
+    if (stock <= 0 || quantity < 1 || quantity > stock || addingToCart) {
+      return;
+    }
+
     try {
       setAddingToCart(true);
+      setCartMessage(null);
+
       await addCartItem(productId, quantity);
+
+      setCartMessage({
+        type: "success",
+        text: `${quantity} ${
+          quantity === 1 ? "item has" : "items have"
+        } been added to your cart.`,
+      });
     } catch (error) {
       console.error("Failed to add product to cart", error);
+
+      setCartMessage({
+        type: "error",
+        text: "Unable to add this product to your cart. Please try again.",
+      });
     } finally {
       setAddingToCart(false);
     }
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">
+    <div className="flex flex-col">
+      {/* Brand & Category */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+          {brandName}
+        </span>
+
+        <span className="text-slate-300" aria-hidden="true">
+          /
+        </span>
+
+        <span className="text-xs font-medium text-slate-500">
+          {categoryName}
+        </span>
+      </div>
+
+      {/* Product Name */}
+      <h1 className="mt-4 text-2xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-3xl lg:text-[2rem]">
         {name}
       </h1>
 
-      {/* ⭐ NEW: Rating + Review Count */}
-      <div className="mt-2 flex items-center gap-3">
-        <div className="text-yellow-500">
-          {"★".repeat(Math.round(averageRating))}
-          {"☆".repeat(5 - Math.round(averageRating))}
+      {/* Rating */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
+        <div
+          className="flex items-center gap-0.5 text-base text-amber-400"
+          role="img"
+          aria-label={
+            reviews.length > 0
+              ? `Rated ${averageRating.toFixed(1)} out of 5`
+              : "No ratings yet"
+          }
+        >
+          {Array.from({ length: 5 }, (_, index) => (
+            <span key={index} aria-hidden="true">
+              {index < Math.round(averageRating) ? "★" : "☆"}
+            </span>
+          ))}
         </div>
 
-        <span className="font-semibold">
-          {averageRating.toFixed(1)}
-        </span>
-
-        <span className="text-gray-500">
-          ({reviews.length}{" "}
-          {reviews.length === 1 ? "review" : "reviews"})
-        </span>
-      </div>
-
-      <p className="mt-2 text-gray-500">
-        {brandName}
-      </p>
-
-      <p className="mt-1 text-gray-500">
-        {categoryName}
-      </p>
-
-      <div className="mt-6">
-        {formattedSalePrice ? (
+        {reviews.length > 0 ? (
           <>
-            <p className="text-2xl font-bold">
-              {formattedSalePrice} VND
-            </p>
+            <span className="text-sm font-semibold text-slate-800">
+              {averageRating.toFixed(1)}
+            </span>
 
-            <p className="mt-1 text-gray-500 line-through">
-              {formattedPrice} VND
-            </p>
+            <span className="text-slate-300" aria-hidden="true">
+              |
+            </span>
+
+            <span className="text-sm text-slate-500">
+              {reviews.length}{" "}
+              {reviews.length === 1 ? "review" : "reviews"}
+            </span>
           </>
         ) : (
-          <p className="text-2xl font-bold">
-            {formattedPrice} VND
-          </p>
+          <span className="text-sm text-slate-500">
+            No reviews yet
+          </span>
         )}
       </div>
 
-      <p className="mt-4">
-        Stock: {stock}
-      </p>
+      {/* Price */}
+      <div className="mt-6 border-y border-slate-100 py-5">
+        <div className="flex flex-wrap items-center gap-3">
+          {formattedSalePrice !== null ? (
+            <>
+              <p className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+                {formattedSalePrice} VND
+              </p>
 
-      <div className="mt-8">
-        <h2 className="mb-2 font-semibold">
-          Description
-        </h2>
+              {hasDiscount && (
+                <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
+                  -{discountPercentage}%
+                </span>
+              )}
+            </>
+          ) : (
+            <p className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+              {formattedPrice} VND
+            </p>
+          )}
+        </div>
 
-        <p className="text-gray-600">
-          {description}
-        </p>
-      </div>
+        {formattedSalePrice !== null && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <p className="text-sm text-slate-400 line-through">
+              {formattedPrice} VND
+            </p>
 
-      <div className="mt-8">
-        <p className="mb-2 font-semibold">
-          Quantity
-        </p>
+            {hasDiscount && (
+              <p className="text-xs font-medium text-emerald-600">
+                You save{" "}
+                {(numericPrice - numericSalePrice).toLocaleString(
+                  "vi-VN"
+                )}{" "}
+                VND
+              </p>
+            )}
+          </div>
+        )}
 
-        <div className="flex items-center">
-          <button
-            type="button"
-            disabled={stock === 0}
-            onClick={() =>
-              setQuantity((current) => Math.max(1, current - 1))
-            }
-            className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            -
-          </button>
-
-          <span className="flex h-10 w-12 items-center justify-center border-y">
-            {quantity}
-          </span>
-
-          <button
-            type="button"
-            disabled={stock === 0}
-            onClick={() =>
-              setQuantity((current) => Math.min(stock, current + 1))
-            }
-            className="h-10 w-10 border disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            +
-          </button>
+        {/* Stock Status */}
+        <div className="mt-4">
+          {stock <= 0 ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600">
+              <span className="size-1.5 rounded-full bg-red-500" />
+              Out of Stock
+            </span>
+          ) : stock <= 5 ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+              <span className="size-1.5 rounded-full bg-amber-500" />
+              Only {stock} left in stock
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+              <span className="size-1.5 rounded-full bg-emerald-500" />
+              In Stock
+            </span>
+          )}
         </div>
       </div>
 
+      {/* Description */}
+      <div className="mt-5">
+        <h2 className="text-sm font-semibold text-slate-900">
+          Product Description
+        </h2>
+
+        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">
+          {description.trim() || "No description available."}
+        </p>
+      </div>
+
+      {/* Quantity Selector */}
+      <div className="mt-6">
+        <label
+          htmlFor="product-quantity"
+          className="mb-2 block text-sm font-semibold text-slate-800"
+        >
+          Quantity
+        </label>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="inline-flex h-11 items-center overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <button
+              type="button"
+              disabled={stock <= 0 || quantity <= 1 || addingToCart}
+              onClick={() =>
+                setQuantity((current) => Math.max(1, current - 1))
+              }
+              aria-label="Decrease quantity"
+              className="flex h-full w-10 items-center justify-center text-lg text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              −
+            </button>
+
+            <input
+              id="product-quantity"
+              type="number"
+              min={1}
+              max={stock}
+              value={quantity}
+              readOnly
+              aria-label="Selected quantity"
+              className="h-full w-12 border-x border-slate-200 bg-white text-center text-sm font-semibold text-slate-900 outline-none"
+            />
+
+            <button
+              type="button"
+              disabled={
+                stock <= 0 || quantity >= stock || addingToCart
+              }
+              onClick={() =>
+                setQuantity((current) =>
+                  Math.min(stock, current + 1)
+                )
+              }
+              aria-label="Increase quantity"
+              className="flex h-full w-10 items-center justify-center text-lg text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              +
+            </button>
+          </div>
+
+          <p className="text-xs text-slate-500">
+            {stock > 0
+              ? `${stock} ${stock === 1 ? "unit" : "units"} available`
+              : "Currently unavailable"}
+          </p>
+        </div>
+      </div>
+
+      {/* Add to Cart */}
       <button
         onClick={handleAddToCart}
         type="button"
-        disabled={stock === 0 || addingToCart}
-        className="mt-8 rounded-lg bg-black px-6 py-3 text-white disabled:cursor-not-allowed disabled:bg-gray-400"
+        disabled={stock <= 0 || addingToCart}
+        className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
       >
-        {stock === 0
-          ? "Out of Stock"
-          : addingToCart
-            ? "Adding..."
-            : "Add to Cart"}
+        {addingToCart ? (
+          <>
+            <span
+              aria-hidden="true"
+              className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+            />
+            Adding to Cart...
+          </>
+        ) : stock <= 0 ? (
+          "Out of Stock"
+        ) : (
+          <>
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              className="size-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 3h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"
+              />
+              <circle cx="10" cy="20" r="1" />
+              <circle cx="18" cy="20" r="1" />
+            </svg>
+
+            Add to Cart
+          </>
+        )}
       </button>
+
+      {/* Cart Feedback */}
+      {cartMessage && (
+        <div
+          role={cartMessage.type === "error" ? "alert" : "status"}
+          aria-live="polite"
+          className={`mt-3 rounded-xl border px-3 py-2.5 text-sm leading-5 ${
+            cartMessage.type === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-red-200 bg-red-50 text-red-700"
+          }`}
+        >
+          {cartMessage.text}
+        </div>
+      )}
+
+      {/* Supporting Note */}
+      <p className="mt-4 text-center text-xs leading-5 text-slate-500">
+        Secure checkout · Quality products · Customer support
+      </p>
     </div>
   );
 }
