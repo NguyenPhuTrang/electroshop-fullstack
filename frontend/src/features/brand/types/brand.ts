@@ -1,3 +1,5 @@
+import api from "@/src/lib/axios";
+
 export type Brand = {
   id: number;
   name: string;
@@ -7,3 +9,5 @@ export type Brand = {
   createdAt: string;
   updatedAt: string;
 };
+
+
