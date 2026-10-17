@@ -7,6 +7,8 @@ import { motion } from "motion/react";
 type SidebarIconName =
     | "dashboard"
     | "products"
+    | "brands"
+    | "categories"
     | "orders"
     | "users"
     | "reviews";
@@ -20,6 +22,16 @@ const NAV_ITEMS: {
         label: "Dashboard",
         href: "/admin",
         icon: "dashboard",
+    },
+    {
+        label: "Brands",
+        href: "/admin/brands",
+        icon: "brands",
+    },
+    {
+        label: "Categories",
+        href: "/admin/categories",
+        icon: "categories",
     },
     {
         label: "Products",
@@ -58,6 +70,21 @@ function SidebarIcon({
             </>
         ),
 
+        brands: (
+            <>
+                <path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l3.59-3.59a2 2 0 0 0 0-2.59Z" />
+                <circle cx="7.5" cy="7.5" r="1.25" />
+            </>
+        ),
+
+        categories: (
+            <>
+                <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                <path d="m3 12 9 5 9-5" />
+                <path d="m3 16 9 5 9-5" />
+            </>
+        ),
+
         products: (
             <>
                 <path
@@ -72,6 +99,7 @@ function SidebarIcon({
                 />
             </>
         ),
+
 
         orders: (
             <>
@@ -151,7 +179,7 @@ export default function AdminSidebar() {
     };
 
     return (
-        <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
+       <aside className="sticky top-0 z-40 flex h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white">
             {/* Brand */}
             <div className="border-b border-slate-100 px-5 py-6">
                 <Link
