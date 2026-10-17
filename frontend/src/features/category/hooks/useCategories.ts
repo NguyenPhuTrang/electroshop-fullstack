@@ -1,34 +1,37 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import { Category } from "../types/category";
 import { getCategories } from "../services/category.service";
 
-export function useCategories(){
+export function useCategories() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(()=> {
-        const fetchCategories = async () => {
-            try{
-                setLoading(true);
-                setError("");
-                const data = await getCategories();
+    const fetchCategories = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError("");
 
-                setCategories(data)
-            } catch(error){
-                console.error("Failed to get catagories:", error);
-                setError("Failed to load categories");
-            } finally{
-                setLoading(false)
-            }
+            const data = await getCategories();
+            setCategories(data);
+        } catch (error) {
+            console.error("Failed to get categories:", error);
+            setError("Failed to load categories");
+        } finally {
+            setLoading(false);
         }
-        fetchCategories()
-    },[])
+    }, []);
 
-    return{
+    useEffect(() => {
+        void fetchCategories();
+    }, [fetchCategories]);
+
+    return {
         categories,
         loading,
-        error
-    }
+        error,
+        refetch: fetchCategories,
+    };
 }
