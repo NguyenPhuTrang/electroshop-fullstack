@@ -4,17 +4,87 @@ import { useAdminUsers } from "@/src/hooks/useAdminUser";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { motion } from "motion/react";
 
-const USER_ROLES = [
-    "USER",
-    "ADMIN",
-];
+const USER_ROLES = ["USER", "ADMIN"];
 
-const USER_STATUSES = [
-    "ACTIVE",
-    "INACTIVE",
-    "BANNED",
-];
+const USER_STATUSES = ["ACTIVE", "INACTIVE", "BANNED"];
+
+const inputClassName =
+    "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
+
+const getRoleClassName = (userRole: string) => {
+    switch (userRole) {
+        case "ADMIN":
+            return "border-blue-200 bg-blue-50 text-blue-700";
+
+        case "USER":
+            return "border-cyan-200 bg-cyan-50 text-cyan-700";
+
+        default:
+            return "border-slate-200 bg-slate-50 text-slate-600";
+    }
+};
+
+const getStatusClassName = (userStatus: string) => {
+    switch (userStatus) {
+        case "ACTIVE":
+            return "border-emerald-200 bg-emerald-50 text-emerald-700";
+
+        case "INACTIVE":
+            return "border-slate-200 bg-slate-100 text-slate-600";
+
+        case "BANNED":
+            return "border-rose-200 bg-rose-50 text-rose-700";
+
+        default:
+            return "border-slate-200 bg-slate-50 text-slate-600";
+    }
+};
+
+function UserTableSkeleton() {
+    return (
+        <>
+            {Array.from({ length: 5 }).map((_, index) => (
+                <tr
+                    key={index}
+                    className="animate-pulse border-b border-slate-100 last:border-b-0"
+                >
+                    <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 shrink-0 rounded-full bg-slate-100" />
+
+                            <div className="space-y-2">
+                                <div className="h-3.5 w-28 rounded bg-slate-100" />
+                                <div className="h-3 w-16 rounded bg-slate-100" />
+                            </div>
+                        </div>
+                    </td>
+
+                    <td className="px-5 py-4">
+                        <div className="h-3.5 w-36 rounded bg-slate-100" />
+                    </td>
+
+                    <td className="px-5 py-4">
+                        <div className="h-7 w-20 rounded-lg bg-slate-100" />
+                    </td>
+
+                    <td className="px-5 py-4">
+                        <div className="h-7 w-20 rounded-lg bg-slate-100" />
+                    </td>
+
+                    <td className="px-5 py-4">
+                        <div className="h-3.5 w-20 rounded bg-slate-100" />
+                    </td>
+
+                    <td className="px-5 py-4">
+                        <div className="h-8 w-16 rounded-lg bg-slate-100" />
+                    </td>
+                </tr>
+            ))}
+        </>
+    );
+}
 
 export default function AdminUsersPage() {
     const router = useRouter();
@@ -39,343 +109,495 @@ export default function AdminUsersPage() {
         search: search || undefined,
     });
 
-    const handleSearchChange = (
-        value: string
-    ) => {
+    const handleSearchChange = (value: string) => {
         setSearch(value);
         setPage(1);
     };
 
-    const handleRoleChange = (
-        value: string
-    ) => {
+    const handleRoleChange = (value: string) => {
         setRole(value);
         setPage(1);
     };
 
-    const handleStatusChange = (
-        value: string
-    ) => {
+    const handleStatusChange = (value: string) => {
         setStatus(value);
         setPage(1);
     };
 
     const formatDate = (value: string) => {
-        return new Date(value).toLocaleDateString(
-            "en-US",
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-            }
-        );
+        return new Date(value).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
     };
 
-    const getRoleClassName = (
-        userRole: string
-    ) => {
-        switch (userRole) {
-            case "ADMIN":
-                return "border border-purple-300 text-purple-700";
+    const hasFilters = Boolean(search || role || status);
 
-            case "USER":
-                return "border border-blue-300 text-blue-700";
-
-            default:
-                return "border border-gray-300 text-gray-700";
-        }
-    };
-
-    const getStatusClassName = (
-        userStatus: string
-    ) => {
-        switch (userStatus) {
-            case "ACTIVE":
-                return "border border-green-300 text-green-700";
-
-            case "INACTIVE":
-                return "border border-gray-300 text-gray-600";
-
-            case "BANNED":
-                return "border border-red-300 text-red-700";
-
-            default:
-                return "border border-gray-300 text-gray-700";
-        }
+    const clearFilters = () => {
+        setSearch("");
+        setRole("");
+        setStatus("");
+        setPage(1);
     };
 
     return (
-        <div className="p-6">
-            {/* Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold text-gray-900">
-                    User Management
-                </h1>
+        <motion.main
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="min-h-screen bg-slate-50/70 p-4 sm:p-6 lg:p-8"
+        >
+            <div className="mx-auto max-w-[1600px] space-y-6">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 }}
+                    className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                    <div>
+                        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-600">
+                            <span className="h-2 w-2 rounded-full bg-cyan-500" />
+                            Admin Workspace
+                        </div>
 
-                <p className="mt-1 text-sm text-gray-500">
-                    Manage registered user accounts
-                </p>
-            </div>
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                            User Management
+                        </h1>
 
-            {/* Filters */}
-            <div className="mb-6 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 lg:flex-row">
-                {/* Search */}
-                <div className="flex-1">
-                    <label
-                        htmlFor="user-search"
-                        className="mb-1 block text-sm font-medium text-gray-700"
-                    >
-                        Search
-                    </label>
+                        <p className="mt-2 text-sm text-slate-500 sm:text-base">
+                            Manage registered user accounts, roles, and statuses.
+                        </p>
+                    </div>
 
-                    <input
-                        id="user-search"
-                        type="text"
-                        value={search}
-                        onChange={(event) =>
-                            handleSearchChange(
-                                event.target.value
-                            )
-                        }
-                        placeholder="Search by name or email..."
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-500 focus:ring-1 focus:ring-gray-300"
-                    />
-                </div>
+                    <div className="flex items-center gap-2 self-start rounded-xl border border-blue-100 bg-white px-4 py-3 shadow-sm sm:self-auto">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                                />
+                                <circle cx="10" cy="7" r="4" />
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M20 8v6m3-3h-6"
+                                />
+                            </svg>
+                        </div>
 
-                {/* Role */}
-                <div className="w-full lg:w-48">
-                    <label
-                        htmlFor="user-role"
-                        className="mb-1 block text-sm font-medium text-gray-700"
-                    >
-                        Role
-                    </label>
+                        <div>
+                            <p className="text-xs font-medium text-slate-500">
+                                Current page
+                            </p>
+                            <p className="text-sm font-semibold text-slate-800">
+                                {pagination.page} of {pagination.totalPages}
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
 
-                    <select
-                        id="user-role"
-                        value={role}
-                        onChange={(event) =>
-                            handleRoleChange(
-                                event.target.value
-                            )
-                        }
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-500 focus:ring-1 focus:ring-gray-300"
-                    >
-                        <option value="">
-                            All Roles
-                        </option>
+                {/* Filters */}
+                <motion.section
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                    className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+                >
+                    <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 className="text-base font-semibold text-slate-800">
+                                Search and Filters
+                            </h2>
+                            <p className="mt-1 text-sm text-slate-500">
+                                Find users by name, email, role, or status.
+                            </p>
+                        </div>
 
-                        {USER_ROLES.map(
-                            (userRole) => (
-                                <option
-                                    key={userRole}
-                                    value={userRole}
-                                >
-                                    {userRole}
-                                </option>
-                            )
+                        {hasFilters && (
+                            <button
+                                type="button"
+                                onClick={clearFilters}
+                                className="mt-2 self-start text-sm font-medium text-blue-600 transition hover:text-blue-700 sm:mt-0"
+                            >
+                                Clear filters
+                            </button>
                         )}
-                    </select>
-                </div>
+                    </div>
 
-                {/* Status */}
-                <div className="w-full lg:w-48">
-                    <label
-                        htmlFor="user-status"
-                        className="mb-1 block text-sm font-medium text-gray-700"
-                    >
-                        Status
-                    </label>
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_220px_220px]">
+                        {/* Search */}
+                        <div>
+                            <label
+                                htmlFor="user-search"
+                                className="mb-2 block text-sm font-medium text-slate-700"
+                            >
+                                Search users
+                            </label>
 
-                    <select
-                        id="user-status"
-                        value={status}
-                        onChange={(event) =>
-                            handleStatusChange(
-                                event.target.value
-                            )
-                        }
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-500 focus:ring-1 focus:ring-gray-300"
-                    >
-                        <option value="">
-                            All Statuses
-                        </option>
-
-                        {USER_STATUSES.map(
-                            (userStatus) => (
-                                <option
-                                    key={userStatus}
-                                    value={userStatus}
+                            <div className="relative">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400"
+                                    aria-hidden="true"
                                 >
-                                    {userStatus}
-                                </option>
-                            )
-                        )}
-                    </select>
-                </div>
-            </div>
+                                    <circle cx="11" cy="11" r="7" />
+                                    <path
+                                        strokeLinecap="round"
+                                        d="m16 16 4 4"
+                                    />
+                                </svg>
 
-            {/* Error */}
-            {error && (
-                <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                    {error}
-                </div>
-            )}
+                                <input
+                                    id="user-search"
+                                    type="text"
+                                    value={search}
+                                    onChange={(event) =>
+                                        handleSearchChange(event.target.value)
+                                    }
+                                    placeholder="Search by name or email..."
+                                    className={`${inputClassName} pl-10`}
+                                />
+                            </div>
+                        </div>
 
-            {/* Table */}
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                        <thead className="border-b border-gray-200 bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    User
-                                </th>
+                        {/* Role */}
+                        <div>
+                            <label
+                                htmlFor="user-role"
+                                className="mb-2 block text-sm font-medium text-slate-700"
+                            >
+                                Role
+                            </label>
 
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Email
-                                </th>
+                            <select
+                                id="user-role"
+                                value={role}
+                                onChange={(event) =>
+                                    handleRoleChange(event.target.value)
+                                }
+                                className={inputClassName}
+                            >
+                                <option value="">All Roles</option>
 
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Role
-                                </th>
+                                {USER_ROLES.map((userRole) => (
+                                    <option key={userRole} value={userRole}>
+                                        {userRole}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Status
-                                </th>
+                        {/* Status */}
+                        <div>
+                            <label
+                                htmlFor="user-status"
+                                className="mb-2 block text-sm font-medium text-slate-700"
+                            >
+                                Status
+                            </label>
 
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Created
-                                </th>
+                            <select
+                                id="user-status"
+                                value={status}
+                                onChange={(event) =>
+                                    handleStatusChange(event.target.value)
+                                }
+                                className={inputClassName}
+                            >
+                                <option value="">All Statuses</option>
 
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-gray-200">
-                            {loading ? (
-                                <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="px-4 py-10 text-center text-sm text-gray-500"
+                                {USER_STATUSES.map((userStatus) => (
+                                    <option
+                                        key={userStatus}
+                                        value={userStatus}
                                     >
-                                        Loading users...
-                                    </td>
+                                        {userStatus}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </motion.section>
+
+                {/* Error */}
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        role="alert"
+                        className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-sm text-rose-700"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            className="mt-0.5 h-5 w-5 shrink-0"
+                            aria-hidden="true"
+                        >
+                            <circle cx="12" cy="12" r="9" />
+                            <path
+                                strokeLinecap="round"
+                                d="M12 8v4m0 4h.01"
+                            />
+                        </svg>
+
+                        <div>
+                            <p className="font-semibold">
+                                Unable to load users
+                            </p>
+                            <p className="mt-1">{error}</p>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Table */}
+                <motion.section
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.15 }}
+                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                >
+                    <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 className="font-semibold text-slate-800">
+                                Registered Users
+                            </h2>
+
+                            <p className="mt-1 text-sm text-slate-500">
+                                Review account information and permissions.
+                            </p>
+                        </div>
+
+                        <span className="inline-flex items-center self-start rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 sm:self-auto">
+                            {limit} users per page
+                        </span>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="min-w-[900px] w-full">
+                            <thead>
+                                <tr className="border-b border-slate-200 bg-slate-50/80">
+                                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        User
+                                    </th>
+
+                                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Email
+                                    </th>
+
+                                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Role
+                                    </th>
+
+                                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Status
+                                    </th>
+
+                                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Created
+                                    </th>
+
+                                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Action
+                                    </th>
                                 </tr>
-                            ) : users.length === 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="px-4 py-10 text-center text-sm text-gray-500"
-                                    >
-                                        No users found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                users.map((user) => (
-                                    <tr
-                                        key={user.id}
-                                        className="transition hover:bg-gray-50"
-                                    >
-                                        <td className="px-4 py-4">
-                                            <div className="flex items-center gap-3">
-                                                {user.avatarUrl ? (
-                                                    <Image
-                                                        src={
-                                                            user.avatarUrl
-                                                        }
-                                                        alt={
-                                                            user.name
-                                                        }
-                                                        width={40}
-                                                        height={40}
-                                                        className="h-10 w-10 rounded-full object-cover"
+                            </thead>
+
+                            <tbody className="divide-y divide-slate-100">
+                                {loading ? (
+                                    <UserTableSkeleton />
+                                ) : users.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={6}
+                                            className="px-5 py-16 text-center"
+                                        >
+                                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="1.7"
+                                                    className="h-6 w-6"
+                                                    aria-hidden="true"
+                                                >
+                                                    <circle
+                                                        cx="11"
+                                                        cy="11"
+                                                        r="7"
                                                     />
-                                                ) : (
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600">
-                                                        {user.name
-                                                            .charAt(
-                                                                0
-                                                            )
-                                                            .toUpperCase()}
-                                                    </div>
-                                                )}
-
-                                                <div>
-                                                    <div className="font-medium text-gray-900">
-                                                        {
-                                                            user.name
-                                                        }
-                                                    </div>
-
-                                                    <div className="mt-1 text-xs text-gray-500">
-                                                        ID:{" "}
-                                                        {user.id}
-                                                    </div>
-                                                </div>
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        d="m16 16 4 4"
+                                                    />
+                                                </svg>
                                             </div>
-                                        </td>
 
-                                        <td className="px-4 py-4 text-sm text-gray-600">
-                                            {user.email}
-                                        </td>
+                                            <p className="mt-3 text-sm font-semibold text-slate-700">
+                                                No users found
+                                            </p>
 
-                                        <td className="px-4 py-4">
-                                            <span
-                                                className={`inline-flex min-w-24 items-center justify-center rounded-xl px-3 py-1.5 text-xs font-semibold ${getRoleClassName(
-                                                    user.role
-                                                )}`}
-                                            >
-                                                {user.role}
-                                            </span>
-                                        </td>
+                                            <p className="mt-1 text-sm text-slate-500">
+                                                Try changing your search or filters.
+                                            </p>
 
-                                        <td className="px-4 py-4">
-                                            <span
-                                                className={`inline-flex min-w-24 items-center justify-center rounded-xl px-3 py-1.5 text-xs font-semibold ${getStatusClassName(
-                                                    user.status
-                                                )}`}
-                                            >
-                                                {user.status}
-                                            </span>
-                                        </td>
-
-                                        <td className="px-4 py-4 text-sm text-gray-600">
-                                            {formatDate(
-                                                user.createdAt
+                                            {hasFilters && (
+                                                <button
+                                                    type="button"
+                                                    onClick={clearFilters}
+                                                    className="mt-4 rounded-lg px-3 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"
+                                                >
+                                                    Clear filters
+                                                </button>
                                             )}
                                         </td>
-
-                                        <td className="px-4 py-4">
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    router.push(
-                                                        `/admin/users/${user.id}`
-                                                    )
-                                                }
-                                                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
-                                            >
-                                                View
-                                            </button>
-                                        </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                ) : (
+                                    users.map((user, index) => (
+                                        <motion.tr
+                                            key={user.id}
+                                            initial={{
+                                                opacity: 0,
+                                                y: 6,
+                                            }}
+                                            animate={{
+                                                opacity: 1,
+                                                y: 0,
+                                            }}
+                                            transition={{
+                                                duration: 0.2,
+                                                delay: index * 0.025,
+                                            }}
+                                            className="group transition-colors hover:bg-blue-50/40"
+                                        >
+                                            <td className="px-5 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    {user.avatarUrl ? (
+                                                        <Image
+                                                            src={user.avatarUrl}
+                                                            alt={user.name}
+                                                            width={40}
+                                                            height={40}
+                                                            className="h-10 w-10 shrink-0 rounded-full border border-slate-200 object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-sm font-bold text-blue-700">
+                                                            {user.name
+                                                                ?.charAt(0)
+                                                                .toUpperCase() ||
+                                                                "U"}
+                                                        </div>
+                                                    )}
 
-            {/* Pagination */}
-            {!loading &&
-                pagination.totalPages > 0 && (
-                    <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
-                        <p className="text-sm text-gray-500">
-                            Page {pagination.page} of{" "}
-                            {pagination.totalPages}
+                                                    <div className="min-w-0">
+                                                        <p className="truncate text-sm font-semibold text-slate-800">
+                                                            {user.name}
+                                                        </p>
+
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            ID: {user.id}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="px-5 py-4">
+                                                <span className="text-sm text-slate-600">
+                                                    {user.email}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-5 py-4">
+                                                <span
+                                                    className={`inline-flex min-w-20 items-center justify-center rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${getRoleClassName(
+                                                        user.role
+                                                    )}`}
+                                                >
+                                                    {user.role}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-5 py-4">
+                                                <span
+                                                    className={`inline-flex min-w-20 items-center justify-center rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${getStatusClassName(
+                                                        user.status
+                                                    )}`}
+                                                >
+                                                    {user.status}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-5 py-4 text-sm text-slate-500">
+                                                {formatDate(user.createdAt)}
+                                            </td>
+
+                                            <td className="px-5 py-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        router.push(
+                                                            `/admin/users/${user.id}`
+                                                        )
+                                                    }
+                                                    className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                                                >
+                                                    View
+
+                                                    <svg
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.8"
+                                                        className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M5 12h14m-6-6 6 6-6 6"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </motion.tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </motion.section>
+
+                {/* Pagination */}
+                {!loading && pagination.totalPages > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.25 }}
+                        className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5"
+                    >
+                        <p className="text-sm text-slate-500">
+                            Page{" "}
+                            <span className="font-semibold text-slate-800">
+                                {pagination.page}
+                            </span>{" "}
+                            of{" "}
+                            <span className="font-semibold text-slate-800">
+                                {pagination.totalPages}
+                            </span>
                         </p>
 
                         <div className="flex items-center gap-2">
@@ -383,35 +605,57 @@ export default function AdminUsersPage() {
                                 type="button"
                                 disabled={page <= 1}
                                 onClick={() =>
-                                    setPage(
-                                        (current) =>
-                                            current - 1
-                                    )
+                                    setPage((current) => current - 1)
                                 }
-                                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-600"
                             >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    className="h-4 w-4"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m15 18-6-6 6-6"
+                                    />
+                                </svg>
+
                                 Previous
                             </button>
 
                             <button
                                 type="button"
-                                disabled={
-                                    page >=
-                                    pagination.totalPages
-                                }
+                                disabled={page >= pagination.totalPages}
                                 onClick={() =>
-                                    setPage(
-                                        (current) =>
-                                            current + 1
-                                    )
+                                    setPage((current) => current + 1)
                                 }
-                                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
                             >
                                 Next
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    className="h-4 w-4"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m9 18 6-6-6-6"
+                                    />
+                                </svg>
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
-        </div>
+            </div>
+        </motion.main>
     );
 }

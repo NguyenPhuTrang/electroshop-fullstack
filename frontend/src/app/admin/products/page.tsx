@@ -1,10 +1,10 @@
-
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "motion/react";
 
 import useBrands from "@/src/features/brand/hooks/useBrands";
 import { useCategories } from "@/src/features/category/hooks/useCategories";
@@ -13,15 +13,18 @@ import {
   deleteProduct,
   type ProductSort,
 } from "@/src/features/product/services/product.service";
+import { toast } from "sonner";
 
-function AdminProductsContent() { // component trang mà Next.js sử dụng để hiển thị /admin/products.
+function AdminProductsContent() {
+  // Component trang mà Next.js sử dụng để hiển thị /admin/products.
   const router = useRouter();
-  const searchParams = useSearchParams(); // useSearchParams() là hook của Next.js, dùng để đọc các query parameters trên URL.
+  const searchParams = useSearchParams();
 
-  // Read the low-stock filter from the URL
+  // useSearchParams() dùng để đọc query parameters trên URL.
+  // Read the low-stock filter from the URL.
   const lowStock = searchParams.get("lowStock") === "true";
 
-  // Search / Filter
+  // Search / Filter.
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brandId, setBrandId] = useState("");
@@ -46,71 +49,182 @@ function AdminProductsContent() { // component trang mà Next.js sử dụng đ�
     lowStock,
   });
 
-  // Categories
+  // Categories.
   const { categories } = useCategories();
 
-  // Brands
+  // Brands.
   const { brands } = useBrands();
 
-  const handleDeleteProduct = async (id: number) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this product?"
-    );
+const handleDeleteProduct = async (id: number) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this product?"
+  );
 
-    if (!confirmed) {
-      return;
-    }
+  if (!confirmed) {
+    return;
+  }
 
+  const toastId = toast.loading("Deleting product...");
+
+  setDeletingId(id);
+
+  try {
+    await deleteProduct(id);
+
+    toast.success("Product deleted successfully.", {
+      id: toastId,
+    });
+
+    // Refresh the product list after successful deletion.
     try {
-      setDeletingId(id);
-
-      await deleteProduct(id);
       await refetch();
-    } catch (error) {
-      console.error("Failed to delete product", error);
-    } finally {
-      setDeletingId(null);
+    } catch (refreshError) {
+      console.error(
+        "Failed to refresh products after deletion:",
+        refreshError
+      );
     }
-  };
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+
+    toast.error("Unable to delete product. Please try again.", {
+      id: toastId,
+    });
+  } finally {
+    setDeletingId(null);
+  }
+};
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+      <motion.header
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.05 }}
+        className="flex flex-col justify-between gap-5 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:p-6"
+      >
+        <div className="min-w-0">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="size-2 rounded-full bg-cyan-500" />
+
+            <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
+              Electroshop Administration
+            </p>
+          </div>
+
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
             Products
           </h1>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             {lowStock
               ? "Showing active products with 10 units or fewer in stock."
               : "Manage your products, pricing, and inventory."}
           </p>
+
+          {lowStock && (
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-700">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                className="size-4"
+                aria-hidden="true"
+              >
+                <path d="m12 3 9 16H3L12 3Z" />
+                <path d="M12 9v4M12 16h.01" />
+              </svg>
+
+              Low Stock Filter Active
+            </div>
+          )}
         </div>
 
         <Link
           href="/admin/products/create"
-          className="rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            className="size-4"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+
           Add Product
         </Link>
-      </div>
+      </motion.header>
 
       {/* Filters */}
-      <div className="rounded-xl border border-gray-300 bg-white p-4 shadow-sm">
+      <motion.section
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        aria-label="Product filters"
+        className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
+      >
+        <div className="mb-4 flex items-center gap-2">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-5 text-blue-600"
+            aria-hidden="true"
+          >
+            <path d="M4 7h16M7 12h10m-7 5h4" />
+            <circle cx="7" cy="7" r="1.5" fill="white" />
+            <circle cx="17" cy="12" r="1.5" fill="white" />
+            <circle cx="10" cy="17" r="1.5" fill="white" />
+          </svg>
+
+          <h2 className="text-sm font-semibold text-slate-800">
+            Search and Filters
+          </h2>
+        </div>
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {/* Search */}
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search products..."
-            className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none transition focus:border-black"
-          />
+          <div className="relative">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              strokeLinecap="round"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m16 16 4 4" />
+            </svg>
+
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search products..."
+              aria-label="Search products"
+              className="h-11 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
 
           {/* Category */}
           <select
@@ -119,15 +233,13 @@ function AdminProductsContent() { // component trang mà Next.js sử dụng đ�
               setCategoryId(e.target.value);
               setPage(1);
             }}
-            className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+            aria-label="Filter by category"
+            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">All Categories</option>
 
             {categories.map((category) => (
-              <option
-                key={category.id}
-                value={category.id}
-              >
+              <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
@@ -140,15 +252,13 @@ function AdminProductsContent() { // component trang mà Next.js sử dụng đ�
               setBrandId(e.target.value);
               setPage(1);
             }}
-            className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+            aria-label="Filter by brand"
+            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">All Brands</option>
 
             {brands.map((brand) => (
-              <option
-                key={brand.id}
-                value={brand.id}
-              >
+              <option key={brand.id} value={brand.id}>
                 {brand.name}
               </option>
             ))}
@@ -161,7 +271,8 @@ function AdminProductsContent() { // component trang mà Next.js sử dụng đ�
               setSort(e.target.value as ProductSort | "");
               setPage(1);
             }}
-            className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-black"
+            aria-label="Sort products"
+            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">Sort by</option>
             <option value="newest">Newest</option>
@@ -169,217 +280,451 @@ function AdminProductsContent() { // component trang mà Next.js sử dụng đ�
             <option value="price_desc">Price: High to Low</option>
           </select>
         </div>
-      </div>
+      </motion.section>
 
       {/* Product Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-300 bg-white shadow-sm">
-        {loading ? (
-          <div className="flex min-h-40 items-center justify-center">
-            <p className="text-sm text-gray-500">
-              Loading products...
+      <motion.section
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.15 }}
+        aria-label="Products list"
+        className="overflow-hidden rounded-xl border border-slate-200 bg-white"
+      >
+        <div className="flex flex-col justify-between gap-2 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900">
+              Product Inventory
+            </h2>
+
+            <p className="mt-1 text-xs text-slate-500">
+              View and manage product details and stock levels.
             </p>
           </div>
+
+          {!loading && !error && (
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
+              <span className="size-1.5 rounded-full bg-cyan-500" />
+
+              {products.length} {products.length === 1 ? "product" : "products"} on this page
+            </span>
+          )}
+        </div>
+
+        {loading ? (
+          <div
+            className="space-y-4 p-5 sm:p-6"
+            aria-busy="true"
+            aria-label="Loading products"
+          >
+            {Array.from({ length: 5 }, (_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.25,
+                  delay: index * 0.05,
+                }}
+                className="flex items-center gap-4"
+              >
+                <motion.div
+                  animate={{ opacity: [0.4, 0.8, 0.4] }}
+                  transition={{
+                    duration: 1.4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="size-12 shrink-0 rounded-lg bg-slate-100"
+                />
+
+                <div className="min-w-0 flex-1 space-y-2">
+                  <motion.div
+                    animate={{ opacity: [0.4, 0.8, 0.4] }}
+                    transition={{
+                      duration: 1.4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: 0.1,
+                    }}
+                    className="h-3.5 w-2/5 rounded bg-slate-200"
+                  />
+
+                  <div className="h-3 w-1/4 rounded bg-slate-100" />
+                </div>
+
+                <div className="hidden h-4 w-20 rounded bg-slate-100 sm:block" />
+                <div className="hidden h-4 w-24 rounded bg-slate-100 md:block" />
+              </motion.div>
+            ))}
+          </div>
         ) : error ? (
-          <div className="flex min-h-40 items-center justify-center">
-            <p className="text-sm text-red-500">{error}</p>
+          <div
+            role="alert"
+            className="flex min-h-52 flex-col items-center justify-center px-5 py-10 text-center"
+          >
+            <div className="flex size-12 items-center justify-center rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                className="size-5"
+                aria-hidden="true"
+              >
+                <path d="M12 8v4m0 4h.01M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0Z" />
+              </svg>
+            </div>
+
+            <p className="mt-4 text-sm font-semibold text-slate-800">
+              Unable to load products
+            </p>
+
+            <p className="mt-1 max-w-md text-sm leading-6 text-rose-600">
+              {error}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="mt-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
+            >
+              Try Again
+            </button>
           </div>
         ) : products.length === 0 ? (
-          <div className="flex min-h-40 items-center justify-center">
-            <p className="text-sm text-gray-500">
+          <div className="flex min-h-60 flex-col items-center justify-center px-5 py-12 text-center">
+            <div className="flex size-14 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-7"
+                aria-hidden="true"
+              >
+                <path d="m7 4 5-2 5 2 4 3-2 13H5L3 7l4-3Z" />
+                <path d="M7 4 5 20m12-16 2 16M3 7h18" />
+              </svg>
+            </div>
+
+            <h3 className="mt-4 text-sm font-semibold text-slate-900">
               {lowStock
-                ? "No low-stock products found."
-                : "No products found."}
+                ? "No low-stock products found"
+                : "No products found"}
+            </h3>
+
+            <p className="mt-1 max-w-sm text-sm leading-6 text-slate-500">
+              {lowStock
+                ? "All matching products are above the low-stock threshold."
+                : "Try changing your search terms or adjusting the filters."}
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-gray-300 bg-gray-50">
-                <tr className="divide-x divide-gray-300 text-left">
-                  <th className="px-6 py-4 font-semibold text-gray-700">
+            <table className="w-full min-w-[1050px] text-sm">
+              <thead className="border-b border-slate-200 bg-slate-50">
+                <tr className="text-left">
+                  <th className="px-5 py-4 font-semibold text-slate-600 sm:px-6">
                     Product
                   </th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">
+
+                  <th className="px-5 py-4 font-semibold text-slate-600">
                     SKU
                   </th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">
+
+                  <th className="px-5 py-4 font-semibold text-slate-600">
                     Brand
                   </th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">
+
+                  <th className="px-5 py-4 font-semibold text-slate-600">
                     Category
                   </th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">
+
+                  <th className="px-5 py-4 font-semibold text-slate-600">
                     Price
                   </th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">
+
+                  <th className="px-5 py-4 font-semibold text-slate-600">
                     Stock
                   </th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">
+
+                  <th className="px-5 py-4 font-semibold text-slate-600">
                     Status
                   </th>
-                  <th className="px-6 py-4 text-right font-semibold text-gray-700">
+
+                  <th className="px-5 py-4 text-right font-semibold text-slate-600">
                     Actions
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-300">
-                {products.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="divide-x divide-gray-300 transition hover:bg-gray-50"
-                  >
-                    {/* Product */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {product.images?.[0]?.url ? (
-                          <Image
-                            src={product.images[0].url}
-                            alt={product.name}
-                            width={48}
-                            height={48}
-                            className="h-12 w-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100 text-xs text-gray-400">
-                            No Image
-                          </div>
-                        )}
+              <tbody className="divide-y divide-slate-100">
+                {products.map((product, index) => {
+                  const stockStyle =
+                    product.stock === 0
+                      ? "border-rose-200 bg-rose-50 text-rose-700"
+                      : product.stock <= 10
+                        ? "border-amber-200 bg-amber-50 text-amber-700"
+                        : "border-emerald-200 bg-emerald-50 text-emerald-700";
 
-                        <span className="font-medium text-gray-900">
-                          {product.name}
+                  const stockLabel =
+                    product.stock === 0
+                      ? "Out of stock"
+                      : `${product.stock} in stock`;
+
+                  const statusStyle =
+                    product.status === "ACTIVE"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : product.status === "INACTIVE"
+                        ? "border-slate-200 bg-slate-100 text-slate-600"
+                        : "border-amber-200 bg-amber-50 text-amber-700";
+
+                  return (
+                    <motion.tr
+                      key={product.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.25,
+                        delay: Math.min(index * 0.035, 0.2),
+                        ease: "easeOut",
+                      }}
+                      className="transition-colors hover:bg-slate-50/80"
+                    >
+                      {/* Product */}
+                      <td className="px-5 py-4 sm:px-6">
+                        <div className="flex min-w-56 items-center gap-3">
+                          {product.images?.[0]?.url ? (
+                            <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+                              <Image
+                                src={product.images[0].url}
+                                alt={product.name}
+                                width={48}
+                                height={48}
+                                className="size-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-400">
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.5}
+                                className="size-5"
+                                aria-hidden="true"
+                              >
+                                <rect
+                                  x="3"
+                                  y="3"
+                                  width="18"
+                                  height="18"
+                                  rx="2"
+                                />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <path d="m21 15-5-5L5 21" />
+                              </svg>
+                            </div>
+                          )}
+
+                          <span className="max-w-64 font-medium leading-5 text-slate-900">
+                            {product.name}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* SKU */}
+                      <td className="whitespace-nowrap px-5 py-4 font-mono text-xs text-slate-500">
+                        {product.sku}
+                      </td>
+
+                      {/* Brand */}
+                      <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                        {product.brand?.name ?? "—"}
+                      </td>
+
+                      {/* Category */}
+                      <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                        {product.category?.name ?? "—"}
+                      </td>
+
+                      {/* Price */}
+                      <td className="whitespace-nowrap px-5 py-4">
+                        <span className="font-semibold text-blue-700">
+                          {Number(product.price).toLocaleString("vi-VN")} ₫
                         </span>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* SKU */}
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.sku}
-                    </td>
-
-                    {/* Brand */}
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.brand?.name ?? "-"}
-                    </td>
-
-                    {/* Category */}
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.category?.name ?? "-"}
-                    </td>
-
-                    {/* Price */}
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      {Number(product.price).toLocaleString("vi-VN")} VND
-                    </td>
-
-                    {/* Stock */}
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                          product.stock === 0
-                            ? "bg-red-100 text-red-700"
-                            : product.stock <= 10
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-green-100 text-green-700"
-                        }`}
-                      >
-                        {product.stock === 0
-                          ? "Out of stock"
-                          : `${product.stock} in stock`}
-                      </span>
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                          product.status === "ACTIVE"
-                            ? "bg-green-100 text-green-700"
-                            : product.status === "INACTIVE"
-                            ? "bg-gray-100 text-gray-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {product.status}
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            router.push(
-                              `/admin/products/${product.id}/edit`
-                            )
-                          }
-                          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                      {/* Stock */}
+                      <td className="whitespace-nowrap px-5 py-4">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${stockStyle}`}
                         >
-                          Edit
-                        </button>
+                          <span className="size-1.5 rounded-full bg-current" />
+                          {stockLabel}
+                        </span>
+                      </td>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleDeleteProduct(product.id)
-                          }
-                          disabled={deletingId === product.id}
-                          className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      {/* Status */}
+                      <td className="whitespace-nowrap px-5 py-4">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusStyle}`}
                         >
-                          {deletingId === product.id
-                            ? "Deleting..."
-                            : "Delete"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <span className="size-1.5 rounded-full bg-current" />
+                          {product.status}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="whitespace-nowrap px-5 py-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              router.push(
+                                `/admin/products/${product.id}/edit`
+                              )
+                            }
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.8}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="size-3.5"
+                              aria-hidden="true"
+                            >
+                              <path d="m15 5 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
+                            </svg>
+
+                            Edit
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleDeleteProduct(product.id)
+                            }
+                            disabled={deletingId === product.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {deletingId === product.id ? (
+                              <>
+                                <span className="size-3.5 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600" />
+                                Deleting...
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.8}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="size-3.5"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
+                                </svg>
+
+                                Delete
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </motion.section>
 
       {/* Pagination */}
-      {products.length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Page {pagination.page} of {pagination.totalPages}
+      {products.length > 0 && !loading && !error && (
+        <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-500">
+            Page{" "}
+            <span className="font-semibold text-slate-900">
+              {pagination.page}
+            </span>{" "}
+            of{" "}
+            <span className="font-semibold text-slate-900">
+              {pagination.totalPages}
+            </span>
           </p>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setPage((prev) => prev - 1)}
-              disabled={page <= 1}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={page <= 1 || loading}
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-4"
+                aria-hidden="true"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+
               Previous
             </button>
 
             <button
               type="button"
               onClick={() => setPage((prev) => prev + 1)}
-              disabled={page >= pagination.totalPages}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={page >= pagination.totalPages || loading}
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-4"
+                aria-hidden="true"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </button>
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
-
-// chứa logic và giao diện quản lý sản phẩm của bạn.
-export default function AdminProductsPage() { // bọc trang quản lý sản phẩm bằng Suspense để xử lý trạng thái chờ của Next.js
-  return ( // Thay vì đặt toàn bộ logic trong component này, chúng ta tách phần giao diện và xử lý sản phẩm vào AdminProductsContent.
-    <Suspense // Suspense cho phép React hiển thị một giao diện tạm thời khi component con cần chờ trước khi có thể render. 
-      fallback={ // Đây là giao diện tạm thời mà React hiển thị trong lúc component con đang chờ.
-        <div className="flex min-h-40 items-center justify-center text-sm text-gray-500">
+// Bọc trang quản lý sản phẩm bằng Suspense để xử lý trạng thái chờ của Next.js.
+export default function AdminProductsPage() {
+  // Suspense hiển thị giao diện tạm thời trong lúc component con đang chờ render.
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="flex min-h-40 items-center justify-center gap-3 text-sm text-slate-500"
+          aria-busy="true"
+        >
+          <span className="size-4 animate-spin rounded-full border-2 border-blue-100 border-t-blue-600" />
           Loading products...
         </div>
       }
@@ -388,4 +733,3 @@ export default function AdminProductsPage() { // bọc trang quản lý sản ph
     </Suspense>
   );
 }
-// Xử lý khi component chưa thể render, chẳng hạn do useSearchParams()
