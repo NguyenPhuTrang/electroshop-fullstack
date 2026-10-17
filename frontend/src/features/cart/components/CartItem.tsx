@@ -1,7 +1,7 @@
-
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 import type { CartItem as CartItemType } from "@/src/features/cart/types/cart";
 import {
@@ -22,7 +22,6 @@ export default function CartItem({
 }: CartItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
-  const [actionError, setActionError] = useState("");
 
   const quantity = item.quantity;
   const stock = item.product.stock;
@@ -59,29 +58,43 @@ export default function CartItem({
 
   const isBusy = isUpdating || isRemoving;
 
+  // Update Quantity
+  const handleQuantityUpdate = async (newQuantity: number) => {
+    if (isBusy || newQuantity < 1 || newQuantity > stock) {
+      return;
+    }
+
+    const toastId = toast.loading("Updating cart quantity...");
+
+    setIsUpdating(true);
+
+    try {
+      await updateCartItem(item.productId, newQuantity);
+
+      onQuantityChange(item.productId, newQuantity);
+
+      toast.success("Cart quantity updated.", {
+        id: toastId,
+        description: `${item.product.name} · Quantity: ${newQuantity}`,
+      });
+    } catch (error) {
+      console.error("Failed to update cart quantity:", error);
+
+      toast.error("Unable to update quantity. Please try again.", {
+        id: toastId,
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   // Increase Quantity
   const handleIncrease = async () => {
     if (isBusy || quantity >= stock || stock <= 0) {
       return;
     }
 
-    const newQuantity = quantity + 1;
-
-    setIsUpdating(true);
-    setActionError("");
-
-    try {
-      await updateCartItem(item.productId, newQuantity);
-      onQuantityChange(item.productId, newQuantity);
-    } catch (error) {
-      console.error("Failed to update cart quantity", error);
-
-      setActionError(
-        "Unable to update quantity. Please try again."
-      );
-    } finally {
-      setIsUpdating(false);
-    }
+    await handleQuantityUpdate(quantity + 1);
   };
 
   // Decrease Quantity
@@ -90,23 +103,7 @@ export default function CartItem({
       return;
     }
 
-    const newQuantity = quantity - 1;
-
-    setIsUpdating(true);
-    setActionError("");
-
-    try {
-      await updateCartItem(item.productId, newQuantity);
-      onQuantityChange(item.productId, newQuantity);
-    } catch (error) {
-      console.error("Failed to update cart quantity", error);
-
-      setActionError(
-        "Unable to update quantity. Please try again."
-      );
-    } finally {
-      setIsUpdating(false);
-    }
+    await handleQuantityUpdate(quantity - 1);
   };
 
   // Remove Item
@@ -115,18 +112,25 @@ export default function CartItem({
       return;
     }
 
+    const toastId = toast.loading("Removing item from cart...");
+
     setIsRemoving(true);
-    setActionError("");
 
     try {
       await removeCartItem(item.productId);
-      onRemove(item.productId);
-    } catch (error) {
-      console.error("Failed to remove cart item", error);
 
-      setActionError(
-        "Unable to remove this item. Please try again."
-      );
+      onRemove(item.productId);
+
+      toast.success("Item removed from cart.", {
+        id: toastId,
+        description: item.product.name,
+      });
+    } catch (error) {
+      console.error("Failed to remove cart item:", error);
+
+      toast.error("Unable to remove this item. Please try again.", {
+        id: toastId,
+      });
     } finally {
       setIsRemoving(false);
     }
@@ -267,16 +271,6 @@ export default function CartItem({
           </p>
         </div>
       </div>
-
-      {/* Action Error */}
-      {actionError && (
-        <p
-          role="alert"
-          className="mx-2 mb-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-700"
-        >
-          {actionError}
-        </p>
-      )}
     </article>
   );
 }

@@ -1,7 +1,7 @@
-
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { cancelOrder } from "../services/order.service";
 
 type CancelOrderButtonProps = {
@@ -22,16 +22,26 @@ export default function CancelOrderButton({
 
     setLoading(true);
 
-    // Optimistically hide the order immediately.
+    const toastId = toast.loading("Cancelling order...");
+
+    // Optimistically update the order status.
     onCancelled(orderId);
 
     try {
       await cancelOrder(orderId);
+
+      toast.success("Order cancelled successfully.", {
+        id: toastId,
+      });
     } catch (error) {
       console.error("Failed to cancel order:", error);
 
-      // Restore the order if the request fails.
+      // Restore the original order status if the request fails.
       onRestore(orderId);
+
+      toast.error("Unable to cancel this order. Please try again.", {
+        id: toastId,
+      });
     } finally {
       setLoading(false);
     }
@@ -42,9 +52,7 @@ export default function CancelOrderButton({
       type="button"
       onClick={() => void handleCancelOrderButton()}
       disabled={loading}
-      aria-label={
-        loading ? "Canceling order..." : "Cancel order"
-      }
+      aria-label={loading ? "Canceling order..." : "Cancel order"}
       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {loading ? (

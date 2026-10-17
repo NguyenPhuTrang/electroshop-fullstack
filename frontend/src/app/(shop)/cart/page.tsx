@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -11,6 +10,7 @@ import type { Cart } from "@/src/features/cart/types/cart";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null);
@@ -18,14 +18,12 @@ export default function CartPage() {
   const [requiresLogin, setRequiresLogin] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
-  const [actionError, setActionError] = useState("");
 
   // Fetch Cart
   const fetchCart = useCallback(async () => {
     setIsLoading(true);
     setRequiresLogin(false);
     setLoadError(false);
-    setActionError("");
 
     try {
       const data = await getCart();
@@ -90,8 +88,9 @@ export default function CartPage() {
   const handleClearCart = async () => {
     if (!cart || cart.items.length === 0 || isClearing) return;
 
+    const toastId = toast.loading("Clearing cart...");
+
     setIsClearing(true);
-    setActionError("");
 
     try {
       await clearCart();
@@ -104,12 +103,16 @@ export default function CartPage() {
           items: [],
         };
       });
+
+      toast.success("Cart cleared successfully.", {
+        id: toastId,
+      });
     } catch (error) {
       console.error("Failed to clear cart", error);
 
-      setActionError(
-        "Unable to clear your cart. Please try again."
-      );
+      toast.error("Unable to clear your cart. Please try again.", {
+        id: toastId,
+      });
     } finally {
       setIsClearing(false);
     }
@@ -278,9 +281,6 @@ export default function CartPage() {
     0
   );
 
-  const formatPrice = (price: number) =>
-    `${price.toLocaleString("vi-VN")} VND`;
-
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
       <div className="mx-auto w-full max-w-7xl px-3 py-5 sm:px-5 sm:py-7 lg:px-6 lg:py-8">
@@ -288,7 +288,7 @@ export default function CartPage() {
         <section className="relative mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -right-10 -top-16 size-44 rounded-full bg-cyan-100/60 blur-3xl"
+            className="pointer-events-none absolute -right-10 -top-16 size-44 rounded-full"
           />
 
           <div
@@ -350,7 +350,7 @@ export default function CartPage() {
           <section className="relative overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-12 text-center shadow-sm sm:py-16">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -left-12 top-0 size-40 rounded-full bg-cyan-50 blur-3xl"
+              className="pointer-events-none absolute -left-12 top-0 size-40 rounded-full"
             />
 
             <div className="relative">
@@ -465,15 +465,6 @@ export default function CartPage() {
                     )}
                   </button>
                 </div>
-
-                {actionError && (
-                  <p
-                    role="alert"
-                    className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm leading-5 text-rose-700"
-                  >
-                    {actionError}
-                  </p>
-                )}
 
                 <div className="divide-y divide-slate-100">
                   {cart.items.map((item) => (

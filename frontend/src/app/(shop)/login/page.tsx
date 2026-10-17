@@ -1,8 +1,8 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { setAccessToken } from "@/src/features/auth/services/auth-token";
 import { login } from "@/src/features/auth/services/auth.service";
@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const router = useRouter();
   const { setUser } = useUser();
@@ -23,7 +22,9 @@ export default function LoginPage() {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    setErrorMessage("");
+
+    // Show loading notification
+    const toastId = toast.loading("Signing in...");
 
     try {
       const result = await login({
@@ -34,6 +35,11 @@ export default function LoginPage() {
       setAccessToken(result.data.accessToken);
       setUser(result.data.user);
 
+      // Update loading notification to success
+      toast.success("Signed in successfully!", {
+        id: toastId,
+      });
+
       if (result.data.user.role === "ADMIN") {
         router.replace("/admin");
       } else {
@@ -42,8 +48,12 @@ export default function LoginPage() {
     } catch (error) {
       console.error("Login failed:", error);
 
-      setErrorMessage(
-        "Unable to sign in. Please check your email and password and try again."
+      // Update loading notification to error
+      toast.error(
+        "Unable to sign in. Please check your email and password and try again.",
+        {
+          id: toastId,
+        }
       );
     } finally {
       setIsSubmitting(false);
@@ -100,10 +110,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  setErrorMessage("");
-                }}
+                onChange={(event) => setEmail(event.target.value)}
                 placeholder="Enter your email"
                 required
                 disabled={isSubmitting}
@@ -125,35 +132,13 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                  setErrorMessage("");
-                }}
+                onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter your password"
                 required
                 disabled={isSubmitting}
                 className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50"
               />
             </div>
-
-            {/* Error Message */}
-            {errorMessage && (
-              <div
-                role="alert"
-                className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm leading-5 text-rose-700"
-              >
-                <div className="flex items-start gap-2">
-                  <span
-                    aria-hidden="true"
-                    className="font-semibold"
-                  >
-                    !
-                  </span>
-
-                  <p>{errorMessage}</p>
-                </div>
-              </div>
-            )}
 
             {/* Submit Button */}
             <button

@@ -1,9 +1,9 @@
-
 "use client";
 
 import Image from "next/image";
 import { useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import {
   changeMyPassword,
@@ -13,11 +13,6 @@ import {
 
 import type { User } from "@/src/features/user/types/user";
 import { useUser } from "@/src/hooks/useUser";
-
-type Feedback = {
-  type: "success" | "error";
-  message: string;
-} | null;
 
 const inputClassName =
   "h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
@@ -30,30 +25,6 @@ const secondaryButtonClassName =
 
 const sectionClassName =
   "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:p-6";
-
-function FeedbackMessage({ feedback }: { feedback: Feedback }) {
-  if (!feedback) return null;
-
-  const isSuccess = feedback.type === "success";
-
-  return (
-    <div
-      role={isSuccess ? "status" : "alert"}
-      className={`rounded-xl border px-3.5 py-3 text-sm leading-5 ${
-        isSuccess
-          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-          : "border-rose-200 bg-rose-50 text-rose-700"
-      }`}
-    >
-      <div className="flex items-start gap-2">
-        <span aria-hidden="true" className="font-semibold">
-          {isSuccess ? "✓" : "!"}
-        </span>
-        <p>{feedback.message}</p>
-      </div>
-    </div>
-  );
-}
 
 function SectionHeading({
   number,
@@ -92,23 +63,17 @@ export default function AccountPage() {
   const [email, setEmail] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [profileFeedback, setProfileFeedback] =
-    useState<Feedback>(null);
 
   // Password
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
-  const [passwordFeedback, setPasswordFeedback] =
-    useState<Feedback>(null);
 
   // Avatar
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [avatarFeedback, setAvatarFeedback] =
-    useState<Feedback>(null);
 
   // Loading State
   if (loading) {
@@ -179,15 +144,13 @@ export default function AccountPage() {
     if (isSavingProfile) return;
 
     if (!name.trim() || !email.trim()) {
-      setProfileFeedback({
-        type: "error",
-        message: "Name and email are required.",
-      });
+      toast.error("Name and email are required.");
       return;
     }
 
     setIsSavingProfile(true);
-    setProfileFeedback(null);
+
+    const toastId = toast.loading("Saving profile...");
 
     try {
       const updatedUser = await updateMyProfile({
@@ -198,16 +161,15 @@ export default function AccountPage() {
       setUser(updatedUser);
       setIsEditing(false);
 
-      setProfileFeedback({
-        type: "success",
-        message: "Your profile has been updated successfully.",
+      toast.success("Your profile has been updated successfully.", {
+        id: toastId,
+        description: "Your account information is up to date.",
       });
     } catch (error) {
       console.error("Failed to update profile:", error);
 
-      setProfileFeedback({
-        type: "error",
-        message: "Unable to update your profile. Please try again.",
+      toast.error("Unable to update your profile. Please try again.", {
+        id: toastId,
       });
     } finally {
       setIsSavingProfile(false);
@@ -219,15 +181,13 @@ export default function AccountPage() {
     if (isSavingPassword) return;
 
     if (!currentPassword || !newPassword) {
-      setPasswordFeedback({
-        type: "error",
-        message: "Please enter your current and new passwords.",
-      });
+      toast.error("Please enter your current and new passwords.");
       return;
     }
 
     setIsSavingPassword(true);
-    setPasswordFeedback(null);
+
+    const toastId = toast.loading("Updating password...");
 
     try {
       await changeMyPassword({
@@ -239,17 +199,19 @@ export default function AccountPage() {
       setNewPassword("");
       setIsChangingPassword(false);
 
-      setPasswordFeedback({
-        type: "success",
-        message: "Your password has been changed successfully.",
+      toast.success("Your password has been changed successfully.", {
+        id: toastId,
+        description: "Your account security settings have been updated.",
       });
     } catch (error) {
       console.error("Failed to change password:", error);
 
-      setPasswordFeedback({
-        type: "error",
-        message: "Unable to change your password. Please check your current password and try again.",
-      });
+      toast.error(
+        "Unable to change your password. Please check your current password and try again.",
+        {
+          id: toastId,
+        }
+      );
     } finally {
       setIsSavingPassword(false);
     }
@@ -263,7 +225,6 @@ export default function AccountPage() {
 
     setSelectedFile(file);
     setImageUrl("");
-    setAvatarFeedback(null);
   };
 
   // Upload Avatar
@@ -271,10 +232,7 @@ export default function AccountPage() {
     if (isUploadingAvatar) return;
 
     if (!selectedFile && !imageUrl.trim()) {
-      setAvatarFeedback({
-        type: "error",
-        message: "Choose an image file or enter an image URL first.",
-      });
+      toast.error("Choose an image file or enter an image URL first.");
       return;
     }
 
@@ -289,16 +247,14 @@ export default function AccountPage() {
           throw new Error("Invalid image URL");
         }
       } catch {
-        setAvatarFeedback({
-          type: "error",
-          message: "Please enter a valid HTTP or HTTPS image URL.",
-        });
+        toast.error("Please enter a valid HTTP or HTTPS image URL.");
         return;
       }
     }
 
     setIsUploadingAvatar(true);
-    setAvatarFeedback(null);
+
+    const toastId = toast.loading("Updating profile avatar...");
 
     try {
       let updatedUser: User;
@@ -321,16 +277,15 @@ export default function AccountPage() {
         fileInput.value = "";
       }
 
-      setAvatarFeedback({
-        type: "success",
-        message: "Your profile avatar has been updated.",
+      toast.success("Your profile avatar has been updated.", {
+        id: toastId,
+        description: "Your new avatar is now visible on your account.",
       });
     } catch (error) {
       console.error("Failed to upload avatar:", error);
 
-      setAvatarFeedback({
-        type: "error",
-        message: "Unable to update your avatar. Please try again.",
+      toast.error("Unable to update your avatar. Please try again.", {
+        id: toastId,
       });
     } finally {
       setIsUploadingAvatar(false);
@@ -342,7 +297,6 @@ export default function AccountPage() {
     setName(user.name);
     setEmail(user.email);
     setIsEditing(false);
-    setProfileFeedback(null);
   };
 
   // Cancel Password Editing
@@ -350,48 +304,47 @@ export default function AccountPage() {
     setCurrentPassword("");
     setNewPassword("");
     setIsChangingPassword(false);
-    setPasswordFeedback(null);
   };
 
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
       <div className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-5 sm:py-7 lg:px-6 lg:py-8">
         {/* Page Heading */}
-    
-            <section className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between">
-              {/* Left: Page Heading */}
-              <div className="min-w-0 flex-1">
-                <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-100 bg-cyan-50 px-3 py-1">
-                  <span className="size-1.5 rounded-full bg-cyan-500" />
+        <section className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between">
+          {/* Left: Page Heading */}
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-100 bg-cyan-50 px-3 py-1">
+              <span className="size-1.5 rounded-full bg-cyan-500" />
 
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-800 sm:text-xs">
-                    Your personal space
-                  </p>
-                </div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-800 sm:text-xs">
+                Your personal space
+              </p>
+            </div>
 
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                  My Account
-                </h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+              My Account
+            </h1>
 
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                  Manage your profile, security settings, and order history.
-                </p>
-              </div>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Manage your profile, security settings, and order history.
+            </p>
+          </div>
 
-              {/* Right: Account Reminder */}
-              <div className="flex shrink-0 items-center gap-2.5 rounded-xl border border-cyan-100 bg-cyan-50/70 p-3.5 lg:max-w-lg">
-                <span
-                  className="shrink-0 text-cyan-700"
-                  aria-hidden="true"
-                >
-                  ✦
-                </span>
+          {/* Right: Account Reminder */}
+          <div className="flex shrink-0 items-center gap-2.5 rounded-xl border border-cyan-100 bg-cyan-50/70 p-3.5 lg:max-w-lg">
+            <span
+              className="shrink-0 text-cyan-700"
+              aria-hidden="true"
+            >
+              ✦
+            </span>
 
-                <p className="text-xs leading-5 text-slate-600">
-                  Keep your account information up to date for a smoother shopping experience ~~~
-                </p>
-              </div>
-            </section>
+            <p className="text-xs leading-5 text-slate-600">
+              Keep your account information up to date for a smoother
+              shopping experience ~~~
+            </p>
+          </div>
+        </section>
 
         {/* Profile Avatar */}
         <section className={`${sectionClassName} mb-5 overflow-hidden`}>
@@ -509,7 +462,6 @@ export default function AccountPage() {
                   onChange={(event) => {
                     setImageUrl(event.target.value);
                     setSelectedFile(null);
-                    setAvatarFeedback(null);
                   }}
                   disabled={isUploadingAvatar}
                   placeholder="Image URL"
@@ -565,10 +517,6 @@ export default function AccountPage() {
                 Your avatar will appear across your account.
               </p>
             </div>
-
-            <div className="mt-4">
-              <FeedbackMessage feedback={avatarFeedback} />
-            </div>
           </div>
         </section>
 
@@ -599,10 +547,7 @@ export default function AccountPage() {
                       id="account-name"
                       type="text"
                       value={name}
-                      onChange={(event) => {
-                        setName(event.target.value);
-                        setProfileFeedback(null);
-                      }}
+                      onChange={(event) => setName(event.target.value)}
                       placeholder="Enter your name"
                       autoComplete="name"
                       className={inputClassName}
@@ -630,10 +575,7 @@ export default function AccountPage() {
                       id="account-email"
                       type="email"
                       value={email}
-                      onChange={(event) => {
-                        setEmail(event.target.value);
-                        setProfileFeedback(null);
-                      }}
+                      onChange={(event) => setEmail(event.target.value)}
                       placeholder="Enter your email"
                       autoComplete="email"
                       className={inputClassName}
@@ -682,9 +624,7 @@ export default function AccountPage() {
               </div>
 
               <div className="mt-5 border-t border-slate-100 pt-4">
-                <FeedbackMessage feedback={profileFeedback} />
-
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                   {isEditing ? (
                     <>
                       <button
@@ -721,7 +661,6 @@ export default function AccountPage() {
                       onClick={() => {
                         setName(user.name);
                         setEmail(user.email);
-                        setProfileFeedback(null);
                         setIsEditing(true);
                       }}
                       className={primaryButtonClassName}
@@ -793,16 +732,9 @@ export default function AccountPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <FeedbackMessage feedback={passwordFeedback} />
-                  </div>
-
                   <button
                     type="button"
-                    onClick={() => {
-                      setPasswordFeedback(null);
-                      setIsChangingPassword(true);
-                    }}
+                    onClick={() => setIsChangingPassword(true)}
                     className={`${secondaryButtonClassName} mt-4`}
                   >
                     Change Password
@@ -823,11 +755,11 @@ export default function AccountPage() {
                       type="password"
                       autoComplete="current-password"
                       value={currentPassword}
-                      onChange={(event) => {
-                        setCurrentPassword(event.target.value);
-                        setPasswordFeedback(null);
-                      }}
+                      onChange={(event) =>
+                        setCurrentPassword(event.target.value)
+                      }
                       placeholder="Enter current password"
+                      disabled={isSavingPassword}
                       className={inputClassName}
                     />
                   </div>
@@ -845,11 +777,11 @@ export default function AccountPage() {
                       type="password"
                       autoComplete="new-password"
                       value={newPassword}
-                      onChange={(event) => {
-                        setNewPassword(event.target.value);
-                        setPasswordFeedback(null);
-                      }}
+                      onChange={(event) =>
+                        setNewPassword(event.target.value)
+                      }
                       placeholder="Enter new password"
+                      disabled={isSavingPassword}
                       className={inputClassName}
                     />
 
@@ -857,8 +789,6 @@ export default function AccountPage() {
                       Use a password that you do not use elsewhere.
                     </p>
                   </div>
-
-                  <FeedbackMessage feedback={passwordFeedback} />
 
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -908,7 +838,7 @@ export default function AccountPage() {
                 description="Review your past purchases and order details."
               />
 
-              <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white p-4 sm:p-5">
+              <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-white p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-600/15">
                     <svg
@@ -943,12 +873,11 @@ export default function AccountPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    router.push("/account/orders/history")
-                  }
+                  onClick={() => router.push("/account/orders/history")}
                   className={`${primaryButtonClassName} mt-5 w-full sm:w-auto`}
                 >
                   View Order History
+
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 24 24"
@@ -965,7 +894,6 @@ export default function AccountPage() {
                   </svg>
                 </button>
               </div>
-
             </div>
           </section>
         </div>

@@ -1,10 +1,10 @@
-
 "use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 
 import { register } from "@/src/features/auth/services/auth.service";
 
@@ -15,7 +15,6 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
 
-  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
@@ -27,14 +26,16 @@ export default function RegisterPage() {
 
     if (isSubmitting) return;
 
-    setError("");
-
+    // Validate password confirmation
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     }
 
     setIsSubmitting(true);
+
+    // Show loading notification
+    const toastId = toast.loading("Creating your account...");
 
     try {
       await register({
@@ -44,16 +45,25 @@ export default function RegisterPage() {
         avatarUrl: avatarUrl.trim() || undefined,
       });
 
+      // Update loading notification to success
+      toast.success("Account created successfully!", {
+        id: toastId,
+        description: "You can now sign in with your new account.",
+      });
+
       router.push("/login");
     } catch (error: unknown) {
+      let errorMessage = "Registration failed. Please try again.";
+
       if (axios.isAxiosError<{ message?: string }>(error)) {
-        setError(
-          error.response?.data?.message ??
-            "Registration failed. Please try again."
-        );
-      } else {
-        setError("Registration failed. Please try again.");
+        errorMessage =
+          error.response?.data?.message ?? errorMessage;
       }
+
+      // Update loading notification to error
+      toast.error(errorMessage, {
+        id: toastId,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -114,10 +124,7 @@ export default function RegisterPage() {
                 id="register-name"
                 type="text"
                 value={name}
-                onChange={(event) => {
-                  setName(event.target.value);
-                  setError("");
-                }}
+                onChange={(event) => setName(event.target.value)}
                 minLength={2}
                 autoComplete="name"
                 placeholder="Enter your full name"
@@ -140,10 +147,7 @@ export default function RegisterPage() {
                 id="register-email"
                 type="email"
                 value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  setError("");
-                }}
+                onChange={(event) => setEmail(event.target.value)}
                 autoComplete="email"
                 placeholder="Enter your email"
                 required
@@ -165,10 +169,7 @@ export default function RegisterPage() {
                 id="register-password"
                 type="password"
                 value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                  setError("");
-                }}
+                onChange={(event) => setPassword(event.target.value)}
                 minLength={6}
                 autoComplete="new-password"
                 placeholder="Create a password"
@@ -176,7 +177,6 @@ export default function RegisterPage() {
                 disabled={isSubmitting}
                 className={inputClassName}
               />
-
             </div>
 
             {/* Confirm Password */}
@@ -192,10 +192,9 @@ export default function RegisterPage() {
                 id="register-confirm-password"
                 type="password"
                 value={confirmPassword}
-                onChange={(event) => {
-                  setConfirmPassword(event.target.value);
-                  setError("");
-                }}
+                onChange={(event) =>
+                  setConfirmPassword(event.target.value)
+                }
                 minLength={6}
                 autoComplete="new-password"
                 placeholder="Re-enter your password"
@@ -221,35 +220,12 @@ export default function RegisterPage() {
                 id="register-avatar"
                 type="url"
                 value={avatarUrl}
-                onChange={(event) => {
-                  setAvatarUrl(event.target.value);
-                  setError("");
-                }}
+                onChange={(event) => setAvatarUrl(event.target.value)}
                 placeholder="Image URL"
                 disabled={isSubmitting}
                 className={inputClassName}
               />
-
             </div>
-
-            {/* Error Message */}
-            {error && (
-              <div
-                role="alert"
-                className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm leading-5 text-rose-700"
-              >
-                <div className="flex items-start gap-2">
-                  <span
-                    aria-hidden="true"
-                    className="font-semibold"
-                  >
-                    !
-                  </span>
-
-                  <p>{error}</p>
-                </div>
-              </div>
-            )}
 
             {/* Submit Button */}
             <button

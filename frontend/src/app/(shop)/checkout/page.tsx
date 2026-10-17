@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { getAddresses } from "@/src/features/address/services/address.service";
 import type { Address } from "@/src/features/address/types/address";
@@ -65,7 +65,6 @@ export default function CheckoutPage() {
 
   // Checkout State
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   // Fetch Addresses
   const fetchAddresses = useCallback(async () => {
@@ -81,23 +80,26 @@ export default function CheckoutPage() {
         (address) => address.isDefault
       );
 
-      if (defaultAddress) {
-        setSelectedAddressId(defaultAddress.id);
-        setShippingName(defaultAddress.fullName);
-        setShippingPhone(defaultAddress.phone);
-        setShippingAddress(defaultAddress.address);
-        setShippingCity(defaultAddress.city);
-        setShippingDistrict(defaultAddress.district);
-      } else if (data.length > 0) {
-        setSelectedAddressId(data[0].id);
-        setShippingName(data[0].fullName);
-        setShippingPhone(data[0].phone);
-        setShippingAddress(data[0].address);
-        setShippingCity(data[0].city);
-        setShippingDistrict(data[0].district);
+      const initialAddress = defaultAddress ?? data[0];
+
+      if (initialAddress) {
+        setSelectedAddressId(initialAddress.id);
+        setShippingName(initialAddress.fullName);
+        setShippingPhone(initialAddress.phone);
+        setShippingAddress(initialAddress.address);
+        setShippingCity(initialAddress.city);
+        setShippingDistrict(initialAddress.district);
+      } else {
+        setSelectedAddressId(null);
+        setShippingName("");
+        setShippingPhone("");
+        setShippingAddress("");
+        setShippingCity("");
+        setShippingDistrict("");
       }
     } catch (error) {
       console.error("Failed to get addresses:", error);
+
       setAddressError(
         "Unable to load your saved addresses. Please try again."
       );
@@ -120,6 +122,7 @@ export default function CheckoutPage() {
       setCart(data);
     } catch (error) {
       console.error("Failed to get cart:", error);
+
       setCartError("Unable to load your cart. Please try again.");
     } finally {
       setIsLoadingCart(false);
@@ -139,8 +142,6 @@ export default function CheckoutPage() {
     setShippingAddress(address.address);
     setShippingCity(address.city);
     setShippingDistrict(address.district);
-
-    setCheckoutError(null);
   };
 
   // Calculate Order Total
@@ -157,15 +158,13 @@ export default function CheckoutPage() {
   const handleCreateOrder = async () => {
     if (isSubmitting) return;
 
-    setCheckoutError(null);
-
     if (!cart || cart.items.length === 0) {
-      setCheckoutError("Your cart is empty.");
+      toast.error("Your cart is empty.");
       return;
     }
 
     if (!selectedAddressId) {
-      setCheckoutError("Please select a shipping address.");
+      toast.error("Please select a shipping address.");
       return;
     }
 
@@ -176,7 +175,7 @@ export default function CheckoutPage() {
       !shippingCity.trim() ||
       !shippingDistrict.trim()
     ) {
-      setCheckoutError(
+      toast.error(
         "Please complete all required shipping information."
       );
       return;
@@ -187,13 +186,15 @@ export default function CheckoutPage() {
       paymentMethod === "VNPAY" ||
       paymentMethod === "CREDIT_CARD"
     ) {
-      setCheckoutError(
+      toast.error(
         "This payment method is not available yet. Please choose Cash on Delivery or Bank Transfer."
       );
       return;
     }
 
     setIsSubmitting(true);
+
+    const toastId = toast.loading("Placing your order...");
 
     try {
       const result = await createOrder({
@@ -206,12 +207,20 @@ export default function CheckoutPage() {
         paymentMethod,
       });
 
+      toast.success("Order placed successfully!", {
+        id: toastId,
+        description: "Redirecting to your order details...",
+      });
+
       router.push(`/orders/${result.order.id}`);
     } catch (error) {
       console.error("Failed to create order:", error);
 
-      setCheckoutError(
-        "Unable to place your order. Please check your information and try again."
+      toast.error(
+        "Unable to place your order. Please check your information and try again.",
+        {
+          id: toastId,
+        }
       );
 
       setIsSubmitting(false);
@@ -234,6 +243,7 @@ export default function CheckoutPage() {
               <p className="text-sm font-semibold text-slate-700">
                 Loading checkout...
               </p>
+
               <p className="mt-1 text-xs text-slate-400">
                 Preparing your order information.
               </p>
@@ -248,6 +258,7 @@ export default function CheckoutPage() {
                   className="animate-pulse rounded-xl border border-slate-200 bg-white p-6"
                 >
                   <div className="h-5 w-44 rounded bg-slate-200" />
+
                   <div className="mt-5 space-y-4">
                     <div className="h-11 rounded-lg bg-slate-100" />
                     <div className="h-11 rounded-lg bg-slate-100" />
@@ -259,6 +270,7 @@ export default function CheckoutPage() {
 
             <div className="h-72 animate-pulse rounded-xl border border-slate-200 bg-white p-6">
               <div className="h-5 w-36 rounded bg-slate-200" />
+
               <div className="mt-6 space-y-4">
                 <div className="h-12 rounded-lg bg-slate-100" />
                 <div className="h-12 rounded-lg bg-slate-100" />
@@ -368,21 +380,6 @@ export default function CheckoutPage() {
           </p>
         </header>
 
-        {/* Checkout Error */}
-        {checkoutError && (
-          <div
-            role="alert"
-            className="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-          >
-            <div className="flex items-start gap-2">
-              <span aria-hidden="true" className="font-semibold">
-                !
-              </span>
-              <p>{checkoutError}</p>
-            </div>
-          </div>
-        )}
-
         <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
           {/* Checkout Details */}
           <div className="space-y-5">
@@ -420,6 +417,7 @@ export default function CheckoutPage() {
               {isLoadingAddresses ? (
                 <div className="mt-5 flex items-center gap-3 rounded-lg border border-slate-200 p-4">
                   <LoadingSpinner />
+
                   <p className="text-sm text-slate-500">
                     Loading saved addresses...
                   </p>
@@ -555,10 +553,9 @@ export default function CheckoutPage() {
                     type="text"
                     autoComplete="name"
                     value={shippingName}
-                    onChange={(event) => {
-                      setShippingName(event.target.value);
-                      setCheckoutError(null);
-                    }}
+                    onChange={(event) =>
+                      setShippingName(event.target.value)
+                    }
                     placeholder="Enter recipient's name"
                     className={inputClassName}
                     required
@@ -575,10 +572,9 @@ export default function CheckoutPage() {
                     type="tel"
                     autoComplete="tel"
                     value={shippingPhone}
-                    onChange={(event) => {
-                      setShippingPhone(event.target.value);
-                      setCheckoutError(null);
-                    }}
+                    onChange={(event) =>
+                      setShippingPhone(event.target.value)
+                    }
                     placeholder="Enter phone number"
                     className={inputClassName}
                     required
@@ -598,10 +594,9 @@ export default function CheckoutPage() {
                     type="text"
                     autoComplete="street-address"
                     value={shippingAddress}
-                    onChange={(event) => {
-                      setShippingAddress(event.target.value);
-                      setCheckoutError(null);
-                    }}
+                    onChange={(event) =>
+                      setShippingAddress(event.target.value)
+                    }
                     placeholder="House number, street name, etc."
                     className={inputClassName}
                     required
@@ -618,10 +613,9 @@ export default function CheckoutPage() {
                     type="text"
                     autoComplete="address-level2"
                     value={shippingCity}
-                    onChange={(event) => {
-                      setShippingCity(event.target.value);
-                      setCheckoutError(null);
-                    }}
+                    onChange={(event) =>
+                      setShippingCity(event.target.value)
+                    }
                     placeholder="Enter city"
                     className={inputClassName}
                     required
@@ -640,10 +634,9 @@ export default function CheckoutPage() {
                     id="shipping-district"
                     type="text"
                     value={shippingDistrict}
-                    onChange={(event) => {
-                      setShippingDistrict(event.target.value);
-                      setCheckoutError(null);
-                    }}
+                    onChange={(event) =>
+                      setShippingDistrict(event.target.value)
+                    }
                     placeholder="Enter district"
                     className={inputClassName}
                     required
@@ -696,10 +689,7 @@ export default function CheckoutPage() {
                     name="paymentMethod"
                     value="COD"
                     checked={paymentMethod === "COD"}
-                    onChange={() => {
-                      setPaymentMethod("COD");
-                      setCheckoutError(null);
-                    }}
+                    onChange={() => setPaymentMethod("COD")}
                     className="mt-1 size-4 accent-blue-600"
                   />
 
@@ -727,10 +717,9 @@ export default function CheckoutPage() {
                     name="paymentMethod"
                     value="BANK_TRANSFER"
                     checked={paymentMethod === "BANK_TRANSFER"}
-                    onChange={() => {
-                      setPaymentMethod("BANK_TRANSFER");
-                      setCheckoutError(null);
-                    }}
+                    onChange={() =>
+                      setPaymentMethod("BANK_TRANSFER")
+                    }
                     className="mt-1 size-4 accent-blue-600"
                   />
 

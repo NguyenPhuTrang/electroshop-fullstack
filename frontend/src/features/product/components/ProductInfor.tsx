@@ -4,6 +4,7 @@
 import { addCartItem } from "@/src/features/cart/services/cart.service";
 import { useState } from "react";
 import { Review } from "../../review/types/review";
+import { toast } from "sonner";
 
 type ProductInforProps = {
   productId: number;
@@ -63,39 +64,42 @@ export default function ProductInfor({
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
 
-  const [cartMessage, setCartMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
 
-  const handleAddToCart = async () => {
-    if (stock <= 0 || quantity < 1 || quantity > stock || addingToCart) {
-      return;
-    }
 
-    try {
-      setAddingToCart(true);
-      setCartMessage(null);
+ const handleAddToCart = async () => {
+  if (stock <= 0 || quantity < 1 || quantity > stock || addingToCart) {
+    return;
+  }
 
-      await addCartItem(productId, quantity);
+  setAddingToCart(true);
 
-      setCartMessage({
-        type: "success",
-        text: `${quantity} ${
-          quantity === 1 ? "item has" : "items have"
-        } been added to your cart.`,
-      });
-    } catch (error) {
-      console.error("Failed to add product to cart", error);
+  const toastId = toast.loading("Adding to your cart...");
 
-      setCartMessage({
-        type: "error",
-        text: "Unable to add this product to your cart. Please try again.",
-      });
-    } finally {
-      setAddingToCart(false);
-    }
-  };
+  try {
+    await addCartItem(productId, quantity);
+
+    toast.success(
+      `${quantity} ${
+        quantity === 1 ? "item has" : "items have"
+      } been added to your cart.`,
+      {
+        id: toastId,
+        description: name,
+      }
+    );
+  } catch (error) {
+    console.error("Failed to add product to cart", error);
+
+    toast.error(
+      "Unable to add this product to your cart. Please try again.",
+      {
+        id: toastId,
+      }
+    );
+  } finally {
+    setAddingToCart(false);
+  }
+};
 
   return (
     <div className="flex flex-col">
@@ -330,22 +334,7 @@ export default function ProductInfor({
           </>
         )}
       </button>
-
-      {/* Cart Feedback */}
-      {cartMessage && (
-        <div
-          role={cartMessage.type === "error" ? "alert" : "status"}
-          aria-live="polite"
-          className={`mt-3 rounded-xl border px-3 py-2.5 text-sm leading-5 ${
-            cartMessage.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-red-200 bg-red-50 text-red-700"
-          }`}
-        >
-          {cartMessage.text}
-        </div>
-      )}
-
+      
       {/* Supporting Note */}
       <p className="mt-4 text-center text-xs leading-5 text-slate-500">
         Secure checkout · Quality products · Customer support
