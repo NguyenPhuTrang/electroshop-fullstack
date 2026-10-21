@@ -1,22 +1,43 @@
+
 import { z } from "zod";
 
-const productImageSchema = z.object({
-  url: z.string().url("Invalid image URL"),
-  isPrimary: z.boolean(),
+const productFieldsSchema = z.object({
+    name: z
+        .string()
+        .trim()
+        .min(1, "Product name is required"),
+
+    slug: z
+        .string()
+        .trim()
+        .min(1, "Slug is required"),
+
+    description: z
+        .string()
+        .optional(),
+
+    categoryId: z
+        .number()
+        .int()
+        .positive("Invalid category ID"),
+
+    brandId: z
+        .number()
+        .int()
+        .positive("Invalid brand ID"),
 });
 
-export const createProductSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  slug: z.string().min(1, "Slug is required"),
-  description: z.string().optional(),
-  price: z.number().positive("Price must be greater than 0"),
-  salePrice: z.number().min(0).nullable().optional(),
-  stock: z.number().int().min(0, "Stock cannot be negative"),
-  categoryId: z.number().int().positive(),
-  brandId: z.number().int().positive(),
-
-  images: z.array(productImageSchema).optional(),
-});
+export const createProductSchema = productFieldsSchema;
 
 export const updateProductSchema =
-  createProductSchema.partial();
+    productFieldsSchema
+        .partial()
+        .extend({
+            status: z
+                .enum(["ACTIVE", "INACTIVE"])
+                .optional(),
+        });
+
+export type CreateProductInput = z.infer<typeof createProductSchema>;
+
+export type UpdateProductInput = z.infer<typeof updateProductSchema>;

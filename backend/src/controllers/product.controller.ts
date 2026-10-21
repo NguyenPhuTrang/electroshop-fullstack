@@ -4,7 +4,6 @@ import {
   createProductSchema,
   updateProductSchema,
 } from "../validations/product.validation";
-import { success } from "zod";
 
 export const getProductsController = async (
   req: Request,
@@ -415,6 +414,13 @@ if (!result.success) {
     success: false,
     message: "Invalid product data",
     errors: result.error.issues,
+  });
+}
+
+if (Object.keys(result.data).length === 0) {
+  return res.status(400).json({
+    success: false,
+    message: "At least one field is required to update the product",
   });
 }
 
