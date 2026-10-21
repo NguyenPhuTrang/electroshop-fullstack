@@ -1,8 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { addCartItem, clearCart, getCart, removeCartItem, updateCartItem } from "../services/cart.service";
-import { addCartItemSchema, updateCartItemSchema } from "../validations/cart.validation";
-import { OrderStatus } from "../generated/prisma/enums";
-import { getAllOrders } from "../services/order.service";
+
+import {
+    addCartItem,
+    clearCart,
+    getCart,
+    removeCartItem,
+    updateCartItem,
+} from "../services/cart.service";
+
+import {
+    addCartItemSchema,
+    updateCartItemSchema,
+} from "../validations/cart.validation";
 
 export const getCartController = async (
     req: Request,
@@ -11,7 +20,6 @@ export const getCartController = async (
 ) => {
     try {
         const userId = req.user!.userId;
-
         const cart = await getCart(userId);
 
         return res.status(200).json({
@@ -27,16 +35,18 @@ export const getCartController = async (
 export const addCartItemController = async (
     req: Request,
     res: Response,
-    next: NextFunction      
+    next: NextFunction
 ) => {
     try {
-        const result = addCartItemSchema.safeParse(req.body);
+        const validation = addCartItemSchema.safeParse(
+            req.body
+        );
 
-        if (!result.success) {
+        if (!validation.success) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid cart item data",
-                errors: result.error.issues,
+                errors: validation.error.issues,
             });
         }
 
@@ -44,8 +54,9 @@ export const addCartItemController = async (
 
         const item = await addCartItem(
             userId,
-            result.data.productId,
-            result.data.quantity
+            validation.data.productId,
+            validation.data.variantId ?? null,
+            validation.data.quantity
         );
 
         return res.status(201).json({
@@ -58,37 +69,42 @@ export const addCartItemController = async (
     }
 };
 
-
 export const updateCartItemController = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const result = updateCartItemSchema.safeParse(req.body);
+        const cartItemId = Number(req.params.cartItemId);
 
-        if (!result.success) {
+        if (
+            !Number.isSafeInteger(cartItemId) ||
+            cartItemId <= 0
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid cart item ID",
+            });
+        }
+
+        const validation = updateCartItemSchema.safeParse(
+            req.body
+        );
+
+        if (!validation.success) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid cart item data",
-                errors: result.error.issues,
+                errors: validation.error.issues,
             });
         }
 
         const userId = req.user!.userId;
-        const productId = Number(req.params.productId);
-
-        if (!Number.isInteger(productId) || productId <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid product ID",
-            });
-        }
 
         const item = await updateCartItem(
             userId,
-            productId,
-            result.data.quantity
+            cartItemId,
+            validation.data.quantity
         );
 
         return res.status(200).json({
@@ -102,27 +118,30 @@ export const updateCartItemController = async (
 };
 
 export const removeCartItemController = async (
-    req : Request,
-    res : Response,
+    req: Request,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const userId = req.user!.userId;
-        const productId = Number(req.params.productId);
+        const cartItemId = Number(req.params.cartItemId);
 
-        if(!Number.isInteger(productId) || productId <= 0)
-        {
+        if (
+            !Number.isSafeInteger(cartItemId) ||
+            cartItemId <= 0
+        ) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid product ID ",
+                message: "Invalid cart item ID",
             });
         }
 
-        await removeCartItem(userId, productId);
+        const userId = req.user!.userId;
+
+        await removeCartItem(userId, cartItemId);
 
         return res.status(200).json({
-            success:true,
-            message: "Cart item removed successfully"
+            success: true,
+            message: "Cart item removed successfully",
         });
     } catch (error) {
         next(error);
@@ -133,7 +152,6 @@ export const clearCartController = async (
     req: Request,
     res: Response,
     next: NextFunction
-
 ) => {
     try {
         const userId = req.user!.userId;
@@ -148,8 +166,3 @@ export const clearCartController = async (
         next(error);
     }
 };
-
-
-
-
-

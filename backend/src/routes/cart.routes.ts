@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
     addCartItemController,
     clearCartController,
@@ -6,6 +7,7 @@ import {
     removeCartItemController,
     updateCartItemController,
 } from "../controllers/cart.controller";
+
 import { authMiddleware } from "../middlewares/auth.middlesware";
 
 const routes = Router();
@@ -23,13 +25,13 @@ routes.post(
 );
 
 routes.patch(
-    "/items/:productId",
+    "/items/:cartItemId",
     authMiddleware,
     updateCartItemController
 );
 
 routes.delete(
-    "/items/:productId",
+    "/items/:cartItemId",
     authMiddleware,
     removeCartItemController
 );

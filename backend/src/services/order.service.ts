@@ -1,6 +1,9 @@
-import { stat } from "node:fs";
 import { prisma } from "../config/prisma";
-import { OrderStatus, PaymentMethod, PaymentStatus } from "../generated/prisma/enums";
+import {
+    OrderStatus,
+    PaymentMethod,
+    PaymentStatus,
+} from "../generated/prisma/enums";
 import { AppError } from "../utils/AppError";
 
 interface CreateOrderData {
@@ -10,7 +13,7 @@ interface CreateOrderData {
     shippingCity: string;
     shippingDistrict: string;
     note?: string;
-    paymentMethod: PaymentMethod;// "VNPAY" | "STRIPE" | "COD" ...
+    paymentMethod: PaymentMethod;
 }
 
 export const createOrder = async (
@@ -18,47 +21,139 @@ export const createOrder = async (
     data: CreateOrderData
 ) => {
     return prisma.$transaction(async (tx) => {
-        // 1. Lấy Cart của user
         const cart = await tx.cart.findUnique({
-            where: {
-                userId,
-            },
+            where: { userId },
             include: {
                 items: {
                     include: {
                         product: true,
+                        variant: {
+                            include: {
+                                colorOption: true,
+                            },
+                        },
                     },
                 },
             },
         });
 
-        // 2. Kiểm tra Cart
         if (!cart || cart.items.length === 0) {
             throw new AppError("Cart is empty", 400);
         }
 
-        // 3. Tính subtotal
-        const subtotal = cart.items.reduce((sum, item) => {
-            return (
-                sum +
-                Number(item.product.salePrice ?? item.product.price) *
-                    item.quantity
+        const orderItems: {
+            productId: number;
+            variantId: number;
+            productName: string;
+            productSku: string;
+            price: number;
+            quantity: number;
+            subtotal: number;
+        }[] = [];
+
+        let subtotalCents = 0;
+
+        for (const item of cart.items) {
+            const product = item.product;
+            const variant = item.variant;
+
+            if (product.status !== "ACTIVE") {
+                throw new AppError(
+                    `Product is not available: ${product.name}`,
+                    400
+                );
+            }
+
+            if (
+                item.variantId === null ||
+                !variant ||
+                variant.productId !== product.id
+            ) {
+                throw new AppError(
+                    `A valid product variant is required for ${product.name}`,
+                    400
+                );
+            }
+
+            if (variant.status !== "ACTIVE") {
+                throw new AppError(
+                    `Product variant is not available: ${product.name}`,
+                    400
+                );
+            }
+
+            const unitPrice = Number(
+                variant.salePrice ?? variant.price
             );
-        }, 0);
 
-        // 4. Phí ship và discount
-        const shippingFee = 0;
-        const discount = 0;
+            const unitPriceCents = Math.round(
+                unitPrice * 100
+            );
 
-        // 5. Tổng tiền
-        const total = subtotal + shippingFee - discount;
+            const lineSubtotalCents =
+                unitPriceCents * item.quantity;
 
-        // 6. Tạo Order Number (thêm suffix random để tránh trùng)
-        const orderNumber = `ORD-${Date.now()}-${Math.floor(
-            Math.random() * 1000
-        )}`;
+            subtotalCents += lineSubtotalCents;
 
-        // 7. Tạo Order
+            const variantDescription = [
+                variant.storage,
+                variant.colorOption?.name,
+            ]
+                .filter(Boolean)
+                .join(" / ");
+
+            const productName = variantDescription
+                ? `${product.name} (${variantDescription})`
+                : product.name;
+
+            orderItems.push({
+                productId: product.id,
+                variantId: variant.id,
+                productName,
+                productSku: variant.sku,
+                price: unitPriceCents / 100,
+                quantity: item.quantity,
+                subtotal: lineSubtotalCents / 100,
+            });
+        }
+
+        for (const item of orderItems) {
+            const updateResult =
+                await tx.productVariant.updateMany({
+                    where: {
+                        id: item.variantId,
+                        productId: item.productId,
+                        status: "ACTIVE",
+                        stock: {
+                            gte: item.quantity,
+                        },
+                    },
+                    data: {
+                        stock: {
+                            decrement: item.quantity,
+                        },
+                    },
+                });
+
+            if (updateResult.count !== 1) {
+                throw new AppError(
+                    `Insufficient stock for variant: ${item.productSku}`,
+                    400
+                );
+            }
+        }
+
+        const shippingFeeCents = 0;
+        const discountCents = 0;
+
+        const totalCents =
+            subtotalCents +
+            shippingFeeCents -
+            discountCents;
+
+        const orderNumber =
+            `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
         const order = await tx.order.create({
             data: {
                 userId,
@@ -69,21 +164,19 @@ export const createOrder = async (
                 shippingCity: data.shippingCity,
                 shippingDistrict: data.shippingDistrict,
                 note: data.note,
-                subtotal,
-                shippingFee,
-                discount,
-                total,
+                subtotal: subtotalCents / 100,
+                shippingFee: shippingFeeCents / 100,
+                discount: discountCents / 100,
+                total: totalCents / 100,
                 items: {
-                    create: cart.items.map((item) => ({
+                    create: orderItems.map((item) => ({
                         productId: item.productId,
-                        productName: item.product.name,
-                        productSku: item.product.sku,
-                        price: item.product.salePrice ?? item.product.price,
+                        variantId: item.variantId,
+                        productName: item.productName,
+                        productSku: item.productSku,
+                        price: item.price,
                         quantity: item.quantity,
-                        subtotal:
-                            Number(
-                                item.product.salePrice ?? item.product.price
-                            ) * item.quantity,
+                        subtotal: item.subtotal,
                     })),
                 },
             },
@@ -92,56 +185,27 @@ export const createOrder = async (
             },
         });
 
-        // 8. Trừ stock (atomic - tự kiểm tra đủ hàng ngay trong update)
-       // 8. Trừ stock (atomic)
-        for (const item of cart.items) {
-            const updateResult = await tx.product.updateMany({
-                where: {
-                    id: item.productId,
-                    stock: {
-                        gte: item.quantity,
-                    },
-                },
-                data: {
-                    stock: {
-                        decrement: item.quantity,
-                    },
-                },
-            });
-
-            // Không update được nghĩa là stock không đủ
-            if (updateResult.count === 0) {
-                throw new AppError(
-                    `Insufficient stock for product: ${item.product.name}`,
-                    400
-                );
-            }
-        }
-
-        // 9. Tạo Payment record (trạng thái pending, chưa gọi API bên ngoài)
         const payment = await tx.payment.create({
             data: {
                 orderId: order.id,
-                amount: total,
+                amount: totalCents / 100,
                 method: data.paymentMethod,
                 status: PaymentStatus.PENDING,
             },
         });
 
-        // 10. Xóa CartItem
         await tx.cartItem.deleteMany({
             where: {
                 cartId: cart.id,
             },
         });
 
-        // 11. Trả Order + Payment
         return { order, payment };
     });
 };
 
 export const getOrdersByUserId = async (
-    userId : number
+    userId: number
 ) => {
     return prisma.order.findMany({
         where: {
@@ -172,12 +236,12 @@ export const getOrderById = async (
         },
     });
 
-    if(!order) {
+    if (!order) {
         throw new AppError("Order not found", 404);
     }
 
     return order;
-}
+};
 
 export const getAdminOrderById = async (
     orderId: number
@@ -198,20 +262,19 @@ export const getAdminOrderById = async (
             payment: true,
         },
     });
-    
-      if (!order) {
+
+    if (!order) {
         throw new AppError("Order not found", 404);
     }
 
     return order;
-}
+};
 
 export const updateOrderStatus = async (
     orderId: number,
     status: OrderStatus
 ) => {
     return prisma.$transaction(async (tx) => {
-
         const order = await tx.order.findUnique({
             where: {
                 id: orderId,
@@ -226,7 +289,10 @@ export const updateOrderStatus = async (
             throw new AppError("Order not found", 404);
         }
 
-        const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
+        const allowedTransitions: Record<
+            OrderStatus,
+            OrderStatus[]
+        > = {
             PENDING: ["CONFIRMED", "CANCELLED"],
             CONFIRMED: ["PROCESSING", "CANCELLED"],
             PROCESSING: ["SHIPPED"],
@@ -235,58 +301,105 @@ export const updateOrderStatus = async (
             CANCELLED: [],
         };
 
-        const allowedStatues = allowedTransitions[order.status];
-
-        if (!allowedStatues.includes(status)) {
+        if (
+            !allowedTransitions[order.status].includes(status)
+        ) {
             throw new AppError(
                 "Invalid order status transition",
                 400
             );
         }
 
-        if (status === "CANCELLED") {
-            for (const item of order.items) {
-                const updateResult = await tx.product.updateMany({
-                    where: {
-                        id: item.productId,
-                    },
-                    data: {
-                        stock: {
-                            increment: item.quantity,
-                        },
-                    },
-                });
-
-                if (updateResult.count === 0) {
-                    throw new AppError(
-                        `Product not found: ${item.productName}`, 
-                        404
-                    );
-                }
-            }
-
-            if(order.payment){
-                    if(order.payment.status === PaymentStatus.PENDING || order.payment.status === PaymentStatus.PROCESSING){
-                    await tx.payment.update({
-                        where: {
-                            id: order.payment.id,
-                        },
-                        data: {
-                            status: PaymentStatus.CANCELLED,
-                        },
-                    });
-                }
-            }
+        if (
+            status === "CANCELLED" &&
+            order.items.some((item) => item.variantId === null)
+        ) {
+            throw new AppError(
+                "This order contains an item without a variant. Manual inventory review is required before cancellation.",
+                409
+            );
         }
 
-        return tx.order.update({
+        const transitionResult = await tx.order.updateMany({
             where: {
                 id: orderId,
+                status: order.status,
             },
             data: {
                 status,
             },
         });
+
+        if (transitionResult.count !== 1) {
+            throw new AppError(
+                "Order status has changed. Please refresh and try again.",
+                409
+            );
+        }
+
+        if (status === "CANCELLED") {
+            for (const item of order.items) {
+                if (item.variantId === null) {
+                    throw new AppError(
+                        `Cannot restore stock for legacy order item: ${item.productSku}`,
+                        409
+                    );
+                }
+
+                const result =
+                    await tx.productVariant.updateMany({
+                        where: {
+                            id: item.variantId,
+                            productId: item.productId,
+                        },
+                        data: {
+                            stock: {
+                                increment: item.quantity,
+                            },
+                        },
+                    });
+
+                if (result.count !== 1) {
+                    throw new AppError(
+                        `Product variant not found: ${item.productSku}`,
+                        404
+                    );
+                }
+            }
+
+            if (
+                order.payment &&
+                (
+                    order.payment.status === PaymentStatus.PENDING ||
+                    order.payment.status === PaymentStatus.PROCESSING
+                )
+            ) {
+                await tx.payment.update({
+                    where: {
+                        id: order.payment.id,
+                    },
+                    data: {
+                        status: PaymentStatus.CANCELLED,
+                    },
+                });
+            }
+        }
+
+        const updatedOrder = await tx.order.findUnique({
+            where: {
+                id: orderId,
+            },
+            include: {
+                items: true,
+                payment: true,
+            },
+        });
+
+        if (!updatedOrder) {
+            throw new AppError("Order not found", 404);
+        }
+
+        return updatedOrder;
     });
 };
 
@@ -297,17 +410,19 @@ export const getAllOrders = async (
     search?: string
 ) => {
     const skip = (page - 1) * limit;
+
     const where = {
         ...(status && {
             status,
         }),
         ...(search && {
             orderNumber: {
-                contains: search, 
+                contains: search,
                 mode: "insensitive" as const,
             },
         }),
     };
+
     const [orders, total] = await Promise.all([
         prisma.order.findMany({
             where,
@@ -326,60 +441,119 @@ export const getAllOrders = async (
             where,
         }),
     ]);
+
     return {
         orders,
         pagination: {
             page,
             limit,
             total,
-            totalPages: Math.ceil(total/limit),
+            totalPages: Math.ceil(total / limit),
         },
     };
 };
 
 export const cancelOrder = async (
-  orderId: number,
-  userId: number
+    orderId: number,
+    userId: number
 ) => {
-    const order = await prisma.order.findFirst({
-        where: {
-            id: orderId,
-            userId
-        },
-        include: {
-            payment: true
-        }
-    });
-    if(!order){
-        throw new AppError("Order not found", 404)
-    }
-    if(order.status !== "PENDING")
-    {
-        throw new AppError("Only pending orders can be cancelled", 400)
-    }
-
     return prisma.$transaction(async (tx) => {
-        await tx.order.update({
+        const order = await tx.order.findFirst({
             where: {
                 id: orderId,
+                userId,
+            },
+            include: {
+                items: true,
+                payment: true,
+            },
+        });
+
+        if (!order) {
+            throw new AppError("Order not found", 404);
+        }
+
+        if (order.status !== "PENDING") {
+            throw new AppError(
+                "Only pending orders can be cancelled",
+                400
+            );
+        }
+
+        if (
+            order.items.some((item) => item.variantId === null)
+        ) {
+            throw new AppError(
+                "This order contains an item without a variant. Manual inventory review is required before cancellation.",
+                409
+            );
+        }
+
+        const cancellationResult = await tx.order.updateMany({
+            where: {
+                id: orderId,
+                userId,
+                status: "PENDING",
             },
             data: {
                 status: "CANCELLED",
             },
-            });
+        });
 
-            if (order.payment) {
-            await tx.payment.update({
-                where: {
-                orderId,
-                },
-                data: {
-                status: "CANCELLED",
-                },
-            });
+        if (cancellationResult.count !== 1) {
+            throw new AppError(
+                "Order status has changed. Please refresh and try again.",
+                409
+            );
+        }
+
+        for (const item of order.items) {
+            if (item.variantId === null) {
+                throw new AppError(
+                    `Cannot restore stock for legacy order item: ${item.productSku}`,
+                    409
+                );
             }
 
-            return tx.order.findUnique({
+            const result =
+                await tx.productVariant.updateMany({
+                    where: {
+                        id: item.variantId,
+                        productId: item.productId,
+                    },
+                    data: {
+                        stock: {
+                            increment: item.quantity,
+                        },
+                    },
+                });
+
+            if (result.count !== 1) {
+                throw new AppError(
+                    `Product variant not found: ${item.productSku}`,
+                    404
+                );
+            }
+        }
+
+        if (
+            order.payment &&
+            (
+                order.payment.status === PaymentStatus.PENDING ||
+                order.payment.status === PaymentStatus.PROCESSING
+            )
+        ) {
+            await tx.payment.update({
+                where: {
+                    id: order.payment.id,
+                },
+                data: {
+                    status: PaymentStatus.CANCELLED,
+                },
+            });
+        }
+
+        const cancelledOrder = await tx.order.findUnique({
             where: {
                 id: orderId,
             },
@@ -388,6 +562,12 @@ export const cancelOrder = async (
                 payment: true,
             },
         });
+
+        if (!cancelledOrder) {
+            throw new AppError("Order not found", 404);
+        }
+
+        return cancelledOrder;
     });
 };
 
@@ -402,7 +582,9 @@ export const getAdminOrdersByUserId = async (
 
     const where = {
         userId,
-        ...(status && { status }),
+        ...(status && {
+            status,
+        }),
         ...(search && {
             orderNumber: {
                 contains: search,
@@ -420,9 +602,14 @@ export const getAdminOrdersByUserId = async (
                 items: true,
                 payment: true,
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: {
+                createdAt: "desc",
+            },
         }),
-        prisma.order.count({ where }),
+
+        prisma.order.count({
+            where,
+        }),
     ]);
 
     return {
