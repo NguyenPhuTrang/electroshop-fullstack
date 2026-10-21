@@ -1,8 +1,9 @@
-
 import Link from "next/link";
 
-import ProductGallery from "@/src/features/product/components/ProductGallery";
-import ProductInfor from "@/src/features/product/components/ProductInfor";
+import ProductDetailsInteractive from "@/src/features/product/components/ProductDetailsInteractive";
+import ProductPromotionalVideo from "@/src/features/product/components/ProductPromotionalVideo";
+import TechnicalSpecifications from "@/src/features/product/components/TechnicalSpecifications";
+
 import { getProductBySlug } from "@/src/features/product/services/product.service";
 import ReviewList from "@/src/features/review/components/ReviewList";
 import { getReviewsByProductId } from "@/src/features/review/services/review.service";
@@ -63,31 +64,17 @@ export default async function ProductDetailPage({
           aria-label="Product details"
           className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:p-5"
         >
-          <div className="grid min-w-0 grid-cols-1 items-start gap-5 sm:gap-6 md:grid-cols-2 lg:gap-7">
-            {/* Product Gallery */}
-            <div className="mx-auto w-full min-w-0 max-w-[520px] md:mx-0">
-              <ProductGallery
-                images={product.images}
-                productName={product.name}
-              />
-            </div>
-
-            {/* Product Information */}
-            <div className="min-w-0">
-              <ProductInfor
-                productId={product.id}
-                name={product.name}
-                price={product.price}
-                salePrice={product.salePrice}
-                stock={product.stock}
-                brandName={product.brand.name}
-                categoryName={product.category.name}
-                description={product.description}
-                reviews={reviews}
-              />
-            </div>
-          </div>
+          <ProductDetailsInteractive
+            product={product}
+            reviews={reviews}
+          />
         </section>
+
+        {/* Product Promotional Video */}
+        <ProductPromotionalVideo videoUrl={product.videoUrl} />
+
+        {/* Technical Specifications */}
+        <TechnicalSpecifications productId={product.id} />
 
         {/* Customer Reviews */}
         <section

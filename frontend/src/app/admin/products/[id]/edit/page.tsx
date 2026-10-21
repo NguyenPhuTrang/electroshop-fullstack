@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "motion/react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import ProductForm, {
   type ProductFormValues,
@@ -13,7 +15,6 @@ import {
   updateProduct,
   type UpdateProductInput,
 } from "@/src/features/product/services/product.service";
-import { toast } from "sonner";
 
 function LoadingPlaceholder({
   className,
@@ -68,44 +69,21 @@ function EditProductLoading() {
         {/* Form Skeleton */}
         <div className="mt-6 space-y-6 rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            {Array.from({ length: 6 }, (_, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: index * 0.06,
-                  ease: "easeOut",
-                }}
-              >
+            {[1, 2, 3].map((item) => (
+              <div key={item}>
                 <LoadingPlaceholder className="h-4 w-28 rounded bg-slate-200" />
 
                 <LoadingPlaceholder
                   className="mt-3 h-11 w-full rounded-lg border border-slate-200 bg-slate-100"
-                  delay={0.1}
+                  delay={item * 0.1}
                 />
-              </motion.div>
+              </div>
             ))}
           </div>
 
           <div>
             <LoadingPlaceholder className="h-4 w-24 rounded bg-slate-200" />
             <LoadingPlaceholder className="mt-3 h-28 w-full rounded-lg bg-slate-100" />
-          </div>
-
-          <div>
-            <LoadingPlaceholder className="h-4 w-32 rounded bg-slate-200" />
-
-            <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {[1, 2, 3].map((item) => (
-                <LoadingPlaceholder
-                  key={item}
-                  className="aspect-square rounded-xl bg-slate-100"
-                  delay={item * 0.1}
-                />
-              ))}
-            </div>
           </div>
 
           <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
@@ -118,9 +96,41 @@ function EditProductLoading() {
   );
 }
 
+function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null) {
+    const response = (
+      error as {
+        response?: {
+          data?: {
+            message?: unknown;
+          };
+        };
+      }
+    ).response;
+
+    const message = response?.data?.message;
+
+    if (typeof message === "string" && message.trim()) {
+      return message;
+    }
+  }
+
+  return "Unable to update product. Please try again.";
+}
+
+function generateSlug(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export default function EditProductPage() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<{ id: string }>();
 
   const id = Number(params.id);
 
@@ -130,60 +140,51 @@ export default function EditProductPage() {
     error,
   } = useAdminProduct(id);
 
-const handleSubmit = async (values: ProductFormValues) => {
-  const data: UpdateProductInput = {
-    name: values.name,
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-    slug: values.name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, ""),
+  const handleSubmit = async (
+    values: ProductFormValues
+  ): Promise<void> => {
+    if (!Number.isInteger(id) || id <= 0) {
+      setSubmitError("Invalid product ID.");
+      return;
+    }
 
-    description: values.description,
+    setSubmitting(true);
+    setSubmitError("");
 
-    price: Number(values.price),
+    const toastId = toast.loading("Updating product...");
 
-    salePrice:
-      values.salePrice.trim() === ""
-        ? null
-        : Number(values.salePrice),
+    try {
+      const data: UpdateProductInput = {
+        name: values.name.trim(),
+        slug: generateSlug(values.name),
+        description: values.description.trim(),
+        categoryId: Number(values.categoryId),
+        brandId: Number(values.brandId),
+      };
 
-    stock: Number(values.stock),
+      await updateProduct(id, data);
 
-    categoryId: Number(values.categoryId),
+      toast.success("Product information updated successfully.", {
+        id: toastId,
+      });
+    } catch (error) {
+      console.error("Failed to update product:", error);
 
-    brandId: Number(values.brandId),
+      const message = getErrorMessage(error);
 
-    images: values.images.map((url, index) => ({
-      url,
-      isPrimary: index === values.primaryImageIndex,
-    })),
+      setSubmitError(message);
+
+      toast.error("Unable to update product.", {
+        id: toastId,
+        description: message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
-
-  const toastId = toast.loading("Updating product...");
-
-  try {
-    await updateProduct(id, data);
-
-    toast.success("Product updated successfully.", {
-      id: toastId,
-    });
-
-    router.push("/admin/products");
-  } catch (error) {
-    console.error("Failed to update product:", error);
-
-    toast.error("Unable to update product. Please try again.", {
-      id: toastId,
-    });
-
-    // Preserve the existing ProductForm error handling.
-    throw error;
-  }
-};
 
   if (loading) {
     return <EditProductLoading />;
@@ -252,29 +253,11 @@ const handleSubmit = async (values: ProductFormValues) => {
     );
   }
 
-  const primaryImageIndex = Math.max(
-    product.images.findIndex((image) => image.isPrimary),
-    0
-  );
-
   const initialValues: Partial<ProductFormValues> = {
     name: product.name,
-
     brandId: String(product.brandId),
-
     categoryId: String(product.categoryId),
-
     description: product.description ?? "",
-
-    price: product.price,
-
-    salePrice: product.salePrice ?? "",
-
-    stock: String(product.stock),
-
-    images: product.images.map((image) => image.url),
-
-    primaryImageIndex,
   };
 
   return (
@@ -301,14 +284,15 @@ const handleSubmit = async (values: ProductFormValues) => {
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Update product information, pricing, images, and inventory.
+              Update general product information.
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => router.push("/admin/products")}
-            className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            disabled={submitting}
+            className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <svg
               viewBox="0 0 24 24"
@@ -338,6 +322,8 @@ const handleSubmit = async (values: ProductFormValues) => {
             initialValues={initialValues}
             submitLabel="Update Product"
             submittingLabel="Updating..."
+            submitting={submitting}
+            submitError={submitError}
             onSubmit={handleSubmit}
             onCancel={() => router.push("/admin/products")}
           />

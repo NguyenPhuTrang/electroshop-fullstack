@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 
 import useBrands from "@/src/features/brand/hooks/useBrands";
 import { useCategories } from "@/src/features/category/hooks/useCategories";
@@ -13,18 +14,82 @@ import {
   deleteProduct,
   type ProductSort,
 } from "@/src/features/product/services/product.service";
-import { toast } from "sonner";
+import type {
+  Product,
+  ProductVariant,
+} from "@/src/features/product/types/product";
+
+function getEffectiveVariantPrice(variant: ProductVariant): number {
+  const price = Number(variant.price);
+
+  const salePrice =
+    variant.salePrice == null ? null : Number(variant.salePrice);
+
+  if (
+    salePrice !== null &&
+    Number.isFinite(salePrice) &&
+    salePrice < price
+  ) {
+    return salePrice;
+  }
+
+  return price;
+}
+
+function getProductVariantSummary(product: Product) {
+  const activeVariants = (product.variants ?? []).filter(
+    (variant) => variant.status === "ACTIVE"
+  );
+
+  const lowestPriceVariant = activeVariants.reduce<ProductVariant | null>(
+    (lowest, variant) => {
+      if (!lowest) {
+        return variant;
+      }
+
+      return getEffectiveVariantPrice(variant) <
+        getEffectiveVariantPrice(lowest)
+        ? variant
+        : lowest;
+    },
+    null
+  );
+
+  const stock = activeVariants.reduce(
+    (total, variant) => total + variant.stock,
+    0
+  );
+
+  const hasLowStockVariant = activeVariants.some(
+    (variant) => variant.stock <= 10
+  );
+
+  const lowestSellingPrice =
+    lowestPriceVariant !== null
+      ? getEffectiveVariantPrice(lowestPriceVariant)
+      : null;
+
+  const hasDiscount =
+    lowestPriceVariant !== null &&
+    lowestSellingPrice !== null &&
+    lowestSellingPrice < Number(lowestPriceVariant.price);
+
+  return {
+    activeVariantCount: activeVariants.length,
+    lowestPriceVariant,
+    lowestSellingPrice,
+    hasDiscount,
+    stock,
+    hasLowStockVariant,
+  };
+}
 
 function AdminProductsContent() {
-  // Component trang mà Next.js sử dụng để hiển thị /admin/products.
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // useSearchParams() dùng để đọc query parameters trên URL.
-  // Read the low-stock filter from the URL.
   const lowStock = searchParams.get("lowStock") === "true";
 
-  // Search / Filter.
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brandId, setBrandId] = useState("");
@@ -49,51 +114,69 @@ function AdminProductsContent() {
     lowStock,
   });
 
-  // Categories.
   const { categories } = useCategories();
 
-  // Brands.
   const { brands } = useBrands();
 
-const handleDeleteProduct = async (id: number) => {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this product?"
-  );
+  const handleDeleteProduct = async (id: number) => {
+    if (deletingId !== null) {
+      return;
+    }
 
-  if (!confirmed) {
-    return;
-  }
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
 
-  const toastId = toast.loading("Deleting product...");
+    if (!confirmed) {
+      return;
+    }
 
-  setDeletingId(id);
+    const toastId = toast.loading("Deleting product...");
 
-  try {
-    await deleteProduct(id);
+    setDeletingId(id);
 
-    toast.success("Product deleted successfully.", {
-      id: toastId,
-    });
-
-    // Refresh the product list after successful deletion.
     try {
-      await refetch();
+      await deleteProduct(id);
+
+      toast.success("Product deleted successfully.", {
+        id: toastId,
+      });
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+
+      toast.error("Unable to delete product. Please try again.", {
+        id: toastId,
+      });
+
+      setDeletingId(null);
+
+      return;
+    }
+
+    const shouldGoToPreviousPage =
+      products.length === 1 &&
+      pagination.page > 1 &&
+      pagination.page === pagination.totalPages;
+
+    try {
+      if (shouldGoToPreviousPage) {
+        setPage(Math.max(1, pagination.page - 1));
+      } else {
+        await refetch();
+      }
     } catch (refreshError) {
       console.error(
         "Failed to refresh products after deletion:",
         refreshError
       );
-    }
-  } catch (error) {
-    console.error("Failed to delete product:", error);
 
-    toast.error("Unable to delete product. Please try again.", {
-      id: toastId,
-    });
-  } finally {
-    setDeletingId(null);
-  }
-};
+      toast.error(
+        "Product deleted, but the list could not be refreshed. Please try again."
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <motion.div
@@ -124,8 +207,8 @@ const handleDeleteProduct = async (id: number) => {
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
             {lowStock
-              ? "Showing active products with 10 units or fewer in stock."
-              : "Manage your products, pricing, and inventory."}
+              ? "Showing active products with at least one variant at 10 units or fewer in stock."
+              : "Manage your products and variant-level pricing and inventory."}
           </p>
 
           {lowStock && (
@@ -216,8 +299,8 @@ const handleDeleteProduct = async (id: number) => {
             <input
               type="text"
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
+              onChange={(event) => {
+                setSearch(event.target.value);
                 setPage(1);
               }}
               placeholder="Search products..."
@@ -229,8 +312,8 @@ const handleDeleteProduct = async (id: number) => {
           {/* Category */}
           <select
             value={categoryId}
-            onChange={(e) => {
-              setCategoryId(e.target.value);
+            onChange={(event) => {
+              setCategoryId(event.target.value);
               setPage(1);
             }}
             aria-label="Filter by category"
@@ -248,8 +331,8 @@ const handleDeleteProduct = async (id: number) => {
           {/* Brand */}
           <select
             value={brandId}
-            onChange={(e) => {
-              setBrandId(e.target.value);
+            onChange={(event) => {
+              setBrandId(event.target.value);
               setPage(1);
             }}
             aria-label="Filter by brand"
@@ -267,8 +350,8 @@ const handleDeleteProduct = async (id: number) => {
           {/* Sort */}
           <select
             value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as ProductSort | "");
+            onChange={(event) => {
+              setSort(event.target.value as ProductSort | "");
               setPage(1);
             }}
             aria-label="Sort products"
@@ -297,7 +380,7 @@ const handleDeleteProduct = async (id: number) => {
             </h2>
 
             <p className="mt-1 text-xs text-slate-500">
-              View and manage product details and stock levels.
+              View and manage product details and variant-level stock levels.
             </p>
           </div>
 
@@ -305,7 +388,8 @@ const handleDeleteProduct = async (id: number) => {
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
               <span className="size-1.5 rounded-full bg-cyan-500" />
 
-              {products.length} {products.length === 1 ? "product" : "products"} on this page
+              {products.length}{" "}
+              {products.length === 1 ? "product" : "products"} on this page
             </span>
           )}
         </div>
@@ -418,7 +502,7 @@ const handleDeleteProduct = async (id: number) => {
 
             <p className="mt-1 max-w-sm text-sm leading-6 text-slate-500">
               {lowStock
-                ? "All matching products are above the low-stock threshold."
+                ? "No matching products have variants at or below the low-stock threshold."
                 : "Try changing your search terms or adjusting the filters."}
             </p>
           </div>
@@ -463,17 +547,30 @@ const handleDeleteProduct = async (id: number) => {
 
               <tbody className="divide-y divide-slate-100">
                 {products.map((product, index) => {
+                  const {
+                    activeVariantCount,
+                    lowestPriceVariant,
+                    lowestSellingPrice,
+                    hasDiscount,
+                    stock,
+                    hasLowStockVariant,
+                  } = getProductVariantSummary(product);
+
                   const stockStyle =
-                    product.stock === 0
-                      ? "border-rose-200 bg-rose-50 text-rose-700"
-                      : product.stock <= 10
-                        ? "border-amber-200 bg-amber-50 text-amber-700"
-                        : "border-emerald-200 bg-emerald-50 text-emerald-700";
+                    activeVariantCount === 0
+                      ? "border-slate-200 bg-slate-50 text-slate-500"
+                      : stock === 0
+                        ? "border-rose-200 bg-rose-50 text-rose-700"
+                        : hasLowStockVariant
+                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-700";
 
                   const stockLabel =
-                    product.stock === 0
-                      ? "Out of stock"
-                      : `${product.stock} in stock`;
+                    activeVariantCount === 0
+                      ? "No active variants"
+                      : stock === 0
+                        ? "Out of stock"
+                        : `${stock} total units`;
 
                   const statusStyle =
                     product.status === "ACTIVE"
@@ -536,7 +633,7 @@ const handleDeleteProduct = async (id: number) => {
                         </div>
                       </td>
 
-                      {/* SKU */}
+                      {/* Product SKU */}
                       <td className="whitespace-nowrap px-5 py-4 font-mono text-xs text-slate-500">
                         {product.sku}
                       </td>
@@ -551,14 +648,31 @@ const handleDeleteProduct = async (id: number) => {
                         {product.category?.name ?? "—"}
                       </td>
 
-                      {/* Price */}
+                      {/* Lowest effective selling price */}
                       <td className="whitespace-nowrap px-5 py-4">
-                        <span className="font-semibold text-blue-700">
-                          {Number(product.price).toLocaleString("vi-VN")} ₫
-                        </span>
+                        {lowestPriceVariant && lowestSellingPrice !== null ? (
+                          <div className="flex flex-col items-start gap-1">
+                            <span className="font-semibold text-blue-700">
+                              {lowestSellingPrice.toLocaleString("vi-VN")} ₫
+                            </span>
+
+                            {hasDiscount && (
+                              <span className="text-xs text-slate-400 line-through">
+                                {Number(
+                                  lowestPriceVariant.price
+                                ).toLocaleString("vi-VN")}{" "}
+                                ₫
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400">
+                            No active variant
+                          </span>
+                        )}
                       </td>
 
-                      {/* Stock */}
+                      {/* Total stock across active variants */}
                       <td className="whitespace-nowrap px-5 py-4">
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${stockStyle}`}
@@ -568,7 +682,7 @@ const handleDeleteProduct = async (id: number) => {
                         </span>
                       </td>
 
-                      {/* Status */}
+                      {/* Product Status */}
                       <td className="whitespace-nowrap px-5 py-4">
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusStyle}`}
@@ -579,67 +693,140 @@ const handleDeleteProduct = async (id: number) => {
                       </td>
 
                       {/* Actions */}
-                      <td className="whitespace-nowrap px-5 py-4">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              router.push(
-                                `/admin/products/${product.id}/edit`
-                              )
-                            }
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-                          >
-                            <svg
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={1.8}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="size-3.5"
-                              aria-hidden="true"
-                            >
-                              <path d="m15 5 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
-                            </svg>
+                 {/* Actions */}
+<td className="px-5 py-4">
+  <div className="flex min-w-[300px] flex-col items-end gap-2.5">
+    {/* Primary Actions */}
+    <div className="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        onClick={() =>
+          router.push(`/admin/products/${product.id}/edit`)
+        }
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-3.5"
+          aria-hidden="true"
+        >
+          <path d="m15 5 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
+        </svg>
+        Edit
+      </button>
 
-                            Edit
-                          </button>
+      <button
+        type="button"
+        onClick={() => handleDeleteProduct(product.id)}
+        disabled={deletingId !== null}
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {deletingId === product.id ? (
+          <>
+            <span className="size-3.5 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600" />
+            Deleting...
+          </>
+        ) : (
+          <>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-3.5"
+              aria-hidden="true"
+            >
+              <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
+            </svg>
+            Delete
+          </>
+        )}
+      </button>
+    </div>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleDeleteProduct(product.id)
-                            }
-                            disabled={deletingId === product.id}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {deletingId === product.id ? (
-                              <>
-                                <span className="size-3.5 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600" />
-                                Deleting...
-                              </>
-                            ) : (
-                              <>
-                                <svg
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth={1.8}
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="size-3.5"
-                                  aria-hidden="true"
-                                >
-                                  <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
-                                </svg>
+    {/* Product Management */}
+    <div className="flex flex-wrap items-center justify-end gap-1.5 border-t border-slate-100 pt-2">
+      <span className="mr-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+        Manage
+      </span>
 
-                                Delete
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </td>
+      <Link
+        href={`/admin/products/${product.id}/images`}
+        aria-label={`Manage images for ${product.name}`}
+        title="Manage product images"
+        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.7}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-3.5"
+          aria-hidden="true"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="m21 15-5-5L5 21" />
+        </svg>
+        Images
+      </Link>
+
+      <Link
+        href={`/admin/products/${product.id}/variants`}
+        aria-label={`Manage variants for ${product.name}`}
+        title="Manage product variants"
+        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.7}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-3.5"
+          aria-hidden="true"
+        >
+          <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+          <path d="m3 8v8l9 5 9-5V8" />
+          <path d="M12 13v8" />
+        </svg>
+        Variants
+      </Link>
+
+      <Link
+        href={`/admin/products/${product.id}/specifications`}
+        aria-label={`Manage specifications for ${product.name}`}
+        title="Manage product specifications"
+        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.7}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-3.5"
+          aria-hidden="true"
+        >
+          <path d="M8 4h13M8 12h13M8 20h13" />
+          <path d="M3 4h.01M3 12h.01M3 20h.01" />
+        </svg>
+        Specs
+      </Link>
+    </div>
+  </div>
+</td>
                     </motion.tr>
                   );
                 })}
@@ -666,7 +853,7 @@ const handleDeleteProduct = async (id: number) => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setPage((prev) => prev - 1)}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
               disabled={page <= 1 || loading}
               className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -714,9 +901,7 @@ const handleDeleteProduct = async (id: number) => {
   );
 }
 
-// Bọc trang quản lý sản phẩm bằng Suspense để xử lý trạng thái chờ của Next.js.
 export default function AdminProductsPage() {
-  // Suspense hiển thị giao diện tạm thời trong lúc component con đang chờ render.
   return (
     <Suspense
       fallback={

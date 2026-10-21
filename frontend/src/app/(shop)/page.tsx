@@ -1,17 +1,60 @@
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import ProductCard from "@/src/features/product/components/ProductCard";
 import { useProducts } from "@/src/features/product/hooks/useProducts";
+import type {
+  Product,
+  ProductVariant,
+} from "@/src/features/product/types/product";
+
+/**
+ * Find the active variant with the lowest effective selling price.
+ * Use salePrice when available; otherwise use the regular price.
+ */
+const getLowestPriceVariant = (
+  product: Product
+): ProductVariant | null => {
+  const activeVariants = (product.variants ?? []).filter(
+    (variant) => variant.status === "ACTIVE"
+  );
+
+  return activeVariants.reduce<ProductVariant | null>(
+    (lowest, variant) => {
+      if (!lowest) {
+        return variant;
+      }
+
+      const currentPrice = Number(
+        variant.salePrice ?? variant.price
+      );
+
+      const lowestPrice = Number(
+        lowest.salePrice ?? lowest.price
+      );
+
+      return currentPrice < lowestPrice ? variant : lowest;
+    },
+    null
+  );
+};
 
 export default function Home() {
   const { products, loading, error } = useProducts({
     page: 1,
-    limit: 30,
+    limit: 10,
+    sort: "newest",
   });
 
   // Featured Product Carousel
@@ -34,7 +77,84 @@ export default function Home() {
 
   const activeFeaturedProduct = featuredProducts[safeFeaturedIndex];
 
-  // Automatically switch products every 3 seconds
+  // Product Collection Carousel
+  const productsScrollerRef = useRef<HTMLDivElement>(null);
+
+  const [canScrollProductsLeft, setCanScrollProductsLeft] =
+    useState(false);
+  const [canScrollProductsRight, setCanScrollProductsRight] =
+    useState(false);
+
+  // Update arrow states based on the horizontal scroll position.
+  const updateProductScrollButtons = useCallback(() => {
+    const container = productsScrollerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    setCanScrollProductsLeft(container.scrollLeft > 4);
+
+    setCanScrollProductsRight(
+      container.scrollLeft + container.clientWidth <
+        container.scrollWidth - 4
+    );
+  }, []);
+
+  // Scroll approximately one product card at a time.
+  const scrollProducts = useCallback((direction: -1 | 1) => {
+    const container = productsScrollerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const firstCard =
+      container.querySelector<HTMLElement>("[data-product-slide]");
+
+    if (!firstCard) {
+      return;
+    }
+
+    const styles = window.getComputedStyle(container);
+    const gap = Number.parseFloat(styles.columnGap) || 0;
+    const distance = firstCard.getBoundingClientRect().width + gap;
+
+    container.scrollBy({
+      left: direction * distance,
+      behavior: "smooth",
+    });
+  }, []);
+
+  // Update carousel controls when products load or the layout changes.
+  useEffect(() => {
+    const container = productsScrollerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    updateProductScrollButtons();
+
+    window.addEventListener("resize", updateProductScrollButtons);
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateProductScrollButtons();
+    });
+
+    resizeObserver.observe(container);
+
+    return () => {
+      window.removeEventListener("resize", updateProductScrollButtons);
+      resizeObserver.disconnect();
+    };
+  }, [
+    products.length,
+    loading,
+    updateProductScrollButtons,
+  ]);
+
+  // Automatically switch featured products every 3 seconds.
   useEffect(() => {
     if (loading || error || featuredProductCount <= 1) {
       return;
@@ -75,7 +195,7 @@ export default function Home() {
               <div className="h-4 w-80 max-w-full rounded bg-slate-100" />
             </div>
 
-            {/* Compact Hero Skeleton */}
+            {/* Hero Skeleton */}
             <motion.div
               animate={{ opacity: [0.65, 1, 0.65] }}
               transition={{
@@ -103,24 +223,34 @@ export default function Home() {
               <div className="h-4 w-96 max-w-full rounded bg-slate-100" />
             </div>
 
-            {/* Product Card Skeletons */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, index) => (
+            {/* Product Carousel Skeleton */}
+            <div className="flex gap-5 overflow-hidden">
+              {Array.from({ length: 4 }, (_, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
                     duration: 0.3,
-                    delay: Math.min(index * 0.04, 0.24),
+                    delay: Math.min(index * 0.06, 0.24),
                     ease: "easeOut",
                   }}
-                  className="rounded-2xl border border-slate-200 bg-white p-4"
+                  className="min-w-0 flex-1"
                 >
-                  <div className="aspect-square rounded-xl bg-slate-100" />
-                  <div className="mt-5 h-4 w-4/5 rounded bg-slate-100" />
-                  <div className="mt-3 h-4 w-2/5 rounded bg-slate-100" />
-                  <div className="mt-5 h-9 rounded-xl bg-slate-100" />
+                  <motion.div
+                    animate={{ opacity: [0.4, 0.8, 0.4] }}
+                    transition={{
+                      duration: 1.4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    className="rounded-2xl border border-slate-200 bg-white p-4"
+                  >
+                    <div className="aspect-square rounded-xl bg-slate-100" />
+                    <div className="mt-5 h-4 w-4/5 rounded bg-slate-200" />
+                    <div className="mt-3 h-4 w-2/5 rounded bg-slate-100" />
+                    <div className="mt-5 h-9 rounded-xl bg-slate-100" />
+                  </motion.div>
                 </motion.div>
               ))}
             </div>
@@ -228,7 +358,7 @@ export default function Home() {
                 together performance, design, and the way you live.
               </p>
 
-             <div className="mt-3 flex flex-wrap items-center gap-4">
+              <div className="mt-3 flex flex-wrap items-center gap-4">
                 <motion.a
                   href="#products"
                   whileHover={{ y: -2, scale: 1.02 }}
@@ -264,7 +394,7 @@ export default function Home() {
                   </p>
 
                   <p className="mt-1 text-xs text-slate-400">
-                    Products available
+                    Latest products
                   </p>
                 </div>
 
@@ -282,7 +412,7 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Compact Featured Product Carousel */}
+            {/* Featured Product Carousel */}
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -302,7 +432,7 @@ export default function Home() {
                   repeat: Infinity,
                   ease: "linear",
                 }}
-                className="absolute left-1/2 top-1/2 aspect-square w-[85%] max-w-[30px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.025]"
+                className="absolute left-1/2 top-1/2 aspect-square w-[85%] max-w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.025]"
               />
 
               <motion.div
@@ -350,7 +480,6 @@ export default function Home() {
                         aria-label={`View ${activeFeaturedProduct.name}`}
                         className="absolute inset-0 block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
                       >
-                        {/* Product Image */}
                         <motion.div
                           className="absolute inset-0"
                           whileHover={{ scale: 1.035 }}
@@ -366,7 +495,6 @@ export default function Home() {
                           />
                         </motion.div>
 
-                        {/* Product Name */}
                         <div className="absolute bottom-3 left-1/2 z-10 w-max max-w-[75%] -translate-x-1/2 rounded-xl border border-white/10 bg-slate-950/75 px-4 py-2.5 text-center shadow-lg backdrop-blur-xl transition-colors hover:border-cyan-300/40 sm:bottom-4 sm:px-5">
                           <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-cyan-300">
                             Featured product
@@ -414,7 +542,7 @@ export default function Home() {
                 </motion.div>
               )}
 
-              {/* Carousel Indicators */}
+              {/* Featured Carousel Indicators */}
               {featuredProductCount > 1 && (
                 <div className="absolute bottom-3 right-4 z-20 flex items-center gap-2 sm:bottom-5 sm:right-6">
                   {featuredProducts.map((product, index) => (
@@ -434,42 +562,41 @@ export default function Home() {
                 </div>
               )}
 
-                {/* Welcome Message */}
-                <motion.div
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{
-                    opacity: 1,
-                    x: 0,
-                    y: [0, -4, 0],
-                  }}
-                  transition={{
-                    opacity: { duration: 0.4, delay: 0.3 },
-                    x: { duration: 0.4, delay: 0.3 },
-                    y: {
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    },
-                  }}
-                  className="absolute right-3 top-4 z-20 rounded-xl border border-white/10 bg-slate-950/75 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:right-6 sm:top-6 sm:px-4"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-cyan-300/15 text-lg text-cyan-200">
-                      ✨
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-semibold text-white sm:text-sm">
-                        Welcome ~~~
-                      </p>
-
-                      <p className="mt-1 text-[9px] text-slate-300 sm:text-[10px]">
-                        Find tech for everyday life
-                      </p>
-                    </div>
+              {/* Welcome Message */}
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                  y: [0, -4, 0],
+                }}
+                transition={{
+                  opacity: { duration: 0.4, delay: 0.3 },
+                  x: { duration: 0.4, delay: 0.3 },
+                  y: {
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  },
+                }}
+                className="absolute right-3 top-4 z-20 rounded-xl border border-white/10 bg-slate-950/75 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:right-6 sm:top-6 sm:px-4"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-cyan-300/15 text-lg text-cyan-200">
+                    ✨
                   </div>
-                </motion.div>
 
+                  <div>
+                    <p className="text-xs font-semibold text-white sm:text-sm">
+                      Welcome ~~~
+                    </p>
+
+                    <p className="mt-1 text-[9px] text-slate-300 sm:text-[10px]">
+                      Find tech for everyday life
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </motion.section>
@@ -484,8 +611,7 @@ export default function Home() {
           className="scroll-mt-6 pt-4 sm:pt-8"
         >
           {/* Collection Heading */}
-         
-          <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+          <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <div className="mb-1.5 flex items-center gap-2">
                 <span className="size-1.5 rounded-full bg-cyan-500" />
@@ -500,48 +626,120 @@ export default function Home() {
               </h2>
 
               <p className="mt-1 max-w-xl text-xs leading-5 text-slate-500 sm:text-sm">
-                Explore technology for work, entertainment, and everything in between.
+                Explore our latest products for work, entertainment, and
+                everyday life.
               </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm sm:self-auto">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
+            {/* View All and Carousel Controls */}
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+              <Link
+                href="/products"
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3.5 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              >
+                View All Products
 
-              <span className="text-xs font-medium text-slate-700">
-                {products.length}{" "}
-                {products.length === 1 ? "product" : "products"}
-              </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="size-4"
+                  aria-hidden="true"
+                >
+                  <path d="M7 17 17 7M7 7h10v10" />
+                </svg>
+              </Link>
+
+              {products.length > 1 && (
+                <div className="flex items-center gap-2">
+                  {/* Previous Products */}
+                  <button
+                    type="button"
+                    onClick={() => scrollProducts(-1)}
+                    disabled={!canScrollProductsLeft}
+                    aria-label="Previous products"
+                    className="flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-5"
+                      aria-hidden="true"
+                    >
+                      <path d="m15 18-6-6 6-6" />
+                    </svg>
+                  </button>
+
+                  {/* Next Products */}
+                  <button
+                    type="button"
+                    onClick={() => scrollProducts(1)}
+                    disabled={!canScrollProductsRight}
+                    aria-label="Next products"
+                    className="flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-5"
+                      aria-hidden="true"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-
-          {/* Product Grid */}
+          {/* Product Carousel */}
           {products.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
-              {products.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{
-                    duration: 0.35,
-                    delay: Math.min(index * 0.04, 0.2),
-                    ease: "easeOut",
-                  }}
-                  whileHover={{ y: -4 }}
-                  className="min-w-0"
-                >
-                  <ProductCard
-                    name={product.name}
-                    price={product.price}
-                    salePrice={product.salePrice}
-                    image={product.images[0]?.url}
-                    slug={product.slug}
-                    priority={index === 0}
-                  />
-                </motion.div>
-              ))}
+            <div
+              ref={productsScrollerRef}
+              onScroll={updateProductScrollButtons}
+              aria-label="Latest products"
+              className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {products.map((product, index) => {
+                const priceVariant = getLowestPriceVariant(product);
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    data-product-slide
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{
+                      duration: 0.35,
+                      delay: Math.min(index * 0.04, 0.2),
+                      ease: "easeOut",
+                    }}
+                    whileHover={{ y: -4 }}
+                    className="min-w-0 basis-[86%] shrink-0 snap-start sm:basis-[calc(50%_-_0.625rem)] lg:basis-[calc(33.333%_-_0.833rem)] xl:basis-[calc(25%_-_0.9375rem)]"
+                  >
+                    <ProductCard
+                      name={product.name}
+                      price={priceVariant?.price ?? "0"}
+                      salePrice={priceVariant?.salePrice ?? null}
+                      image={product.images[0]?.url}
+                      slug={product.slug}
+                      priority={index === 0}
+                    />
+                  </motion.div>
+                );
+              })}
             </div>
           ) : (
             <motion.div

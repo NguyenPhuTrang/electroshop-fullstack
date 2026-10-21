@@ -1,44 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
-  getAdminProducts,
-  GetProductsParams,
+    getAdminProducts,
 } from "../services/product.service";
-import { Product } from "../types/product";
 
-export function useAdminProducts(params: GetProductsParams) {
-  const {
-    search,
-    sort,
-    categoryId,
-    brandId,
-    minPrice,
-    maxPrice,
-    page,
-    limit,
-    lowStock
-  } = params;
+import type {
+    GetAdminProductsParams,
+} from "../services/product.service";
 
-  const [products, setProducts] = useState<Product[]>([]);
+import type {
+    ProductWithVariantSummary,
+} from "../types/product";
 
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 12,
-    total: 0,
-    totalPages: 0,
-  });
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const fetchProducts = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const data = await getAdminProducts({
+export function useAdminProducts(
+    params: GetAdminProductsParams = {}
+) {
+    const {
         search,
         sort,
         categoryId,
@@ -47,44 +26,95 @@ export function useAdminProducts(params: GetProductsParams) {
         maxPrice,
         page,
         limit,
-        lowStock
-      });
+        lowStock,
+    } = params;
 
-      setProducts(data.products);
-      setPagination(data.pagination);
-    } catch (error) {
-      console.error("Failed to get admin products", error);
-      setError("Failed to load products");
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    search,
-    sort,
-    categoryId,
-    brandId,
-    minPrice,
-    maxPrice,
-    page,
-    limit,
-    lowStock
-  ]);
+    const [products, setProducts] = useState<
+        ProductWithVariantSummary[]
+    >([]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchProducts();
-    }, 500);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 12,
+        total: 0,
+        totalPages: 0,
+    });
 
-    return () => {
-      clearTimeout(timer);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    const requestIdRef = useRef(0);
+
+    const fetchProducts = useCallback(async () => {
+        const requestId = ++requestIdRef.current;
+
+        try {
+            setLoading(true);
+            setError("");
+
+            const data = await getAdminProducts({
+                search,
+                sort,
+                categoryId,
+                brandId,
+                minPrice,
+                maxPrice,
+                page,
+                limit,
+                lowStock,
+            });
+
+            // Ignore responses from outdated requests.
+            if (requestId !== requestIdRef.current) {
+                return;
+            }
+
+            setProducts(data.products);
+            setPagination(data.pagination);
+        } catch (error) {
+            if (requestId !== requestIdRef.current) {
+                return;
+            }
+
+            console.error(
+                "Failed to get admin products:",
+                error
+            );
+
+            setError("Failed to load products");
+        } finally {
+            if (requestId === requestIdRef.current) {
+                setLoading(false);
+            }
+        }
+    }, [
+        search,
+        sort,
+        categoryId,
+        brandId,
+        minPrice,
+        maxPrice,
+        page,
+        limit,
+        lowStock,
+    ]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            void fetchProducts();
+        }, 500);
+
+        return () => {
+            clearTimeout(timer);
+            requestIdRef.current += 1;
+        };
+    }, [fetchProducts]);
+
+    return {
+        products,
+        pagination,
+        loading,
+        error,
+        refetch: fetchProducts,
     };
-  }, [fetchProducts]);
-
-  return {
-    products,
-    pagination,
-    loading,
-    error,
-    refetch: fetchProducts,
-  };
 }

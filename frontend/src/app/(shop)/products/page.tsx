@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,6 +5,10 @@ import { useEffect, useState } from "react";
 import ProductCard from "@/src/features/product/components/ProductCard";
 import type { ProductSort } from "@/src/features/product/services/product.service";
 import { useProducts } from "@/src/features/product/hooks/useProducts";
+import type {
+  Product,
+  ProductVariant,
+} from "@/src/features/product/types/product";
 
 import { useCategories } from "@/src/features/category/hooks/useCategories";
 import useBrands from "@/src/features/brand/hooks/useBrands";
@@ -49,6 +52,37 @@ function getVisiblePages(
 
 const inputClassName =
   "h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-slate-800 focus:ring-4 focus:ring-slate-900/5";
+
+/**
+ * Return the active variant with the lowest effective selling price.
+ * A variant's salePrice takes precedence when it is not null.
+ */
+function getLowestPriceVariant(
+  product: Product
+): ProductVariant | null {
+  const activeVariants = (product.variants ?? []).filter(
+    (variant) => variant.status === "ACTIVE"
+  );
+
+  return activeVariants.reduce<ProductVariant | null>(
+    (lowest, variant) => {
+      if (!lowest) {
+        return variant;
+      }
+
+      const currentPrice = Number(
+        variant.salePrice ?? variant.price
+      );
+
+      const lowestPrice = Number(
+        lowest.salePrice ?? lowest.price
+      );
+
+      return currentPrice < lowestPrice ? variant : lowest;
+    },
+    null
+  );
+}
 
 export default function ProductsPage() {
   // Search and Filter States
@@ -174,7 +208,6 @@ export default function ProductsPage() {
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
       <div className="mx-auto w-full max-w-[1440px] px-3 py-5 sm:px-5 sm:py-7 lg:px-8 lg:py-8">
-
         {/* Page Heading */}
         <section className="mb-6">
           <div className="mb-2 flex items-center gap-2">
@@ -271,209 +304,254 @@ export default function ProductsPage() {
 
         {/* Main Layout: Filters Left, Products Right */}
         <div className="mt-6 grid grid-cols-1 items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
-
           {/* Left Sidebar: Filters */}
-            <aside className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-                {/* Header */}
-                <div className="mb-5 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <span className="flex size-8 items-center justify-center rounded-lg bg-slate-100">
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.7"
-                        className="size-4 text-slate-700"
+          <aside className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            {/* Header */}
+            <div className="mb-5 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <span className="flex size-8 items-center justify-center rounded-lg bg-slate-100">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    className="size-4 text-slate-700"
+                  >
+                    <path
+                      d="M4 7h16M7 12h10m-7 5h4"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>
+
+                <h2 className="text-base font-semibold text-slate-900">
+                  Filters
+                </h2>
+
+                {hasActiveFilters && (
+                  <span className="rounded-full bg-slate-900 px-2 py-0.5 text-[11px] font-semibold text-white">
+                    {
+                      [
+                        categoryId,
+                        brandId,
+                        minPrice,
+                        maxPrice,
+                      ].filter(Boolean).length
+                    }
+                  </span>
+                )}
+              </div>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="rounded-lg px-2 py-1 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-950"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              {/* Category */}
+              <div className="min-w-0">
+                <label
+                  htmlFor="product-category-filter"
+                  className="mb-1.5 block text-xs font-medium text-slate-600"
+                >
+                  Category
+                </label>
+
+                <div className="relative">
+                  <select
+                    id="product-category-filter"
+                    value={categoryId}
+                    onChange={(event) => {
+                      setCategoryId(event.target.value);
+                      setPage(1);
+                    }}
+                    className={`${inputClassName} appearance-none pr-9`}
+                  >
+                    <option value="">All categories</option>
+
+                    {categories.map((category) => (
+                      <option
+                        key={category.id}
+                        value={category.id}
                       >
-                        <path d="M4 7h16M7 12h10m-7 5h4" strokeLinecap="round" />
-                      </svg>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Brand */}
+              <div className="min-w-0">
+                <label
+                  htmlFor="product-brand-filter"
+                  className="mb-1.5 block text-xs font-medium text-slate-600"
+                >
+                  Brand
+                </label>
+
+                <div className="relative">
+                  <select
+                    id="product-brand-filter"
+                    value={brandId}
+                    onChange={(event) => {
+                      setBrandId(event.target.value);
+                      setPage(1);
+                    }}
+                    className={`${inputClassName} appearance-none pr-9`}
+                  >
+                    <option value="">All brands</option>
+
+                    {brands.map((brand) => (
+                      <option key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Price range */}
+              <div className="border-t border-slate-100 pt-4">
+                <p className="mb-1.5 text-xs font-medium text-slate-600">
+                  Price range
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative min-w-0 flex-1">
+                    <label
+                      htmlFor="product-min-price"
+                      className="sr-only"
+                    >
+                      Minimum price
+                    </label>
+
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                      VND
                     </span>
 
-                    <h2 className="text-base font-semibold text-slate-900">Filters</h2>
-
-                    {hasActiveFilters && (
-                      <span className="rounded-full bg-slate-900 px-2 py-0.5 text-[11px] font-semibold text-white">
-                        {[categoryId, brandId, minPrice, maxPrice].filter(Boolean).length}
-                      </span>
-                    )}
+                    <input
+                      id="product-min-price"
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={minPrice}
+                      onChange={(event) => {
+                        setMinPrice(event.target.value);
+                        setPage(1);
+                      }}
+                      placeholder="Min"
+                      className={`${inputClassName} pl-12 ${
+                        priceRangeError && minPrice
+                          ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/10"
+                          : ""
+                      }`}
+                    />
                   </div>
 
-                  {hasActiveFilters && (
-                    <button
-                      type="button"
-                      onClick={clearFilters}
-                      className="rounded-lg px-2 py-1 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-950"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  {/* Category */}
-                  <div className="min-w-0">
-                    <label
-                      htmlFor="product-category-filter"
-                      className="mb-1.5 block text-xs font-medium text-slate-600"
-                    >
-                      Category
-                    </label>
-
-                    <div className="relative">
-                      <select
-                        id="product-category-filter"
-                        value={categoryId}
-                        onChange={(event) => {
-                          setCategoryId(event.target.value);
-                          setPage(1);
-                        }}
-                        className={`${inputClassName} appearance-none pr-9`}
-                      >
-                        <option value="">All categories</option>
-                        {categories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                      >
-                        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Brand */}
-                  <div className="min-w-0">
-                    <label
-                      htmlFor="product-brand-filter"
-                      className="mb-1.5 block text-xs font-medium text-slate-600"
-                    >
-                      Brand
-                    </label>
-
-                    <div className="relative">
-                      <select
-                        id="product-brand-filter"
-                        value={brandId}
-                        onChange={(event) => {
-                          setBrandId(event.target.value);
-                          setPage(1);
-                        }}
-                        className={`${inputClassName} appearance-none pr-9`}
-                      >
-                        <option value="">All brands</option>
-                        {brands.map((brand) => (
-                          <option key={brand.id} value={brand.id}>
-                            {brand.name}
-                          </option>
-                        ))}
-                      </select>
-
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                      >
-                        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Price range */}
-                  <div className="border-t border-slate-100 pt-4">
-                    <p className="mb-1.5 text-xs font-medium text-slate-600">Price range</p>
-
-                    <div className="flex items-center gap-2">
-                      <div className="relative min-w-0 flex-1">
-                        <label htmlFor="product-min-price" className="sr-only">
-                          Minimum price
-                        </label>
-                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-                          VND
-                        </span>
-                        <input
-                          id="product-min-price"
-                          type="number"
-                          min="0"
-                          step="any"
-                          value={minPrice}
-                          onChange={(event) => {
-                            setMinPrice(event.target.value);
-                            setPage(1);
-                          }}
-                          placeholder="Min"
-                          className={`${inputClassName} pl-12 ${
-                            priceRangeError && minPrice
-                              ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/10"
-                              : ""
-                          }`}
-                        />
-                      </div>
-
-                      <span aria-hidden="true" className="text-slate-300">–</span>
-
-                      <div className="relative min-w-0 flex-1">
-                        <label htmlFor="product-max-price" className="sr-only">
-                          Maximum price
-                        </label>
-                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-                          VND
-                        </span>
-                        <input
-                          id="product-max-price"
-                          type="number"
-                          min="0"
-                          step="any"
-                          value={maxPrice}
-                          onChange={(event) => {
-                            setMaxPrice(event.target.value);
-                            setPage(1);
-                          }}
-                          placeholder="Max"
-                          className={`${inputClassName} pl-12 ${
-                            priceRangeError && maxPrice
-                              ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/10"
-                              : ""
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Price Validation Message */}
-                {priceRangeError && (
-                  <p
-                    role="alert"
-                    className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700"
+                  <span
+                    aria-hidden="true"
+                    className="text-slate-300"
                   >
-                    <svg
-                      aria-hidden="true"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      className="mt-0.5 size-4 shrink-0"
+                    –
+                  </span>
+
+                  <div className="relative min-w-0 flex-1">
+                    <label
+                      htmlFor="product-max-price"
+                      className="sr-only"
                     >
-                      <circle cx="12" cy="12" r="9" />
-                      <path d="M12 8v4m0 4h.01" strokeLinecap="round" />
-                    </svg>
-                    <span>{priceRangeError}</span>
-                  </p>
-                )}
-              </aside>
+                      Maximum price
+                    </label>
+
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                      VND
+                    </span>
+
+                    <input
+                      id="product-max-price"
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={maxPrice}
+                      onChange={(event) => {
+                        setMaxPrice(event.target.value);
+                        setPage(1);
+                      }}
+                      placeholder="Max"
+                      className={`${inputClassName} pl-12 ${
+                        priceRangeError && maxPrice
+                          ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/10"
+                          : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Price Validation Message */}
+            {priceRangeError && (
+              <p
+                role="alert"
+                className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="mt-0.5 size-4 shrink-0"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path
+                    d="M12 8v4m0 4h.01"
+                    strokeLinecap="round"
+                  />
+                </svg>
+
+                <span>{priceRangeError}</span>
+              </p>
+            )}
+          </aside>
 
           {/* Right Side: Product Results */}
           <div className="min-w-0">
@@ -495,7 +573,9 @@ export default function ProductsPage() {
                   products.length > 0 && (
                     <p className="text-xs text-slate-500">
                       {products.length}{" "}
-                      {products.length === 1 ? "product" : "products"}
+                      {products.length === 1
+                        ? "product"
+                        : "products"}
                       {" · "}
                       Page {page} of {pagination.totalPages}
                     </p>
@@ -592,21 +672,26 @@ export default function ProductsPage() {
               ) : (
                 /* Product Grid */
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-5">
-                  {products.map((product, index) => (
-                    <div
-                      key={product.id}
-                      className="min-w-0"
-                    >
-                      <ProductCard
-                        name={product.name}
-                        price={product.price}
-                        salePrice={product.salePrice}
-                        image={product.images?.[0]?.url}
-                        slug={product.slug}
-                        priority={page === 1 && index < 3}
-                      />
-                    </div>
-                  ))}
+                  {products.map((product, index) => {
+                    const priceVariant =
+                      getLowestPriceVariant(product);
+
+                    return (
+                      <div
+                        key={product.id}
+                        className="min-w-0"
+                      >
+                        <ProductCard
+                          name={product.name}
+                          price={priceVariant?.price ?? "0"}
+                          salePrice={priceVariant?.salePrice ?? null}
+                          image={product.images?.[0]?.url}
+                          slug={product.slug}
+                          priority={page === 1 && index < 3}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </section>
@@ -668,7 +753,10 @@ export default function ProductsPage() {
                     disabled={page >= pagination.totalPages}
                     onClick={() =>
                       setPage((current) =>
-                        Math.min(pagination.totalPages, current + 1)
+                        Math.min(
+                          pagination.totalPages,
+                          current + 1
+                        )
                       )
                     }
                     aria-label="Next page"
