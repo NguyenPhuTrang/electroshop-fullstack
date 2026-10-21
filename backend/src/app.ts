@@ -13,6 +13,10 @@ import productImageRoutes from "./routes/productImage.routes";
 import userRoutes from "./routes/user.routes";
 import adminProductRoutes from "./routes/admin-product.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
+import productSpecificationRoutes from "./routes/productSpecification.routes";
+import productVideoRoutes from "./routes/productVideo.routes";
+import productVariantRoutes from "./routes/productVariant.routes";
+import productColorRoutes from "./routes/productColor.routes";
 import cors from "cors";
 
 import {errorMiddleware} from "./middlewares/error.middleware"
@@ -45,13 +49,17 @@ app.use("/api/brands", brandRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin/products", adminProductRoutes);
 app.use("/api", dashboardRoutes);
-
-app.use(errorMiddleware);
+app.use("/api", productSpecificationRoutes);
+app.use("/api", productVideoRoutes);
+app.use("/api", productVariantRoutes);
+app.use("/api", productColorRoutes);
 
 app.get("/", (req, res) => {
     res.json({
         message: "Welcome to the Product API",
     });
 });
+
+app.use(errorMiddleware);
 
 export default app;
