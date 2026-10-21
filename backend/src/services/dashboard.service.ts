@@ -28,7 +28,6 @@ export const getAdminDashboard = async (
     ordersByStatus,
     salesOrders,
   ] = await Promise.all([
-    // Total customers
     prisma.user.count({
       where: {
         role: "USER",
@@ -51,7 +50,6 @@ export const getAdminDashboard = async (
       },
     }),
 
-    // Total revenue from delivered orders
     prisma.order.aggregate({
       where: {
         status: "DELIVERED",
@@ -61,31 +59,32 @@ export const getAdminDashboard = async (
       },
     }),
 
-    // Pending orders
     prisma.order.count({
       where: {
         status: "PENDING",
       },
     }),
-
-    // Low stock products
+  
     prisma.product.count({
-      where: {
-        status: "ACTIVE",
-        stock: {
-          lte: 10,
+        where: {
+            status: "ACTIVE",
+            variants: {
+                some: {
+                    status: "ACTIVE",
+                    stock: {
+                        lte: 10,
+                    },
+                },
+            },
         },
-      },
     }),
 
-    // Reviews without admin reply
     prisma.review.count({
       where: {
         reply: null,
       },
     }),
 
-    // Recent orders
     prisma.order.findMany({
       take: 5,
       orderBy: {
@@ -106,7 +105,6 @@ export const getAdminDashboard = async (
       },
     }),
 
-    // Recent reviews
     prisma.review.findMany({
       take: 5,
       orderBy: {
@@ -137,7 +135,6 @@ export const getAdminDashboard = async (
       },
     }),
 
-    // Orders grouped by status
     prisma.order.groupBy({ // groupBy gom các record có cùng một giá trị thành từng nhóm
       by: ["status"],
       _count: {
