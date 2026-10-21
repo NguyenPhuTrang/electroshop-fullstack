@@ -1,14 +1,38 @@
 import { z } from "zod";
 
-export const createProductImageSchema = z.object({
-    url: z
-        .string()
-        .trim()
-        .min(1, "Image URL is required"),
+const imageUrlSchema = z
+    .string()
+    .trim()
+    .url("Image URL must be a valid URL")
+    .refine(
+        (value) => {
+            try {
+                const protocol = new URL(value).protocol;
+
+                return (
+                    protocol === "http:" ||
+                    protocol === "https:"
+                );
+            } catch {
+                return false;
+            }
+        },
+        "Image URL must use HTTP or HTTPS"
+    );
+
+const productImageFieldsSchema = z.object({
+    url: imageUrlSchema,
 
     alt: z
         .string()
         .trim()
+        .optional(),
+
+    colorId: z
+        .number()
+        .int("Color ID must be an integer")
+        .positive("Color ID must be a positive integer")
+        .nullable()
         .optional(),
 
     isPrimary: z
@@ -17,30 +41,17 @@ export const createProductImageSchema = z.object({
 
     sortOrder: z
         .number()
-        .int()
-        .min(0)
+        .int("Sort order must be an integer")
+        .min(0, "Sort order cannot be negative")
         .optional(),
 });
 
-export const updateProductImageSchema = z.object({
-  url: z
-    .string()
-    .trim()
-    .min(1, "Image URL is required")
-    .optional(),
+export const createProductImageSchema =
+    productImageFieldsSchema;
 
-  alt: z
-    .string()
-    .trim()
-    .optional(),
+export const updateProductImageSchema =
+    productImageFieldsSchema.partial();
 
-  isPrimary: z
-    .boolean()
-    .optional(),
+export type CreateProductImageInput = z.infer<typeof createProductImageSchema>;
 
-  sortOrder: z
-    .number()
-    .int()
-    .min(0)
-    .optional(),
-});
+export type UpdateProductImageInput = z.infer<typeof updateProductImageSchema>;

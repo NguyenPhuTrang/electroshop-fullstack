@@ -1,37 +1,49 @@
 import { Router } from "express";
+
 import { authMiddleware } from "../middlewares/auth.middlesware";
-import { createProductImageController, deleteProductImageController, getProductImageByIdController, getProductImagesController, updateProductImageController } from "../controllers/ProductImage.controller";
+import { requireRole } from "../middlewares/role.middlewre";
+
+import {
+  createProductImageController,
+  deleteProductImageController,
+  getProductImageByIdController,
+  getProductImagesController,
+  updateProductImageController,
+} from "../controllers/ProductImage.controller";
 
 const routes = Router();
 
+routes.get(
+  "/:productId/images",
+  getProductImagesController
+);
+
 routes.post(
-    "/:productId/images",
-    authMiddleware,
-    createProductImageController
+  "/:productId/images",
+  authMiddleware,
+  requireRole("ADMIN"),
+  createProductImageController
 );
 
 routes.get(
-   "/:productId/images",
-    authMiddleware,
-    getProductImagesController
-);
-
-routes.get(
-    "/images/:id",
-    authMiddleware,
-    getProductImageByIdController
+  "/images/:id",
+  authMiddleware,
+  requireRole("ADMIN"),
+  getProductImageByIdController
 );
 
 routes.patch(
-   "/images/:id",
-    authMiddleware,
-    updateProductImageController
+  "/images/:id",
+  authMiddleware,
+  requireRole("ADMIN"),
+  updateProductImageController
 );
 
 routes.delete(
-     "/images/:id",
-    authMiddleware,
-    deleteProductImageController
+  "/images/:id",
+  authMiddleware,
+  requireRole("ADMIN"),
+  deleteProductImageController
 );
 
 export default routes;
