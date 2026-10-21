@@ -39,3 +39,42 @@ export const uploadImageFromUrl = async (
     resource_type: "image",
   });
 };
+
+export const uploadVideo = async (
+  fileBuffer: Buffer,
+  folder: string
+): Promise<UploadApiResponse> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: "video",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        if (!result) {
+          reject(new Error("Cloudinary video upload failed"));
+          return;
+        }
+
+        resolve(result);
+      }
+    );
+
+    uploadStream.end(fileBuffer);
+  });
+};
+
+export const uploadVideoFromUrl = async (
+  videoUrl: string,
+  folder: string
+): Promise<UploadApiResponse> => {
+  return cloudinary.uploader.upload(videoUrl, {
+    folder,
+    resource_type: "video",
+  });
+};
