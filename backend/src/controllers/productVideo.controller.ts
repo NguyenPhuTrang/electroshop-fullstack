@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { uploadProductVideo, uploadProductVideoFromUrl } from "../services/productVideo.service";
+import { deleteProductVideo, uploadProductVideo, uploadProductVideoFromUrl } from "../services/productVideo.service";
 
 export const uploadProductVideoController = async (
   req: Request,
@@ -97,6 +97,33 @@ export const uploadProductVideoFromUrlController = async (
     return res.status(200).json({
       success: true,
       message: "Product video uploaded successfully",
+      data: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProductVideoController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const productId = Number(req.params.productId);
+
+    if (!Number.isInteger(productId) || productId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID",
+      });
+    }
+
+    const product = await deleteProductVideo(productId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Product video deleted successfully",
       data: product,
     });
   } catch (error) {
