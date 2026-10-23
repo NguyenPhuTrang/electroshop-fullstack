@@ -694,139 +694,162 @@ function AdminProductsContent() {
 
                       {/* Actions */}
                  {/* Actions */}
-<td className="px-5 py-4">
-  <div className="flex min-w-[300px] flex-col items-end gap-2.5">
-    {/* Primary Actions */}
-    <div className="flex items-center justify-end gap-2">
-      <button
-        type="button"
-        onClick={() =>
-          router.push(`/admin/products/${product.id}/edit`)
-        }
-        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.8}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-3.5"
-          aria-hidden="true"
-        >
-          <path d="m15 5 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
-        </svg>
-        Edit
-      </button>
+                  <td className="px-5 py-4">
+                    <div className="flex min-w-[300px] flex-col items-end gap-2.5">
+                      {/* Primary Actions */}
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            router.push(`/admin/products/${product.id}/edit`)
+                          }
+                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.8}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="size-3.5"
+                            aria-hidden="true"
+                          >
+                            <path d="m15 5 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
+                          </svg>
+                          Edit
+                        </button>
 
-      <button
-        type="button"
-        onClick={() => handleDeleteProduct(product.id)}
-        disabled={deletingId !== null}
-        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {deletingId === product.id ? (
-          <>
-            <span className="size-3.5 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600" />
-            Deleting...
-          </>
-        ) : (
-          <>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.8}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="size-3.5"
-              aria-hidden="true"
-            >
-              <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
-            </svg>
-            Delete
-          </>
-        )}
-      </button>
-    </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProduct(product.id)}
+                          disabled={deletingId !== null}
+                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {deletingId === product.id ? (
+                            <>
+                              <span className="size-3.5 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600" />
+                              Deleting...
+                            </>
+                          ) : (
+                            <>
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.8}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="size-3.5"
+                                aria-hidden="true"
+                              >
+                                <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
+                              </svg>
+                              Delete
+                            </>
+                          )}
+                        </button>
+                      </div>
 
-    {/* Product Management */}
-    <div className="flex flex-wrap items-center justify-end gap-1.5 border-t border-slate-100 pt-2">
-      <span className="mr-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-        Manage
-      </span>
+                      {/* Product Management */}
+                      <div className="flex flex-wrap items-center justify-end gap-1.5 border-t border-slate-100 pt-2">
+                        <span className="mr-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                          Manage :
+                        </span>
 
-      <Link
-        href={`/admin/products/${product.id}/images`}
-        aria-label={`Manage images for ${product.name}`}
-        title="Manage product images"
-        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.7}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-3.5"
-          aria-hidden="true"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <path d="m21 15-5-5L5 21" />
-        </svg>
-        Images
-      </Link>
+                        <Link
+                              href={`/admin/products/${product.id}/video`}
+                              aria-label={`Manage promotional video for ${product.name}`}
+                              title="Manage product promotional video"
+                              className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.7}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="size-3.5"
+                                aria-hidden="true"
+                              >
+                                <rect x="3" y="5" width="13" height="14" rx="2" />
+                                <path d="m16 10 5-3v10l-5-3" />
+                              </svg>
+                              Video
+                        </Link>
 
-      <Link
-        href={`/admin/products/${product.id}/variants`}
-        aria-label={`Manage variants for ${product.name}`}
-        title="Manage product variants"
-        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.7}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-3.5"
-          aria-hidden="true"
-        >
-          <path d="m12 3 9 5-9 5-9-5 9-5Z" />
-          <path d="m3 8v8l9 5 9-5V8" />
-          <path d="M12 13v8" />
-        </svg>
-        Variants
-      </Link>
+                        <Link
+                          href={`/admin/products/${product.id}/images`}
+                          aria-label={`Manage images for ${product.name}`}
+                          title="Manage product images"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.7}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="size-3.5"
+                            aria-hidden="true"
+                          >
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="m21 15-5-5L5 21" />
+                          </svg>
+                          Images
+                        </Link>
 
-      <Link
-        href={`/admin/products/${product.id}/specifications`}
-        aria-label={`Manage specifications for ${product.name}`}
-        title="Manage product specifications"
-        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.7}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-3.5"
-          aria-hidden="true"
-        >
-          <path d="M8 4h13M8 12h13M8 20h13" />
-          <path d="M3 4h.01M3 12h.01M3 20h.01" />
-        </svg>
-        Specs
-      </Link>
-    </div>
-  </div>
-</td>
+                        <Link
+                          href={`/admin/products/${product.id}/variants`}
+                          aria-label={`Manage variants for ${product.name}`}
+                          title="Manage product variants"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.7}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="size-3.5"
+                            aria-hidden="true"
+                          >
+                            <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                            <path d="m3 8v8l9 5 9-5V8" />
+                            <path d="M12 13v8" />
+                          </svg>
+                          Variants
+                        </Link>
+
+                        <Link
+                          href={`/admin/products/${product.id}/specifications`}
+                          aria-label={`Manage specifications for ${product.name}`}
+                          title="Manage product specifications"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.7}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="size-3.5"
+                            aria-hidden="true"
+                          >
+                            <path d="M8 4h13M8 12h13M8 20h13" />
+                            <path d="M3 4h.01M3 12h.01M3 20h.01" />
+                          </svg>
+                          Specs
+                        </Link>
+
+                      </div>
+                    </div>
+                  </td>
                     </motion.tr>
                   );
                 })}
