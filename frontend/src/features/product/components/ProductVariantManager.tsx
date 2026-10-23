@@ -1,9 +1,18 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { toast } from "sonner";
 
-import type { ProductVariant } from "@/src/features/product/types/product";
+import type {
+  ProductColor,
+  ProductVariant,
+} from "@/src/features/product/types/product";
+
 import { useProductVariants } from "@/src/features/product/hooks/useProductVariants";
+
+import {
+  getProductColors,
+} from "@/src/features/product/services/product-color.service";
 
 import {
   createProductVariant,
@@ -47,7 +56,7 @@ function getErrorMessage(error: unknown): string {
     : "Something went wrong. Please try again.";
 }
 
-function formatPrice(value: string | null): string {
+function formatPrice(value: string | number | null): string {
   if (value === null || value === "") {
     return "—";
   }
@@ -77,6 +86,32 @@ function getStatusClass(status: ProductVariant["status"]): string {
   }
 }
 
+function getColorName(
+  variant: ProductVariant,
+  colors: ProductColor[]
+): string | null {
+  if (variant.colorOption?.name) {
+    return variant.colorOption.name;
+  }
+
+  const color = colors.find(
+    (item) => item.id === variant.colorId
+  );
+
+  return color?.name ?? null;
+}
+
+function getColorHex(
+  variant: ProductVariant,
+  colors: ProductColor[]
+): string | null {
+  const color = colors.find(
+    (item) => item.id === variant.colorId
+  );
+
+  return color?.hexCode ?? null;
+}
+
 export default function ProductVariantManager({
   productId,
   onLoadingChange,
@@ -88,9 +123,9 @@ export default function ProductVariantManager({
     refetch,
   } = useProductVariants(productId);
 
-  useEffect(() => {
-    onLoadingChange?.(loading);
-  }, [loading, onLoadingChange]);
+  const [colors, setColors] = useState<ProductColor[]>([]);
+  const [colorsLoading, setColorsLoading] = useState(false);
+  const [colorsError, setColorsError] = useState<string | null>(null);
 
   const [form, setForm] = useState<VariantFormValues>(INITIAL_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -98,7 +133,52 @@ export default function ProductVariantManager({
   const [submitting, setSubmitting] = useState(false);
   const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
+
+  // Load the colors belonging to this product.
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadColors = async () => {
+      setColorsLoading(true);
+      setColorsError(null);
+      setColors([]);
+
+      try {
+        const result = await getProductColors(productId);
+
+        if (!cancelled) {
+          setColors(result);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setColorsError(getErrorMessage(error));
+        }
+      } finally {
+        if (!cancelled) {
+          setColorsLoading(false);
+        }
+      }
+    };
+
+    if (!Number.isInteger(productId) || productId <= 0) {
+      setColors([]);
+      setColorsLoading(false);
+      return;
+    }
+
+    void loadColors();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
+
+  const selectedColor =
+    colors.find((color) => String(color.id) === form.colorId) ?? null;
 
   const handleChange = <K extends keyof VariantFormValues>(
     field: K,
@@ -110,14 +190,12 @@ export default function ProductVariantManager({
     }));
 
     setActionError(null);
-    setSuccessMessage(null);
   };
 
   const openCreateForm = () => {
     setForm(INITIAL_FORM);
     setEditingId(null);
     setActionError(null);
-    setSuccessMessage(null);
     setIsFormOpen(true);
   };
 
@@ -148,7 +226,6 @@ export default function ProductVariantManager({
     });
 
     setActionError(null);
-    setSuccessMessage(null);
     setIsFormOpen(true);
   };
 
@@ -156,17 +233,9 @@ export default function ProductVariantManager({
     event.preventDefault();
 
     setActionError(null);
-    setSuccessMessage(null);
 
     if (!Number.isInteger(productId) || productId <= 0) {
       setActionError("Invalid product ID.");
-      return;
-    }
-
-    const sku = form.sku.trim();
-
-    if (!sku) {
-      setActionError("SKU is required.");
       return;
     }
 
@@ -219,12 +288,21 @@ export default function ProductVariantManager({
       colorId !== null &&
       (!Number.isInteger(colorId) || colorId <= 0)
     ) {
-      setActionError("Color ID must be a positive whole number.");
+      setActionError("Please select a valid color.");
+      return;
+    }
+
+    if (
+      colorId !== null &&
+      !colors.some((color) => color.id === colorId)
+    ) {
+      setActionError(
+        "The selected color is unavailable. Please select another color."
+      );
       return;
     }
 
     const commonPayload = {
-      sku,
       storage: form.storage.trim() || null,
       colorId,
       price,
@@ -233,6 +311,9 @@ export default function ProductVariantManager({
     };
 
     const isEditing = editingId !== null;
+    const toastId = toast.loading(
+      isEditing ? "Updating product variant..." : "Creating product variant..."
+    );
 
     setSubmitting(true);
 
@@ -264,21 +345,29 @@ export default function ProductVariantManager({
       setEditingId(null);
       setIsFormOpen(false);
 
-      setSuccessMessage(
+      toast.success(
         isEditing
-          ? "Variant updated successfully."
-          : "Variant created successfully."
+          ? "Product variant updated successfully."
+          : "Product variant created successfully.",
+        { id: toastId }
       );
 
       try {
         await refetch();
       } catch {
-        setActionError(
+        toast.error(
           "Variant was saved, but the list could not be refreshed. Please click Refresh to try again."
         );
       }
     } catch (error) {
+      console.error("Failed to save product variant:", error);
       setActionError(getErrorMessage(error));
+      toast.error(
+        isEditing
+          ? "Unable to update product variant. Please try again."
+          : "Unable to create product variant. Please try again.",
+        { id: toastId }
+      );
     } finally {
       setSubmitting(false);
     }
@@ -297,8 +386,7 @@ export default function ProductVariantManager({
       return;
     }
 
-    setActionError(null);
-    setSuccessMessage(null);
+    const toastId = toast.loading("Deactivating product variant...");
     setDeactivatingId(variant.id);
 
     try {
@@ -308,13 +396,25 @@ export default function ProductVariantManager({
         setForm(INITIAL_FORM);
         setEditingId(null);
         setIsFormOpen(false);
+        setActionError(null);
       }
 
-      await refetch();
+      toast.success("Product variant deactivated successfully.", {
+        id: toastId,
+      });
 
-      setSuccessMessage("Variant deactivated successfully.");
+      try {
+        await refetch();
+      } catch {
+        toast.error(
+          "Variant was deactivated, but the list could not be refreshed. Please click Refresh to try again."
+        );
+      }
     } catch (error) {
-      setActionError(getErrorMessage(error));
+      console.error("Failed to deactivate product variant:", error);
+      toast.error("Unable to deactivate product variant. Please try again.", {
+        id: toastId,
+      });
     } finally {
       setDeactivatingId(null);
     }
@@ -345,7 +445,7 @@ export default function ProductVariantManager({
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Manage SKU, storage, color, pricing, stock, and status for this product.
+            Manage variant SKU, storage, color, pricing, stock, and status.
           </p>
         </div>
 
@@ -380,25 +480,6 @@ export default function ProductVariantManager({
           </button>
         </div>
       </header>
-
-      {/* Global action messages */}
-      {!isFormOpen && actionError && (
-        <div
-          role="alert"
-          className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-        >
-          {actionError}
-        </div>
-      )}
-
-      {!isFormOpen && successMessage && (
-        <div
-          role="status"
-          className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-        >
-          {successMessage}
-        </div>
-      )}
 
       {/* Create / Edit Modal */}
       {isFormOpen && (
@@ -460,44 +541,12 @@ export default function ProductVariantManager({
                 </div>
               )}
 
-              {successMessage && (
-                <div
-                  role="status"
-                  className="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                >
-                  {successMessage}
-                </div>
-              )}
-
               <form
                 id="variant-form"
                 onSubmit={handleSubmit}
                 className="space-y-5"
               >
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {/* SKU */}
-                  <div>
-                    <label
-                      htmlFor="variant-sku"
-                      className="mb-1.5 block text-sm font-medium text-slate-700"
-                    >
-                      SKU <span className="text-rose-500">*</span>
-                    </label>
-
-                    <input
-                      id="variant-sku"
-                      type="text"
-                      required
-                      value={form.sku}
-                      onChange={(event) =>
-                        handleChange("sku", event.target.value)
-                      }
-                      disabled={submitting}
-                      placeholder="Enter variant SKU"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
-                    />
-                  </div>
-
                   {/* Storage */}
                   <div>
                     <label
@@ -520,28 +569,83 @@ export default function ProductVariantManager({
                     />
                   </div>
 
-                  {/* Color ID */}
+                  {/* Color */}
                   <div>
                     <label
-                      htmlFor="variant-color-id"
+                      htmlFor="variant-color"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Color ID
+                      Color
                     </label>
 
-                    <input
-                      id="variant-color-id"
-                      type="number"
-                      min="1"
-                      step="1"
+                    <select
+                      id="variant-color"
                       value={form.colorId}
                       onChange={(event) =>
                         handleChange("colorId", event.target.value)
                       }
-                      disabled={submitting}
-                      placeholder="Enter an existing color ID"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
-                    />
+                      disabled={submitting || colorsLoading}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                    >
+                      <option value="">No color</option>
+
+                      {form.colorId &&
+                        !colors.some(
+                          (color) => String(color.id) === form.colorId
+                        ) && (
+                          <option value={form.colorId}>
+                            Previously selected color (unavailable)
+                          </option>
+                        )}
+
+                      {colors.map((color) => (
+                        <option
+                          key={color.id}
+                          value={String(color.id)}
+                        >
+                          {color.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    {selectedColor && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className="size-5 rounded-full border border-slate-200"
+                          style={{
+                           backgroundColor: selectedColor.hexCode ?? "#e2e8f0",
+                          }}
+                        />
+
+                        <span className="text-sm font-medium text-slate-700">
+                          {selectedColor.name}
+                        </span>
+                      </div>
+                    )}
+
+                    {colorsLoading && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        Loading colors...
+                      </p>
+                    )}
+
+                    {!colorsLoading &&
+                      !colorsError &&
+                      colors.length === 0 && (
+                        <p className="mt-1 text-xs text-slate-500">
+                          No colors available for this product.
+                        </p>
+                      )}
+
+                    {colorsError && (
+                      <p
+                        role="alert"
+                        className="mt-1 text-xs text-rose-600"
+                      >
+                        Unable to load colors: {colorsError}
+                      </p>
+                    )}
                   </div>
 
                   {/* Price */}
@@ -550,7 +654,8 @@ export default function ProductVariantManager({
                       htmlFor="variant-price"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Price (VND) <span className="text-rose-500">*</span>
+                      Price (VND){" "}
+                      <span className="text-rose-500">*</span>
                     </label>
 
                     <input
@@ -599,7 +704,8 @@ export default function ProductVariantManager({
                       htmlFor="variant-stock"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Stock <span className="text-rose-500">*</span>
+                      Stock{" "}
+                      <span className="text-rose-500">*</span>
                     </label>
 
                     <input
@@ -632,7 +738,7 @@ export default function ProductVariantManager({
                       onChange={(event) =>
                         handleChange(
                           "status",
-                          event.target.value as EditableProductVariantStatus
+                          event.target.value as FormStatus
                         )
                       }
                       disabled={submitting}
@@ -770,96 +876,119 @@ export default function ProductVariantManager({
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {variants.map((variant) => (
-                  <tr
-                    key={variant.id}
-                    className="transition hover:bg-slate-50"
-                  >
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <div className="font-medium text-slate-900">
-                        {variant.sku}
-                      </div>
+                {variants.map((variant) => {
+                  const colorName = getColorName(variant, colors);
+                  const colorHex = getColorHex(variant, colors);
 
-                      <div className="mt-1 text-xs text-slate-500">
-                        ID: {variant.id}
-                      </div>
-                    </td>
+                  return (
+                    <tr
+                      key={variant.id}
+                      className="transition hover:bg-slate-50"
+                    >
+                      <td className="whitespace-nowrap px-5 py-4">
+                        <div className="font-medium text-slate-900">
+                          {variant.sku}
+                        </div>
 
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
-                      {variant.storage || "—"}
-                    </td>
+                        <div className="mt-1 text-xs text-slate-500">
+                          ID: {variant.id}
+                        </div>
+                      </td>
 
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
-                      {variant.colorOption?.name ??
-                        (variant.colorId !== null
-                          ? `Color #${variant.colorId}`
-                          : "—")}
-                    </td>
+                      <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
+                        {variant.storage || "—"}
+                      </td>
 
-                    <td className="whitespace-nowrap px-5 py-4">
-                      {variant.salePrice !== null &&
-                      Number(variant.salePrice) < Number(variant.price) ? (
-                        <>
-                          <div className="text-sm font-semibold text-rose-600">
-                            {formatPrice(variant.salePrice)}
+                      <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
+                        {colorName ? (
+                          <div className="flex items-center gap-2">
+                            <span
+                              aria-hidden="true"
+                              className="size-5 shrink-0 rounded-full border border-slate-200"
+                              style={{
+                                backgroundColor: colorHex ?? "#e2e8f0",
+                              }}
+                            />
+
+                            <span>{colorName}</span>
                           </div>
+                        ) : variant.colorId !== null ? (
+                          <span className="text-slate-400">
+                            Color unavailable
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
 
-                          <div className="mt-1 text-xs text-slate-400 line-through">
+                      <td className="whitespace-nowrap px-5 py-4">
+                        {variant.salePrice !== null &&
+                        Number(variant.salePrice) <
+                          Number(variant.price) ? (
+                          <>
+                            <div className="text-sm font-semibold text-rose-600">
+                              {formatPrice(variant.salePrice)}
+                            </div>
+
+                            <div className="mt-1 text-xs text-slate-400 line-through">
+                              {formatPrice(variant.price)}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-sm font-medium text-slate-900">
                             {formatPrice(variant.price)}
                           </div>
-                        </>
-                      ) : (
-                        <div className="text-sm font-medium text-slate-900">
-                          {formatPrice(variant.price)}
-                        </div>
-                      )}
-                    </td>
+                        )}
+                      </td>
 
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-700">
-                      {variant.stock}
-                    </td>
+                      <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-700">
+                        {variant.stock}
+                      </td>
 
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClass(
-                          variant.status
-                        )}`}
-                      >
-                        {variant.status.replace(/_/g, " ")}
-                      </span>
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(variant)}
-                          disabled={
-                            submitting || deactivatingId !== null
-                          }
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-blue-700 transition hover:border-blue-200 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      <td className="whitespace-nowrap px-5 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClass(
+                            variant.status
+                          )}`}
                         >
-                          Edit
-                        </button>
+                          {variant.status.replace(/_/g, " ")}
+                        </span>
+                      </td>
 
-                        {variant.status === "ACTIVE" && (
+                      <td className="whitespace-nowrap px-5 py-4 text-right">
+                        <div className="flex justify-end gap-2">
                           <button
                             type="button"
-                            onClick={() => void handleDeactivate(variant)}
+                            onClick={() => handleEdit(variant)}
                             disabled={
                               submitting || deactivatingId !== null
                             }
-                            className="rounded-lg border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-blue-700 transition hover:border-blue-200 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {deactivatingId === variant.id
-                              ? "Deactivating..."
-                              : "Deactivate"}
+                            Edit
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+
+                          {variant.status === "ACTIVE" && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void handleDeactivate(variant)
+                              }
+                              disabled={
+                                submitting || deactivatingId !== null
+                              }
+                              className="rounded-lg border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {deactivatingId === variant.id
+                                ? "Deactivating..."
+                                : "Deactivate"}
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

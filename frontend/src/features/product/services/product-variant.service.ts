@@ -17,7 +17,6 @@ export type EditableProductVariantStatus = Exclude<
 >;
 
 export type CreateProductVariantInput = {
-    sku: string;
     storage?: string | null;
     colorId?: number | null;
     price: number;
@@ -27,7 +26,6 @@ export type CreateProductVariantInput = {
 };
 
 export type UpdateProductVariantInput = {
-    sku?: string;
     storage?: string | null;
     colorId?: number | null;
     price?: number;
@@ -66,9 +64,6 @@ export async function getProductVariantById(
     return response.data.data;
 }
 
-/**
- * Create one variant for a product.
- */
 export async function createProductVariant(
     productId: number,
     data: CreateProductVariantInput
@@ -89,7 +84,6 @@ export async function createProductVariants(
         `/products/${productId}/variants/bulk`,
         { variants }
     );
-
     return response.data.data;
 }
 
