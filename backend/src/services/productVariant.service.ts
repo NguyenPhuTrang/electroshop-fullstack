@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 
 import { prisma } from "../config/prisma";
 import { AppError } from "../utils/AppError";
@@ -22,10 +23,41 @@ type VariantStatus =
 
 type ManagedVariantStatus = "ACTIVE" | "INACTIVE";
 
-/**
- * A new variant can be managed only if its parent product exists.
- * Public requests must not expose variants belonging to inactive products.
- */
+const generateVariantSku = async (
+    tx: Prisma.TransactionClient,
+    productId: number,
+    reservedSkus: Set<string> = new Set<string>()
+): Promise<string> => {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+        const suffix = randomUUID()
+            .replace(/-/g, "")
+            .slice(0, 16)
+            .toUpperCase();
+
+        const sku = `PV-${productId}-${suffix}`;
+
+        if (reservedSkus.has(sku)) {
+            continue;
+        }
+
+        const existingSku =
+            await tx.productVariant.findUnique({
+                where: { sku },
+                select: { id: true },
+            });
+
+        if (!existingSku) {
+            reservedSkus.add(sku);
+            return sku;
+        }
+    }
+
+    throw new AppError(
+        "Unable to generate a unique variant SKU. Please try again.",
+        500
+    );
+};
+
 const ensureProductExists = async (
     productId: number,
     requireActive = false
@@ -62,10 +94,6 @@ const ensureVariantExists = async (variantId: number) => {
     return variant;
 };
 
-/**
- * Verify that a color belongs to the same product as the variant.
- * Use the transaction client so the check and the write share a transaction.
- */
 const ensureColorBelongsToProduct = async (
     tx: Prisma.TransactionClient,
     productId: number,
@@ -190,12 +218,6 @@ export const getProductVariantById = async (
     return ensureVariantExists(variantId);
 };
 
-/**
- * Create one variant.
- *
- * The parent product can remain INACTIVE while variants are being
- * prepared. Creating a variant does not automatically publish the product.
- */
 export const createProductVariant = async (
     productId: number,
     data: CreateProductVariantInput
@@ -221,20 +243,8 @@ export const createProductVariant = async (
             colorId
         );
 
-        const existingSku = await tx.productVariant.findUnique({
-            where: { sku: data.sku },
-            select: { id: true },
-        });
-
-        if (existingSku) {
-            throw new AppError(
-                "Variant SKU already exists",
-                409
-            );
-        }
-
         // Prevent duplicate storage/color configurations, including
-        // configurations that belong to inactive variants.
+        // configurations belonging to inactive variants.
         const existingVariant =
             await tx.productVariant.findFirst({
                 where: {
@@ -252,6 +262,9 @@ export const createProductVariant = async (
             );
         }
 
+        // Generate SKU only after validating the configuration.
+        const sku = await generateVariantSku(tx, productId);
+
         const stock = data.stock ?? 0;
         const status = resolveVariantStatus(
             stock,
@@ -261,7 +274,7 @@ export const createProductVariant = async (
         return tx.productVariant.create({
             data: {
                 productId,
-                sku: data.sku,
+                sku,
                 storage,
                 colorId,
                 price: data.price,
@@ -278,12 +291,6 @@ export const createProductVariant = async (
     });
 };
 
-/**
- * Update an existing variant.
- *
- * The validation of salePrice uses the final regular price and final
- * sale price, combining incoming fields with existing database values.
- */
 export const updateProductVariant = async (
     variantId: number,
     data: UpdateProductVariantInput
@@ -319,24 +326,6 @@ export const updateProductVariant = async (
                     : Number(existingVariant.salePrice);
 
         validateSalePrice(nextPrice, nextSalePrice);
-
-        if (data.sku !== undefined) {
-            const existingSku =
-                await tx.productVariant.findUnique({
-                    where: { sku: data.sku },
-                    select: { id: true },
-                });
-
-            if (
-                existingSku &&
-                existingSku.id !== variantId
-            ) {
-                throw new AppError(
-                    "Variant SKU already exists",
-                    409
-                );
-            }
-        }
 
         const nextStorage =
             data.storage !== undefined
@@ -393,9 +382,6 @@ export const updateProductVariant = async (
         return tx.productVariant.update({
             where: { id: variantId },
             data: {
-                ...(data.sku !== undefined && {
-                    sku: data.sku,
-                }),
                 ...(data.storage !== undefined && {
                     storage: data.storage,
                 }),
@@ -457,12 +443,6 @@ export const deactivateProductVariant = async (
     });
 };
 
-/**
- * Create multiple variants atomically.
- *
- * Any validation or database error aborts the transaction so the request
- * does not leave behind a partially created batch.
- */
 export const createProductVariants = async (
     productId: number,
     variants: CreateProductVariantInput[]
@@ -481,15 +461,7 @@ export const createProductVariants = async (
         );
     }
 
-    const skus = variants.map((variant) => variant.sku);
-
-    if (new Set(skus).size !== skus.length) {
-        throw new AppError(
-            "Duplicate SKUs in the request",
-            409
-        );
-    }
-
+    // Detect duplicate storage/color configurations in the request itself.
     const configurationKeys = variants.map((variant) =>
         JSON.stringify([
             variant.storage ?? null,
@@ -551,27 +523,7 @@ export const createProductVariants = async (
             }
         }
 
-        const existingSkus =
-            await tx.productVariant.findMany({
-                where: {
-                    sku: {
-                        in: skus,
-                    },
-                },
-                select: {
-                    sku: true,
-                },
-            });
-
-        if (existingSkus.length > 0) {
-            throw new AppError(
-                `SKU already exists: ${existingSkus
-                    .map((item) => item.sku)
-                    .join(", ")}`,
-                409
-            );
-        }
-
+        // Check configurations that already exist in the database.
         const existingVariants =
             await tx.productVariant.findMany({
                 where: {
@@ -610,13 +562,27 @@ export const createProductVariants = async (
             }
         }
 
+        // Generate distinct SKUs for every variant in this batch.
+        const reservedSkus = new Set<string>();
+        const generatedSkus: string[] = [];
+
+        for (let index = 0; index < variants.length; index += 1) {
+            generatedSkus.push(
+                await generateVariantSku(
+                    tx,
+                    productId,
+                    reservedSkus
+                )
+            );
+        }
+
         await tx.productVariant.createMany({
-            data: variants.map((variant) => {
+            data: variants.map((variant, index) => {
                 const stock = variant.stock ?? 0;
 
                 return {
                     productId,
-                    sku: variant.sku,
+                    sku: generatedSkus[index]!,
                     storage: variant.storage ?? null,
                     colorId: variant.colorId ?? null,
                     price: variant.price,
@@ -634,7 +600,7 @@ export const createProductVariants = async (
             where: {
                 productId,
                 sku: {
-                    in: skus,
+                    in: generatedSkus,
                 },
             },
             include: {

@@ -92,7 +92,6 @@ export const uploadProductVideoFromUrl = async (
   );
 
   try {
-    // 3. Save the new video information in the database
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
       data: {
@@ -139,4 +138,57 @@ export const uploadProductVideoFromUrl = async (
 
     throw error;
   }
+};
+
+export const deleteProductVideo = async (productId: number) => {
+  // 1. Kiểm tra sản phẩm có tồn tại hay không
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: {
+      id: true,
+      videoUrl: true,
+      videoPublicId: true,
+    },
+  });
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  // 2. Kiểm tra sản phẩm có video hay không
+  if (!product.videoUrl && !product.videoPublicId) {
+    throw new AppError("Product video not found", 404);
+  }
+
+  // 3. Xóa thông tin video khỏi database
+  const updatedProduct = await prisma.product.update({
+    where: { id: productId },
+    data: {
+      videoUrl: null,
+      videoPublicId: null,
+    },
+    select: {
+      id: true,
+      name: true,
+      videoUrl: true,
+      videoPublicId: true,
+    },
+  });
+
+  // 4. Xóa video cũ trên Cloudinary
+  if (product.videoPublicId) {
+    try {
+      await cloudinary.uploader.destroy(
+        product.videoPublicId,
+        { resource_type: "video" }
+      );
+    } catch (error) {
+      console.error(
+        "Failed to delete product video from Cloudinary:",
+        error
+      );
+    }
+  }
+
+  return updatedProduct;
 };

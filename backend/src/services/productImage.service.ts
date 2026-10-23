@@ -23,12 +23,8 @@ const productImageInclude = {
 
 const ensureProductExists = async (productId: number) => {
     const product = await prisma.product.findUnique({
-        where: {
-            id: productId,
-        },
-        select: {
-            id: true,
-        },
+        where: { id: productId },
+        select: { id: true },
     });
 
     if (!product) {
@@ -51,9 +47,7 @@ const ensureColorBelongsToProduct = async (
             id: colorId,
             productId,
         },
-        select: {
-            id: true,
-        },
+        select: { id: true },
     });
 
     if (!color) {
@@ -64,18 +58,13 @@ const ensureColorBelongsToProduct = async (
     }
 };
 
-
 const ensureProductExistsInTransaction = async (
     tx: Prisma.TransactionClient,
     productId: number
 ) => {
     const product = await tx.product.findUnique({
-        where: {
-            id: productId,
-        },
-        select: {
-            id: true,
-        },
+        where: { id: productId },
+        select: { id: true },
     });
 
     if (!product) {
@@ -97,9 +86,7 @@ const ensureColorBelongsToProductInTransaction = async (
             id: colorId,
             productId,
         },
-        select: {
-            id: true,
-        },
+        select: { id: true },
     });
 
     if (!color) {
@@ -131,120 +118,11 @@ const clearOtherPrimaryImages = async (
     });
 };
 
-
-const ensurePrimaryImage = async (
-    tx: Prisma.TransactionClient,
-    productId: number,
-    preferredImageIdToAvoid?: number
-) => {
-    const primaryImages = await tx.productImage.findMany({
-        where: {
-            productId,
-            isPrimary: true,
-        },
-        select: {
-            id: true,
-        },
-        orderBy: [
-            {
-                sortOrder: "asc",
-            },
-            {
-                id: "asc",
-            },
-        ],
-    });
-
-    if (primaryImages.length > 0) {
-        const [firstPrimary, ...duplicatePrimaries] =
-            primaryImages;
-
-        if (duplicatePrimaries.length > 0) {
-            await tx.productImage.updateMany({
-                where: {
-                    productId,
-                    isPrimary: true,
-                    id: {
-                        in: duplicatePrimaries.map(
-                            (image) => image.id
-                        ),
-                    },
-                },
-                data: {
-                    isPrimary: false,
-                },
-            });
-        }
-
-        return firstPrimary.id;
-    }
-
-    let replacement =
-        preferredImageIdToAvoid !== undefined
-            ? await tx.productImage.findFirst({
-                  where: {
-                      productId,
-                      id: {
-                          not: preferredImageIdToAvoid,
-                      },
-                  },
-                  select: {
-                      id: true,
-                  },
-                  orderBy: [
-                      {
-                          sortOrder: "asc",
-                      },
-                      {
-                          id: "asc",
-                      },
-                  ],
-              })
-            : null;
-
-    if (!replacement) {
-        replacement = await tx.productImage.findFirst({
-            where: {
-                productId,
-            },
-            select: {
-                id: true,
-            },
-            orderBy: [
-                {
-                    sortOrder: "asc",
-                },
-                {
-                    id: "asc",
-                },
-            ],
-        });
-    }
-
-    if (!replacement) {
-        return null;
-    }
-
-    await tx.productImage.update({
-        where: {
-            id: replacement.id,
-        },
-        data: {
-            isPrimary: true,
-        },
-    });
-
-    return replacement.id;
-};
-
-
 export const getProductImageById = async (
     imageId: number
 ) => {
     const image = await prisma.productImage.findUnique({
-        where: {
-            id: imageId,
-        },
+        where: { id: imageId },
         include: productImageInclude,
     });
 
@@ -254,7 +132,6 @@ export const getProductImageById = async (
 
     return image;
 };
-
 
 export const createProductImage = async (
     productId: number,
@@ -271,7 +148,6 @@ export const createProductImage = async (
     );
 
     return prisma.$transaction(async (tx) => {
-      
         await ensureProductExistsInTransaction(
             tx,
             productId
@@ -282,28 +158,14 @@ export const createProductImage = async (
             productId,
             colorId
         );
+        const isPrimary = data.isPrimary === true;
 
-      
-        if (data.isPrimary === true) {
+        if (isPrimary) {
             await clearOtherPrimaryImages(
                 tx,
                 productId
             );
         }
-
-        const currentPrimary = await tx.productImage.findFirst({
-            where: {
-                productId,
-                isPrimary: true,
-            },
-            select: {
-                id: true,
-            },
-        });
-
-        const isPrimary =
-            data.isPrimary === true ||
-            currentPrimary === null;
 
         const image = await tx.productImage.create({
             data: {
@@ -319,14 +181,7 @@ export const createProductImage = async (
             include: productImageInclude,
         });
 
-        await ensurePrimaryImage(tx, productId);
-
-        return tx.productImage.findUniqueOrThrow({
-            where: {
-                id: image.id,
-            },
-            include: productImageInclude,
-        });
+        return image;
     });
 };
 
@@ -338,17 +193,11 @@ export const getProductImages = async (
 
     if (colorId == null) {
         return prisma.productImage.findMany({
-            where: {
-                productId,
-            },
+            where: { productId },
             include: productImageInclude,
             orderBy: [
-                {
-                    sortOrder: "asc",
-                },
-                {
-                    id: "asc",
-                },
+                { sortOrder: "asc" },
+                { id: "asc" },
             ],
         });
     }
@@ -362,26 +211,17 @@ export const getProductImages = async (
         where: {
             productId,
             OR: [
-                {
-                    colorId,
-                },
-                {
-                    colorId: null,
-                },
+                { colorId },
+                { colorId: null },
             ],
         },
         include: productImageInclude,
         orderBy: [
-            {
-                sortOrder: "asc",
-            },
-            {
-                id: "asc",
-            },
+            { sortOrder: "asc" },
+            { id: "asc" },
         ],
     });
 };
-
 
 export const updateProductImage = async (
     imageId: number,
@@ -395,15 +235,12 @@ export const updateProductImage = async (
     }
 
     const existingImage = await prisma.productImage.findUnique({
-        where: {
-            id: imageId,
-        },
+        where: { id: imageId },
     });
 
     if (!existingImage) {
         throw new AppError("Product image not found", 404);
     }
-
 
     let uploadedUrl: string | undefined;
 
@@ -418,9 +255,7 @@ export const updateProductImage = async (
 
     return prisma.$transaction(async (tx) => {
         const currentImage = await tx.productImage.findUnique({
-            where: {
-                id: imageId,
-            },
+            where: { id: imageId },
         });
 
         if (!currentImage) {
@@ -441,48 +276,12 @@ export const updateProductImage = async (
             nextColorId
         );
 
-        let nextIsPrimary: boolean;
+        const nextIsPrimary =
+            data.isPrimary !== undefined
+                ? data.isPrimary
+                : currentImage.isPrimary;
 
-        if (data.isPrimary === true) {
-           
-            nextIsPrimary = true;
-        } else if (data.isPrimary === false) {
-       
-            const sibling = await tx.productImage.findFirst({
-                where: {
-                    productId: currentImage.productId,
-                    id: {
-                        not: imageId,
-                    },
-                },
-                select: {
-                    id: true,
-                },
-            });
-
-            nextIsPrimary =
-                currentImage.isPrimary && sibling === null;
-        } else {
-
-            const otherPrimary = await tx.productImage.findFirst({
-                where: {
-                    productId: currentImage.productId,
-                    isPrimary: true,
-                    id: {
-                        not: imageId,
-                    },
-                },
-                select: {
-                    id: true,
-                },
-            });
-
-            nextIsPrimary =
-                currentImage.isPrimary ||
-                otherPrimary === null;
-        }
-
-        if (nextIsPrimary) {
+        if (nextIsPrimary || (data.isPrimary === false && currentImage.isPrimary)) {
             await clearOtherPrimaryImages(
                 tx,
                 currentImage.productId,
@@ -490,10 +289,8 @@ export const updateProductImage = async (
             );
         }
 
-        await tx.productImage.update({
-            where: {
-                id: imageId,
-            },
+        const updatedImage = await tx.productImage.update({
+            where: { id: imageId },
             data: {
                 ...(uploadedUrl !== undefined && {
                     url: uploadedUrl,
@@ -509,22 +306,10 @@ export const updateProductImage = async (
                     sortOrder: data.sortOrder,
                 }),
             },
-        });
-
-        await ensurePrimaryImage(
-            tx,
-            currentImage.productId,
-            data.isPrimary === false
-                ? imageId
-                : undefined
-        );
-
-        return tx.productImage.findUniqueOrThrow({
-            where: {
-                id: imageId,
-            },
             include: productImageInclude,
         });
+
+        return updatedImage;
     });
 };
 
@@ -533,9 +318,7 @@ export const deleteProductImage = async (
 ) => {
     return prisma.$transaction(async (tx) => {
         const existingImage = await tx.productImage.findUnique({
-            where: {
-                id: imageId,
-            },
+            where: { id: imageId },
         });
 
         if (!existingImage) {
@@ -545,18 +328,9 @@ export const deleteProductImage = async (
             );
         }
 
-        const deletedImage = await tx.productImage.delete({
-            where: {
-                id: imageId,
-            },
+        return tx.productImage.delete({
+            where: { id: imageId },
             include: productImageInclude,
         });
-
-        await ensurePrimaryImage(
-            tx,
-            existingImage.productId
-        );
-
-        return deletedImage;
     });
 };
