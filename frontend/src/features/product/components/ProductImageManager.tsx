@@ -3,13 +3,17 @@
 import Image from "next/image";
 import {
   useEffect,
+  useRef,
   useState,
   type FormEvent,
   type MouseEvent,
 } from "react";
 import { toast } from "sonner";
 
-import type { ProductImage } from "@/src/features/product/types/product";
+import type {
+  ProductColor,
+  ProductImage,
+} from "@/src/features/product/types/product";
 
 import { useProductImages } from "@/src/features/product/hooks/useProductImages";
 
@@ -19,6 +23,11 @@ import {
   deleteProductImage,
   type CreateProductImageInput,
 } from "@/src/features/product/services/product-image.service";
+
+import {
+  getProductColors,
+  createProductColor,
+} from "../services/product-color.service";
 
 type ImageFormValues = {
   url: string;
@@ -47,11 +56,14 @@ const inputClassName =
 function isValidImageUrl(value: string): boolean {
   try {
     const url = new URL(value);
-
     return url.protocol === "http:" || url.protocol === "https:";
   } catch {
     return false;
   }
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
 function sortImages(images: ProductImage[]): ProductImage[] {
@@ -61,32 +73,41 @@ function sortImages(images: ProductImage[]): ProductImage[] {
 }
 
 /**
- * Keep exactly one primary image in the local product image list.
- * The primary image is selected product-wide, regardless of colorId.
+ * null and undefined both represent the general-image group.
+ */
+function normalizeColorId(
+  colorId: number | null | undefined
+): number | null {
+  return colorId ?? null;
+}
+
+/**
+ * Keep exactly one primary image in each color group.
  *
- * preferredPrimaryId is used when the user explicitly selects an image.
- * excludedPrimaryId prevents an image being unset from immediately
- * becoming the replacement when another image is available.
+ * General images (colorId = null) form one group.
+ * Images assigned to each numeric colorId form separate groups.
+ *
+ * preferredPrimaryId takes priority in its own group.
+ * excludedPrimaryId avoids selecting an image that was just unset.
  */
 function normalizePrimaryImages(
   images: ProductImage[],
-  preferredPrimaryId?: number,
-  excludedPrimaryId?: number
+  preferredPrimaryId?: number
 ): ProductImage[] {
   const sortedImages = sortImages(images);
-  const eligibleImages = sortedImages.filter(
-    (image) => image.id !== excludedPrimaryId
-  );
 
+  // Keep the explicitly selected image as the only primary.
+  // Otherwise preserve an existing primary, if one exists.
+  // Do not automatically promote another image when none is primary.
   const primaryImage =
-    eligibleImages.find((image) => image.id === preferredPrimaryId) ??
-    eligibleImages.find((image) => image.isPrimary) ??
-    eligibleImages[0] ??
-    sortedImages[0];
+    sortedImages.find(
+      (image) => image.id === preferredPrimaryId
+    ) ??
+    sortedImages.find((image) => image.isPrimary);
 
   return sortedImages.map((image) => ({
     ...image,
-    isPrimary: primaryImage !== undefined && image.id === primaryImage.id,
+    isPrimary: primaryImage?.id === image.id,
   }));
 }
 
@@ -94,25 +115,13 @@ function applyImageUpdate(
   images: ProductImage[],
   updatedImage: ProductImage
 ): ProductImage[] {
-  const previousImage = images.find(
-    (image) => image.id === updatedImage.id
-  );
-
   const nextImages = images.map((image) =>
     image.id === updatedImage.id ? updatedImage : image
   );
 
-  if (updatedImage.isPrimary) {
-    return normalizePrimaryImages(nextImages, updatedImage.id);
-  }
-
-  const shouldPromoteAnotherImage =
-    previousImage?.isPrimary === true && nextImages.length > 1;
-
   return normalizePrimaryImages(
     nextImages,
-    undefined,
-    shouldPromoteAnotherImage ? updatedImage.id : undefined
+    updatedImage.isPrimary ? updatedImage.id : undefined
   );
 }
 
@@ -127,24 +136,72 @@ export default function ProductImageManager({
   } = useProductImages(productId);
 
   const [images, setImages] = useState<ProductImage[]>([]);
+  const [colors, setColors] = useState<ProductColor[]>([]);
+  const [colorsLoading, setColorsLoading] = useState(true);
+  const [colorsError, setColorsError] = useState("");
+
   const [form, setForm] = useState<ImageFormValues>(initialFormValues);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
+
+  // Create new color state.
+  const [colorFormOpen, setColorFormOpen] = useState(false);
+  const [newColorName, setNewColorName] = useState("");
+  const [newColorHexCode, setNewColorHexCode] = useState("#000000");
+  const [creatingColor, setCreatingColor] = useState(false);
+  const [colorFormError, setColorFormError] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [settingPrimaryId, setSettingPrimaryId] = useState<number | null>(
-    null
-  );
+  const [settingPrimaryId, setSettingPrimaryId] =
+    useState<number | null>(null);
 
   const [formError, setFormError] = useState("");
 
-  // Synchronize the local list with the data loaded by the hook.
+  const colorDropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    setImages(sortImages(fetchedImages));
+    setImages(normalizePrimaryImages(fetchedImages));
   }, [fetchedImages]);
 
-  // Notify the parent page when the API loading state changes.
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchColors = async () => {
+      setColorsLoading(true);
+      setColorsError("");
+
+      try {
+        const data = await getProductColors(productId);
+
+        if (!cancelled) {
+          setColors(data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setColors([]);
+          setColorsError(
+            getErrorMessage(err, "Unable to load product colors.")
+          );
+        }
+
+        console.error("Failed to load product colors:", err);
+      } finally {
+        if (!cancelled) {
+          setColorsLoading(false);
+        }
+      }
+    };
+
+    void fetchColors();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
+
   useEffect(() => {
     onLoadingChange?.(loading);
   }, [loading, onLoadingChange]);
@@ -152,21 +209,74 @@ export default function ProductImageManager({
   const busy =
     submitting ||
     deletingId !== null ||
-    settingPrimaryId !== null;
+    settingPrimaryId !== null ||
+    creatingColor;
 
-  // Allow closing the modal with Escape.
+  const selectedColor = colors.find(
+    (color) => String(color.id) === form.colorId
+  );
+
+  const selectedColorLabel =
+    form.colorId === ""
+      ? "General product image (no color)"
+      : selectedColor?.name ?? "Selected color unavailable";
+
+  useEffect(() => {
+    if (!isColorDropdownOpen) {
+      return;
+    }
+
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      if (
+        colorDropdownRef.current &&
+        !colorDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsColorDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener(
+      "pointerdown",
+      handleOutsidePointerDown
+    );
+
+    return () => {
+      document.removeEventListener(
+        "pointerdown",
+        handleOutsidePointerDown
+      );
+    };
+  }, [isColorDropdownOpen]);
+
   useEffect(() => {
     if (!imageModalOpen) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !busy) {
-        setImageModalOpen(false);
-        setForm(initialFormValues);
-        setEditingId(null);
-        setFormError("");
+      if (event.key !== "Escape" || busy) {
+        return;
       }
+
+      if (isColorDropdownOpen) {
+        setIsColorDropdownOpen(false);
+        return;
+      }
+
+      if (colorFormOpen) {
+        setColorFormOpen(false);
+        setColorFormError("");
+        return;
+      }
+
+      setImageModalOpen(false);
+      setForm(initialFormValues);
+      setEditingId(null);
+      setFormError("");
+      setColorFormOpen(false);
+      setNewColorName("");
+      setNewColorHexCode("#000000");
+      setColorFormError("");
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -174,12 +284,21 @@ export default function ProductImageManager({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [imageModalOpen, busy]);
+  }, [imageModalOpen, isColorDropdownOpen, colorFormOpen, busy]);
+
+  const resetColorForm = () => {
+    setColorFormOpen(false);
+    setNewColorName("");
+    setNewColorHexCode("#000000");
+    setColorFormError("");
+  };
 
   const resetForm = () => {
     setForm(initialFormValues);
     setEditingId(null);
     setFormError("");
+    setIsColorDropdownOpen(false);
+    resetColorForm();
     setImageModalOpen(false);
   };
 
@@ -191,6 +310,8 @@ export default function ProductImageManager({
     setForm(initialFormValues);
     setEditingId(null);
     setFormError("");
+    setIsColorDropdownOpen(false);
+    resetColorForm();
     setImageModalOpen(true);
   };
 
@@ -204,13 +325,103 @@ export default function ProductImageManager({
     setForm({
       url: image.url,
       alt: image.alt ?? "",
-      colorId: image.colorId == null ? "" : String(image.colorId),
+      colorId:
+        image.colorId == null ? "" : String(image.colorId),
       sortOrder: String(image.sortOrder),
       isPrimary: image.isPrimary,
     });
 
     setFormError("");
+    setIsColorDropdownOpen(false);
+    resetColorForm();
     setImageModalOpen(true);
+  };
+
+  const handleSelectColor = (colorId: string) => {
+    setForm((previous) => ({
+      ...previous,
+      colorId,
+    }));
+
+    setIsColorDropdownOpen(false);
+  };
+
+  const handleCreateColor = async () => {
+    if (busy || loading || colorsLoading) {
+      return;
+    }
+
+    const name = newColorName.trim();
+    const hexCode = newColorHexCode.trim();
+
+    if (!name) {
+      setColorFormError("Color name is required.");
+      return;
+    }
+
+    if (!/^#[0-9a-fA-F]{6}$/.test(hexCode)) {
+      setColorFormError("Please select a valid color.");
+      return;
+    }
+
+    const duplicateColor = colors.some(
+      (color) =>
+        color.name.trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if (duplicateColor) {
+      setColorFormError(
+        "This color name already exists for this product."
+      );
+      return;
+    }
+
+    const toastId = toast.loading("Creating product color...");
+
+    setColorFormError("");
+    setCreatingColor(true);
+
+    try {
+      const createdColor = await createProductColor(productId, {
+        name,
+        hexCode,
+      });
+
+      setColors((previous) =>
+        [...previous, createdColor].sort(
+          (a, b) =>
+            a.sortOrder - b.sortOrder ||
+            a.name.localeCompare(b.name)
+        )
+      );
+
+      setColorsError("");
+
+      // Automatically select the newly created color.
+      setForm((previous) => ({
+        ...previous,
+        colorId: String(createdColor.id),
+      }));
+
+      resetColorForm();
+      setIsColorDropdownOpen(false);
+
+      toast.success("Product color created successfully.", {
+        id: toastId,
+      });
+    } catch (err) {
+      console.error("Failed to create product color:", err);
+
+      setColorFormError(
+        getErrorMessage(err, "Unable to create product color.")
+      );
+
+      toast.error("Unable to create product color.", {
+        id: toastId,
+      });
+    } finally {
+      setCreatingColor(false);
+    }
   };
 
   const handleSubmit = async (
@@ -242,7 +453,18 @@ export default function ProductImageManager({
       colorId = Number(form.colorId);
 
       if (!Number.isInteger(colorId) || colorId <= 0) {
-        setFormError("Color ID must be a positive integer.");
+        setFormError("Please select a valid product color.");
+        return;
+      }
+
+      const colorExists = colors.some(
+        (color) => color.id === colorId
+      );
+
+      if (colorsLoading || !colorExists) {
+        setFormError(
+          "The selected color is unavailable. Please select an existing color."
+        );
         return;
       }
     }
@@ -281,14 +503,12 @@ export default function ProductImageManager({
           payload
         );
 
-        setImages((previous) => {
-          const next = [...previous, createdImage];
-
-          return normalizePrimaryImages(
-            next,
+        setImages((previous) =>
+          normalizePrimaryImages(
+            [...previous, createdImage],
             createdImage.isPrimary ? createdImage.id : undefined
-          );
-        });
+          )
+        );
 
         toast.success("Product image added successfully.", {
           id: toastId,
@@ -312,12 +532,9 @@ export default function ProductImageManager({
     } catch (err) {
       console.error("Failed to save product image:", err);
 
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Unable to save product image.";
-
-      setFormError(message);
+      setFormError(
+        getErrorMessage(err, "Unable to save product image.")
+      );
 
       toast.error("Unable to save product image. Please try again.", {
         id: toastId,
@@ -384,13 +601,7 @@ export default function ProductImageManager({
           (item) => item.id !== image.id
         );
 
-        // If the deleted image was primary, mirror the backend's
-        // replacement choice across the entire product.
-        return normalizePrimaryImages(
-          remainingImages,
-          undefined,
-          image.isPrimary ? image.id : undefined
-        );
+        return normalizePrimaryImages(remainingImages);
       });
 
       if (editingId === image.id) {
@@ -419,6 +630,16 @@ export default function ProductImageManager({
     }
   };
 
+  const getColorLabel = (colorId: number | null) => {
+    if (colorId == null) {
+      return "General";
+    }
+
+    const color = colors.find((item) => item.id === colorId);
+
+    return color?.name ?? `Color #${colorId}`;
+  };
+
   return (
     <section
       aria-label="Product image management"
@@ -436,14 +657,15 @@ export default function ProductImageManager({
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Manage product images, alternative text, display order, and the
-            product&apos;s primary image.
+            Manage product images, alternative text, display order, and
+            the primary image for each color.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
             <span className="size-1.5 rounded-full bg-cyan-500" />
+
             {images.length} {images.length === 1 ? "image" : "images"}
           </span>
 
@@ -504,14 +726,10 @@ export default function ProductImageManager({
             ))}
           </div>
         ) : error ? (
-          <div
-            role="alert"
-            className="px-5 py-12 text-center"
-          >
+          <div role="alert" className="px-5 py-12 text-center">
             <p className="text-sm font-semibold text-slate-900">
               Unable to load product images
             </p>
-
             <p className="mt-2 text-sm text-rose-600">{error}</p>
           </div>
         ) : images.length === 0 ? (
@@ -542,108 +760,122 @@ export default function ProductImageManager({
             <button
               type="button"
               onClick={handleAddImage}
-              className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+              disabled={busy || loading}
+              className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Add First Image
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-4">
-            {images.map((image) => (
-              <article
-                key={image.id}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-sm"
-              >
-                {/* Image Preview */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
-                  <Image
-                    src={image.url}
-                    alt={image.alt || "Product image"}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-contain p-3"
-                  />
+            {images.map((image) => {
+              const imageColor = colors.find(
+                (color) => color.id === image.colorId
+              );
 
-                  {image.isPrimary && (
-                    <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="size-3.5"
-                        aria-hidden="true"
-                      >
-                        <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
-                      </svg>
+              return (
+                <article
+                  key={image.id}
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-sm"
+                >
+                  {/* Image Preview */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
+                    <Image
+                      src={image.url}
+                      alt={image.alt || "Product image"}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-contain p-3"
+                    />
 
-                      Primary
-                    </span>
-                  )}
-                </div>
-
-                {/* Image Information */}
-                <div className="space-y-3 p-4">
-                  <div>
-                    <p
-                      className="truncate text-sm font-medium text-slate-900"
-                      title={image.alt || image.url}
-                    >
-                      {image.alt || "Untitled image"}
-                    </p>
-
-                    <p className="mt-1 truncate text-xs text-slate-500">
-                      {image.url}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-600">
-                      Order: {image.sortOrder}
-                    </span>
-
-                    <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-600">
-                      Color: {image.colorId ?? "None"}
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
-                    <button
-                      type="button"
-                      onClick={() => handleEdit(image)}
-                      disabled={busy}
-                      className="inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => void handleDelete(image)}
-                      disabled={busy}
-                      className="inline-flex min-h-9 items-center justify-center rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {deletingId === image.id
-                        ? "Deleting..."
-                        : "Delete"}
-                    </button>
-
-                    {!image.isPrimary && (
-                      <button
-                        type="button"
-                        onClick={() => void handleSetPrimary(image)}
-                        disabled={busy}
-                        className="col-span-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {settingPrimaryId === image.id
-                          ? "Updating..."
-                          : "Set as Primary"}
-                      </button>
+                    {image.isPrimary && (
+                      <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="size-3.5"
+                          aria-hidden="true"
+                        >
+                          <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+                        </svg>
+                        Primary
+                      </span>
                     )}
                   </div>
-                </div>
-              </article>
-            ))}
+
+                  {/* Image Information */}
+                  <div className="space-y-3 p-4">
+                    <div>
+                      <p
+                        className="truncate text-sm font-medium text-slate-900"
+                        title={image.alt || image.url}
+                      >
+                        {image.alt || "Untitled image"}
+                      </p>
+
+                      <p className="mt-1 truncate text-xs text-slate-500">
+                        {image.url}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-600">
+                        Order: {image.sortOrder}
+                      </span>
+
+                      <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 text-slate-600">
+                        {imageColor?.hexCode && (
+                          <span
+                            aria-hidden="true"
+                            className="size-3 rounded-full border border-slate-300"
+                            style={{
+                              backgroundColor: imageColor.hexCode,
+                            }}
+                          />
+                        )}
+
+                        Color: {getColorLabel(image.colorId)}
+                      </span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(image)}
+                        disabled={busy}
+                        className="inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(image)}
+                        disabled={busy}
+                        className="inline-flex min-h-9 items-center justify-center rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {deletingId === image.id ? "Deleting..." : "Delete"}
+                      </button>
+
+                      {!image.isPrimary && (
+                        <button
+                          type="button"
+                          onClick={() => void handleSetPrimary(image)}
+                          disabled={busy}
+                          className="col-span-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {settingPrimaryId === image.id
+                            ? "Updating..."
+                            : "Set as Primary"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
@@ -762,31 +994,303 @@ export default function ProductImageManager({
               </div>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {/* Color ID */}
-                <div>
-                  <label
-                    htmlFor="product-image-color"
-                    className="mb-2 block text-sm font-medium text-slate-700"
-                  >
-                    Color ID
-                  </label>
+                {/* Product Color */}
+                <div
+                  ref={colorDropdownRef}
+                  className="relative"
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <label
+                      id="product-image-color-label"
+                      className="block text-sm font-medium text-slate-700"
+                    >
+                      Apply to Color
+                    </label>
 
-                  <input
+                    <button
+                      type="button"
+                      disabled={busy || loading || colorsLoading}
+                      onClick={() => {
+                        if (colorFormOpen) {
+                          resetColorForm();
+                        } else {
+                          setColorFormError("");
+                          setColorFormOpen(true);
+                          setIsColorDropdownOpen(false);
+                        }
+                      }}
+                      className="shrink-0 text-xs font-semibold text-blue-600 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {colorFormOpen ? "Cancel" : "+ Add New Color"}
+                    </button>
+                  </div>
+
+                  {/* Selected Color */}
+                  <button
                     id="product-image-color"
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={form.colorId}
-                    onChange={(event) =>
-                      setForm((previous) => ({
-                        ...previous,
-                        colorId: event.target.value,
-                      }))
+                    type="button"
+                    aria-labelledby="product-image-color-label"
+                    aria-haspopup="listbox"
+                    aria-expanded={isColorDropdownOpen}
+                    aria-controls="product-image-color-options"
+                    disabled={
+                      busy ||
+                      loading ||
+                      colorsLoading ||
+                      colorFormOpen
                     }
-                    placeholder="Leave empty for no color"
-                    disabled={busy || loading}
-                    className={inputClassName}
-                  />
+                    onClick={() =>
+                      setIsColorDropdownOpen((previous) => !previous)
+                    }
+                    className={`${inputClassName} flex items-center justify-between gap-3 text-left`}
+                  >
+                    <span className="flex min-w-0 items-center gap-2.5">
+                      <span
+                        aria-hidden="true"
+                        className="size-4 shrink-0 rounded-sm border border-slate-300"
+                        style={{
+                          backgroundColor:
+                            selectedColor?.hexCode ??
+                            (form.colorId === "" ? "#ffffff" : "#e5e7eb"),
+                        }}
+                      />
+
+                      <span className="truncate">
+                        {colorsLoading
+                          ? "Loading product colors..."
+                          : selectedColorLabel}
+                      </span>
+                    </span>
+
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className={`size-4 shrink-0 text-slate-500 transition-transform ${
+                        isColorDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+
+                  {/* Existing Colors */}
+                  {isColorDropdownOpen && !colorsLoading && (
+                    <div
+                      id="product-image-color-options"
+                      role="listbox"
+                      aria-labelledby="product-image-color-label"
+                      className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
+                    >
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={form.colorId === ""}
+                        onClick={() => handleSelectColor("")}
+                        className={`flex min-h-10 w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50 ${
+                          form.colorId === ""
+                            ? "bg-blue-50 text-blue-700"
+                            : "text-slate-700"
+                        }`}
+                      >
+                        <span className="size-4 shrink-0 rounded-sm border border-slate-300 bg-white" />
+
+                        <span className="min-w-0 flex-1 truncate">
+                          General product image (no color)
+                        </span>
+
+                        {form.colorId === "" && (
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                            className="size-4 shrink-0"
+                          >
+                            <path d="m5 12 4 4L19 6" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {colors.map((color) => {
+                        const isSelected =
+                          form.colorId === String(color.id);
+
+                        return (
+                          <button
+                            key={color.id}
+                            type="button"
+                            role="option"
+                            aria-selected={isSelected}
+                            onClick={() =>
+                              handleSelectColor(String(color.id))
+                            }
+                            className={`flex min-h-10 w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50 ${
+                              isSelected
+                                ? "bg-blue-50 text-blue-700"
+                                : "text-slate-700"
+                            }`}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="size-4 shrink-0 rounded-sm border border-slate-300"
+                              style={{
+                                backgroundColor:
+                                  color.hexCode ?? "#e5e7eb",
+                              }}
+                            />
+
+                            <span className="min-w-0 flex-1 truncate">
+                              {color.name}
+                            </span>
+
+                            {isSelected && (
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                                className="size-4 shrink-0"
+                              >
+                                <path d="m5 12 4 4L19 6" />
+                              </svg>
+                            )}
+                          </button>
+                        );
+                      })}
+
+                      {colors.length === 0 && (
+                        <p className="px-3 py-3 text-sm text-slate-500">
+                          No existing colors are available.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Create New Color */}
+                  {colorFormOpen && (
+                    <div className="mt-3 space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-900">
+                          Create New Color
+                        </h4>
+
+                        <p className="mt-1 text-xs text-slate-500">
+                          Create a color for this product and use it for
+                          the image.
+                        </p>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="new-product-color-name"
+                          className="mb-2 block text-sm font-medium text-slate-700"
+                        >
+                          Color Name{" "}
+                          <span className="text-rose-500">*</span>
+                        </label>
+
+                        <input
+                          id="new-product-color-name"
+                          type="text"
+                          value={newColorName}
+                          onChange={(event) => {
+                            setNewColorName(event.target.value);
+                            setColorFormError("");
+                          }}
+                          placeholder="e.g. Midnight Blue"
+                          maxLength={100}
+                          disabled={busy || loading}
+                          className={inputClassName}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="new-product-color-hex"
+                          className="mb-2 block text-sm font-medium text-slate-700"
+                        >
+                          Color
+                        </label>
+
+                        <div className="flex h-11 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3">
+                          <input
+                            id="new-product-color-hex"
+                            type="color"
+                            value={newColorHexCode}
+                            onChange={(event) =>
+                              setNewColorHexCode(event.target.value)
+                            }
+                            disabled={busy || loading}
+                            aria-label="Choose new product color"
+                            className="h-8 w-10 cursor-pointer rounded border-0 bg-transparent p-0 disabled:cursor-not-allowed"
+                          />
+
+                          <span className="text-sm font-medium uppercase text-slate-600">
+                            {newColorHexCode}
+                          </span>
+                        </div>
+                      </div>
+
+                      {colorFormError && (
+                        <p
+                          role="alert"
+                          className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-700"
+                        >
+                          {colorFormError}
+                        </p>
+                      )}
+
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={resetColorForm}
+                          className="min-h-9 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={busy || loading}
+                          onClick={() => void handleCreateColor()}
+                          className="min-h-9 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {creatingColor ? "Creating..." : "Create Color"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {colorsLoading ? (
+                    <p className="mt-1.5 text-xs text-slate-400">
+                      Loading product colors...
+                    </p>
+                  ) : colorsError ? (
+                    <p
+                      role="alert"
+                      className="mt-1.5 text-xs leading-5 text-rose-600"
+                    >
+                      Unable to load existing colors. You can still try
+                      creating a new color.
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-xs leading-5 text-slate-400">
+                      Choose an existing color, create a new one, or
+                      select a general image.
+                    </p>
+                  )}
                 </div>
 
                 {/* Sort Order */}
@@ -837,7 +1341,8 @@ export default function ProductImageManager({
                   </span>
 
                   <span className="mt-1 block text-xs leading-5 text-slate-500">
-                    Only one image can be primary for this product, across all colors.
+                    Each color group has its own primary image. General
+                    product images form a separate group.
                   </span>
                 </span>
               </label>
@@ -865,7 +1370,13 @@ export default function ProductImageManager({
 
                 <button
                   type="submit"
-                  disabled={busy || loading}
+                  disabled={
+                    busy ||
+                    loading ||
+                    colorsLoading ||
+                    colorFormOpen ||
+                    Boolean(colorsError && form.colorId !== "")
+                  }
                   className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {submitting && (
