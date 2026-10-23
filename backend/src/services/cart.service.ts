@@ -2,7 +2,11 @@ import { prisma } from "../config/prisma";
 import { AppError } from "../utils/AppError";
 
 const cartItemInclude = {
-    product: true,
+    product: {
+        include: {
+            images: true,
+        },
+    },
     variant: {
         include: {
             colorOption: true,
