@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -19,10 +18,6 @@ import type {
   ProductVariant,
 } from "@/src/features/product/types/product";
 
-/**
- * Find the active variant with the lowest effective selling price.
- * Use salePrice when available; otherwise use the regular price.
- */
 const getLowestPriceVariant = (
   product: Product
 ): ProductVariant | null => {
@@ -50,6 +45,11 @@ const getLowestPriceVariant = (
   );
 };
 
+const getPrimaryProductImage = (product: Product) =>
+  product.images?.find(
+    (image) => image.isPrimary && Boolean(image.url)
+  ) ?? null;
+
 export default function Home() {
   const { products, loading, error } = useProducts({
     page: 1,
@@ -63,7 +63,7 @@ export default function Home() {
   const featuredProducts = useMemo(
     () =>
       products
-        .filter((product) => Boolean(product.images?.[0]?.url))
+        .filter((product) => Boolean(getPrimaryProductImage(product)?.url))
         .slice(0, 5),
     [products]
   );
@@ -76,6 +76,9 @@ export default function Home() {
       : 0;
 
   const activeFeaturedProduct = featuredProducts[safeFeaturedIndex];
+  const activeFeaturedImage = activeFeaturedProduct
+    ? getPrimaryProductImage(activeFeaturedProduct)
+    : null;
 
   // Product Collection Carousel
   const productsScrollerRef = useRef<HTMLDivElement>(null);
@@ -203,17 +206,21 @@ export default function Home() {
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className="mb-10 grid min-h-[280px] overflow-hidden rounded-[2rem] bg-white shadow-sm lg:min-h-[360px] lg:grid-cols-2"
+              className="mb-10 grid overflow-hidden rounded-[2rem] bg-white shadow-sm lg:min-h-[330px] lg:grid-cols-2"
             >
-              <div className="flex flex-col justify-center p-6 sm:p-9 lg:p-12">
+              <div className="flex min-h-[350px] flex-col justify-center p-6 sm:p-9 lg:min-h-0 lg:p-12">
                 <div className="h-3 w-36 rounded-full bg-slate-200" />
+
                 <div className="mt-5 h-10 max-w-md rounded-xl bg-slate-200" />
+
                 <div className="mt-4 h-4 max-w-sm rounded bg-slate-100" />
+
                 <div className="mt-2 h-4 w-4/5 max-w-sm rounded bg-slate-100" />
+
                 <div className="mt-7 h-10 w-40 rounded-full bg-slate-200" />
               </div>
 
-              <div className="min-h-[200px] bg-slate-100 lg:min-h-0" />
+              <div className="h-[260px] bg-slate-100 sm:h-[300px] lg:h-[330px]" />
             </motion.div>
 
             {/* Collection Heading Skeleton */}
@@ -461,7 +468,7 @@ export default function Home() {
               />
 
               {/* Clickable Featured Product */}
-              {activeFeaturedProduct ? (
+              {activeFeaturedProduct && activeFeaturedImage ? (
                 <div className="absolute inset-4 sm:inset-7 lg:inset-9">
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.div
@@ -486,7 +493,7 @@ export default function Home() {
                           transition={{ duration: 0.3 }}
                         >
                           <Image
-                            src={activeFeaturedProduct.images[0].url}
+                            src={activeFeaturedImage.url}
                             alt={activeFeaturedProduct.name}
                             fill
                             sizes="(max-width: 1023px) 90vw, 45vw"
@@ -509,7 +516,7 @@ export default function Home() {
                   </AnimatePresence>
                 </div>
               ) : (
-                /* Fallback when no product images are available */
+                /* Fallback when no product has a primary image */
                 <motion.div
                   aria-hidden="true"
                   animate={{
@@ -713,6 +720,7 @@ export default function Home() {
             >
               {products.map((product, index) => {
                 const priceVariant = getLowestPriceVariant(product);
+                const primaryImage = getPrimaryProductImage(product);
 
                 return (
                   <motion.div
@@ -733,7 +741,7 @@ export default function Home() {
                       name={product.name}
                       price={priceVariant?.price ?? "0"}
                       salePrice={priceVariant?.salePrice ?? null}
-                      image={product.images[0]?.url}
+                      image={primaryImage?.url}
                       slug={product.slug}
                       priority={index === 0}
                     />
