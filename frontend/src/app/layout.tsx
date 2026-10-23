@@ -158,11 +158,14 @@ export default function RootLayout({
         toastOptions={{
           unstyled: true,
           classNames: {
-            toast: "relative flex w-full max-w-[380px] items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 pr-11 text-slate-700 shadow-[0_14px_40px_-16px_rgba(15,23,42,0.25)]",
+            toast:
+              "relative flex w-full max-w-[380px] items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 pr-11 text-slate-700 shadow-[0_14px_40px_-16px_rgba(15,23,42,0.25)]",
             title: "text-sm font-semibold leading-5 text-slate-900",
             description: "mt-1 text-xs leading-5 text-slate-500",
-            icon: "mt-0.5 shrink-0",
-            closeButton: "absolute right-3 top-3 flex size-7 items-center justify-center rounded-lg border border-transparent bg-white text-slate-400 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700",
+            icon: "shrink-0",
+            loader: "!static !flex !h-auto !w-auto !transform-none",
+            closeButton:
+              "absolute right-3 top-3 flex size-7 items-center justify-center rounded-lg border border-transparent bg-white text-slate-400 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700",
             success: "border-emerald-200 border-l-4 border-l-emerald-500",
             error: "border-rose-200 border-l-4 border-l-rose-500",
             warning: "border-amber-200 border-l-4 border-l-amber-500",

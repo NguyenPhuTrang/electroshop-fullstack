@@ -47,6 +47,27 @@ export default function AddressesPage() {
     void fetchAddresses();
   }, [fetchAddresses]);
 
+  // Lock background scrolling and allow closing the create-address modal with Escape.
+  useEffect(() => {
+    if (!isCreating) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsCreating(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isCreating]);
+
   // Create address
   const handleCreateAddress = async (data: CreateAddressData) => {
     const toastId = toast.loading("Adding address...");
@@ -129,7 +150,7 @@ export default function AddressesPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="mx-auto w-full max-w-[1440px] space-y-6 px-3 py-5 sm:px-4 sm:py-7 lg:px-6 lg:py-8">
         <div className="animate-pulse">
           <div className="mb-2 h-7 w-48 rounded-lg bg-slate-200" />
           <div className="h-4 w-72 max-w-full rounded bg-slate-100" />
@@ -162,7 +183,7 @@ export default function AddressesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-[1440px] space-y-6 px-3 py-5 sm:px-4 sm:py-7 lg:px-6 lg:py-8">
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -260,59 +281,76 @@ export default function AddressesPage() {
         </div>
       )}
 
-      {/* Create Address Form */}
+      {/* Create Address Modal */}
       {isCreating && (
-        <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm">
-          <div className="flex items-center justify-between gap-4 border-b border-slate-100 bg-blue-50/60 px-5 py-4 sm:px-6">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">
-                Add New Address
-              </h2>
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm sm:p-6"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsCreating(false);
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-address-title"
+            className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl border border-blue-100 bg-white shadow-2xl sm:max-h-[calc(100vh-3rem)]"
+          >
+            <div className="flex items-center justify-between gap-4 border-b border-slate-100 bg-blue-50/60 px-5 py-4 sm:px-6">
+              <div>
+                <h2
+                  id="add-address-title"
+                  className="text-base font-semibold text-slate-900"
+                >
+                  Add New Address
+                </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Enter your delivery information below.
-              </p>
-            </div>
+                <p className="mt-1 text-sm text-slate-500">
+                  Enter your delivery information below.
+                </p>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => setIsCreating(false)}
-              aria-label="Close form"
-              className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <svg
-                aria-hidden="true"
-                className="size-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m18 6-12 12" />
-                <path d="m6 6 12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="p-5 sm:p-6">
-            <AddressForm
-              onSubmit={handleCreateAddress}
-              buttonText="Save Address"
-            />
-
-            <div className="mt-4 flex justify-end border-t border-slate-100 pt-4">
               <button
                 type="button"
                 onClick={() => setIsCreating(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                aria-label="Close add address dialog"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Cancel
+                <svg
+                  aria-hidden="true"
+                  className="size-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m18 6-12 12" />
+                  <path d="m6 6 12 12" />
+                </svg>
               </button>
             </div>
-          </div>
-        </section>
+
+            <div className="p-5 sm:p-6">
+              <AddressForm
+                onSubmit={handleCreateAddress}
+                buttonText="Save Address"
+              />
+
+              <div className="mt-4 flex justify-end border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsCreating(false)}
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
       )}
 
       {/* Edit Address Form */}
