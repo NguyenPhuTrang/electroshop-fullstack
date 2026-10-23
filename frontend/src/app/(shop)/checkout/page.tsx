@@ -27,6 +27,34 @@ function formatVND(amount: number) {
   return `${amount.toLocaleString("vi-VN")} VND`;
 }
 
+function getCartItemPrice(
+  item: Cart["items"][number]
+): number | null {
+  if (!item.variant) return null;
+
+  const regularPrice = Number(item.variant.price);
+
+  if (!Number.isFinite(regularPrice) || regularPrice < 0) {
+    return null;
+  }
+
+  const rawSalePrice = item.variant.salePrice;
+
+  if (
+    rawSalePrice !== null &&
+    rawSalePrice !== undefined &&
+    rawSalePrice !== ""
+  ) {
+    const salePrice = Number(rawSalePrice);
+
+    if (Number.isFinite(salePrice) && salePrice >= 0) {
+      return salePrice;
+    }
+  }
+
+  return regularPrice;
+}
+
 function LoadingSpinner() {
   return (
     <span
@@ -144,12 +172,12 @@ export default function CheckoutPage() {
     setShippingDistrict(address.district);
   };
 
-  // Calculate Order Total
+// Calculate Order Total
   const orderTotal =
     cart?.items.reduce((sum, item) => {
-      const price = Number(
-        item.product.salePrice ?? item.product.price
-      );
+      const price = getCartItemPrice(item);
+
+      if (price === null) return sum;
 
       return sum + price * item.quantity;
     }, 0) ?? 0;
@@ -160,6 +188,13 @@ export default function CheckoutPage() {
 
     if (!cart || cart.items.length === 0) {
       toast.error("Your cart is empty.");
+      return;
+    }
+
+    if (cart.items.some((item) => getCartItemPrice(item) === null)) {
+      toast.error(
+        "Some items have invalid prices. Please refresh your cart and try again."
+      );
       return;
     }
 
@@ -853,11 +888,9 @@ export default function CheckoutPage() {
 
               <div className="mt-5 space-y-4">
                 {cart.items.map((item) => {
-                  const price = Number(
-                    item.product.salePrice ?? item.product.price
-                  );
-
-                  const subtotal = price * item.quantity;
+                 const price = getCartItemPrice(item);
+                  const subtotal =
+                    price !== null ? price * item.quantity : null;
 
                   return (
                     <div
@@ -872,15 +905,12 @@ export default function CheckoutPage() {
                         <p className="mt-1 text-xs text-slate-500">
                           Quantity: {item.quantity}
                         </p>
-
-                        <p className="mt-1 text-xs text-slate-500">
-                          {formatVND(price)} each
-                        </p>
+                        
                       </div>
 
-                      <p className="shrink-0 text-right text-sm font-semibold text-slate-800">
-                        {formatVND(subtotal)}
-                      </p>
+                        <p className="shrink-0 text-right text-sm font-semibold text-slate-800">
+                          {subtotal !== null ? formatVND(subtotal) : "—"}
+                        </p>
                     </div>
                   );
                 })}
@@ -892,7 +922,7 @@ export default function CheckoutPage() {
                     Subtotal
                   </span>
 
-                  <span className="font-medium text-slate-800">
+                  <span className="font-medium text-blue-700">
                     {formatVND(orderTotal)}
                   </span>
                 </div>
@@ -914,7 +944,7 @@ export default function CheckoutPage() {
                     Total
                   </span>
 
-                  <span className="text-right text-xl font-bold tracking-tight text-blue-700">
+                  <span className="text-right text-xl font-bold tracking-tight text-red-500">
                     {formatVND(orderTotal)}
                   </span>
                 </div>

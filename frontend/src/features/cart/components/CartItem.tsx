@@ -11,8 +11,33 @@ import {
 
 type CartItemProps = {
   item: CartItemType;
-  onRemove: (productId: number) => void;
-  onQuantityChange: (productId: number, quantity: number) => void;
+  onRemove: (cartItemId: number) => void;
+  onQuantityChange: (cartItemId: number, quantity: number) => void;
+};
+
+type CartProductImage = {
+  id?: number;
+  url?: string | null;
+  alt?: string | null;
+  colorId?: number | null;
+  isPrimary?: boolean;
+  sortOrder?: number;
+};
+
+type VariantDisplayInfo = {
+  sku?: string | null;
+  storage?: string | null;
+  colorId?: number | null;
+  colorOption?: {
+    id?: number;
+    name?: string | null;
+    hexCode?: string | null;
+  } | null;
+};
+
+type ProductDisplayInfo = {
+  sku?: string | null;
+  images?: CartProductImage[];
 };
 
 export default function CartItem({
@@ -24,54 +49,100 @@ export default function CartItem({
   const [isRemoving, setIsRemoving] = useState(false);
 
   const quantity = item.quantity;
-  const stock = item.product.stock;
 
-  const regularPrice = Number(item.product.price);
+  // The casts let this component handle the richer API response while
+  // remaining compatible with the existing Cart type during migration.
+  const product = item.product as CartItemType["product"] & ProductDisplayInfo;
+  const variant = item.variant as
+    | (NonNullable<CartItemType["variant"]> & VariantDisplayInfo)
+    | null;
 
-  const hasSalePrice =
-    item.product.salePrice !== null &&
-    item.product.salePrice !== "";
+  const images = (product.images ?? [])
+    .filter((image) => Boolean(image.url))
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
-  const salePrice = hasSalePrice
-    ? Number(item.product.salePrice)
-    : null;
+  // Prefer the image for the selected color, then a general product image.
+  const colorSpecificImage =
+    variant?.colorId != null
+      ? images.find(
+          (image) =>
+            image.colorId === variant.colorId && image.isPrimary
+        ) ?? images.find((image) => image.colorId === variant.colorId)
+      : undefined;
+
+  const productImage =
+    colorSpecificImage ??
+    images.find((image) => image.colorId == null && image.isPrimary) ??
+    images.find((image) => image.colorId == null) ??
+    images.find((image) => image.isPrimary) ??
+    images[0];
+
+  // Stock and prices belong to the selected product variant.
+  const availableStock = Number(variant?.stock ?? 0);
+  const stock =
+    Number.isFinite(availableStock) && availableStock > 0
+      ? availableStock
+      : 0;
+
+  const regularPrice = Number(variant?.price);
+  const hasValidRegularPrice =
+    variant !== null &&
+    Number.isFinite(regularPrice) &&
+    regularPrice >= 0;
+
+  const rawSalePrice = variant?.salePrice;
+  const parsedSalePrice =
+    rawSalePrice !== null && rawSalePrice !== undefined && rawSalePrice !== ""
+      ? Number(rawSalePrice)
+      : null;
+
+  const salePrice =
+    parsedSalePrice !== null &&
+    Number.isFinite(parsedSalePrice) &&
+    parsedSalePrice >= 0
+      ? parsedSalePrice
+      : null;
 
   const price = salePrice ?? regularPrice;
-  const subtotal = price * quantity;
-
+  const hasValidPrice = Number.isFinite(price) && price >= 0;
+  const subtotal = hasValidPrice ? price * quantity : null;
   const formattedPrice = (value: number) =>
     `${value.toLocaleString("vi-VN")} VND`;
 
   const hasDiscount =
     salePrice !== null &&
-    Number.isFinite(regularPrice) &&
-    Number.isFinite(salePrice) &&
+    hasValidRegularPrice &&
     regularPrice > 0 &&
-    salePrice >= 0 &&
     salePrice < regularPrice;
 
   const discountPercentage = hasDiscount
-    ? Math.round(
-        ((regularPrice - salePrice) / regularPrice) * 100
-      )
+    ? Math.round(((regularPrice - salePrice!) / regularPrice) * 100)
     : 0;
 
+  const variantSku = variant?.sku || product.sku || null;
+  const storage = variant?.storage?.trim() || null;
+  const colorName = variant?.colorOption?.name?.trim() || null;
+  const colorHex = variant?.colorOption?.hexCode || null;
+  const colorId = variant?.colorId ?? null;
+  const hasConfiguration = Boolean(variantSku || storage || colorName || colorId !== null);
   const isBusy = isUpdating || isRemoving;
 
-  // Update Quantity
   const handleQuantityUpdate = async (newQuantity: number) => {
-    if (isBusy || newQuantity < 1 || newQuantity > stock) {
+    if (
+      isBusy ||
+      !Number.isInteger(newQuantity) ||
+      newQuantity < 1 ||
+      newQuantity > stock
+    ) {
       return;
     }
 
     const toastId = toast.loading("Updating cart quantity...");
-
     setIsUpdating(true);
 
     try {
-      await updateCartItem(item.productId, newQuantity);
-
-      onQuantityChange(item.productId, newQuantity);
+      await updateCartItem(item.id, newQuantity);
+      onQuantityChange(item.id, newQuantity);
 
       toast.success("Cart quantity updated.", {
         id: toastId,
@@ -79,7 +150,6 @@ export default function CartItem({
       });
     } catch (error) {
       console.error("Failed to update cart quantity:", error);
-
       toast.error("Unable to update quantity. Please try again.", {
         id: toastId,
       });
@@ -88,38 +158,31 @@ export default function CartItem({
     }
   };
 
-  // Increase Quantity
   const handleIncrease = async () => {
-    if (isBusy || quantity >= stock || stock <= 0) {
-      return;
-    }
-
+    if (isBusy || quantity >= stock || stock <= 0) return;
     await handleQuantityUpdate(quantity + 1);
   };
 
-  // Decrease Quantity
   const handleDecrease = async () => {
-    if (isBusy || quantity <= 1) {
-      return;
-    }
-
+    if (isBusy || quantity <= 1) return;
     await handleQuantityUpdate(quantity - 1);
   };
 
-  // Remove Item
   const handleRemove = async () => {
-    if (isBusy) {
-      return;
-    }
+    if (isBusy) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to remove "${item.product.name}" from your cart?`
+    );
+
+    if (!confirmed) return;
 
     const toastId = toast.loading("Removing item from cart...");
-
     setIsRemoving(true);
 
     try {
-      await removeCartItem(item.productId);
-
-      onRemove(item.productId);
+      await removeCartItem(item.id);
+      onRemove(item.id);
 
       toast.success("Item removed from cart.", {
         id: toastId,
@@ -127,7 +190,6 @@ export default function CartItem({
       });
     } catch (error) {
       console.error("Failed to remove cart item:", error);
-
       toast.error("Unable to remove this item. Please try again.", {
         id: toastId,
       });
@@ -138,17 +200,79 @@ export default function CartItem({
 
   return (
     <article className="min-w-0 rounded-xl transition-colors duration-200 hover:bg-slate-50/70">
-      <div className="flex flex-col gap-4 p-2 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
-        {/* Product Information */}
+      <div className="flex flex-col gap-4 p-2 sm:flex-row sm:items-start sm:gap-4">
+        {/* Product image: color-specific image first, then primary general image. */}
+        <div className="flex shrink-0 justify-center sm:justify-start">
+          <div className="flex size-28 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white sm:size-32">
+            {productImage?.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={productImage.url}
+                alt={productImage.alt || item.product.name}
+                className="h-full w-full object-contain p-2"
+                loading="lazy"
+              />
+            ) : (
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                className="size-10 text-slate-300"
+              >
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <circle cx="8.5" cy="9" r="1.5" />
+                <path d="m4 17 5-5 3 3 3-4 5 6" />
+              </svg>
+            )}
+          </div>
+        </div>
+
+        {/* Product name and selected variant configuration. */}
         <div className="min-w-0 flex-1">
-          <h3 className="break-words text-sm font-semibold leading-5 text-slate-800 transition-colors hover:text-blue-700 sm:text-base">
+          <h3 className="break-words text-sm font-semibold leading-5 text-slate-800 sm:text-base">
             {item.product.name}
           </h3>
 
-          {/* Unit Price */}
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          {hasConfiguration && (
+            <div className="mt-2 space-y-1.5 rounded-lg px-3 py-2.5 text-xs text-slate-600">
+              {storage && (
+                <p>
+                  <span className="font-medium text-slate-500">Storage:</span>{" "}
+                  <span className="font-medium text-slate-700">{storage}</span>
+                </p>
+              )}
+
+              {colorName ? (
+                <p className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium text-slate-500">Color:</span>
+                  {colorHex && (
+                    <span
+                      aria-hidden="true"
+                      className="size-3.5 rounded-full border border-slate-300"
+                      style={{ backgroundColor: colorHex }}
+                    />
+                  )}
+                  <span className="font-medium text-slate-700">{colorName}</span>
+                </p>
+              ) : colorId !== null ? (
+                <p>
+                  <span className="font-medium text-slate-500">Color option:</span>{" "}
+                  <span className="font-medium text-slate-700">#{colorId}</span>
+                </p>
+              ) : null}
+
+              {!variantSku && !storage && !colorName && colorId === null && (
+                <p className="text-slate-500">Standard configuration</p>
+              )}
+            </div>
+          )}
+
+          {/* Unit price */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="text-sm font-bold text-blue-700">
-              {formattedPrice(price)}
+              {hasValidPrice ? formattedPrice(price) : "Price unavailable"}
             </span>
 
             {hasDiscount && (
@@ -156,7 +280,6 @@ export default function CartItem({
                 <span className="text-xs text-slate-400 line-through">
                   {formattedPrice(regularPrice)}
                 </span>
-
                 <span className="rounded-full border border-rose-100 bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-600">
                   -{discountPercentage}%
                 </span>
@@ -164,7 +287,7 @@ export default function CartItem({
             )}
           </div>
 
-          {/* Quantity Controls */}
+          {/* Quantity controls and remove action */}
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
             <div
               className="inline-flex h-9 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
@@ -235,39 +358,39 @@ export default function CartItem({
                       strokeLinejoin="round"
                     />
                   </svg>
-
                   Remove
                 </>
               )}
             </button>
           </div>
 
-          {/* Stock Hint */}
+          {/* Stock hint */}
           <p
             className={`mt-2 text-xs ${
-              stock <= 0
+              !variant
                 ? "text-rose-600"
-                : quantity >= stock
-                  ? "text-amber-600"
-                  : "text-slate-400"
+                : stock <= 0
+                  ? "text-rose-600"
+                  : quantity >= stock
+                    ? "text-amber-600"
+                    : "text-slate-400"
             }`}
           >
-            {stock <= 0
-              ? "Currently out of stock"
-              : quantity >= stock
-                ? "Maximum available quantity selected"
-                : `${stock} units available`}
+            {!variant
+              ? "Variant unavailable"
+              : stock <= 0
+                ? "Currently out of stock"
+                : quantity >= stock
+                  ? "Maximum available quantity selected"
+                  : `${stock} units available`}
           </p>
         </div>
 
         {/* Subtotal */}
-        <div className="flex items-center justify-between gap-3 rounded-lg bg-blue-50/60 px-3 py-2 sm:min-w-[155px] sm:flex-col sm:items-end sm:justify-center sm:bg-transparent sm:px-0 sm:py-0">
-          <p className="text-xs font-medium text-slate-500 sm:text-right">
-            Subtotal
-          </p>
-
+        <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 sm:min-w-[155px] sm:flex-col sm:items-end sm:justify-center sm:bg-transparent sm:px-0 sm:py-0">
+          <p className="text-xs font-medium text-slate-500 sm:text-right">Subtotal</p>
           <p className="text-base font-bold tracking-tight text-blue-800 sm:text-right">
-            {formattedPrice(subtotal)}
+            {subtotal !== null ? formattedPrice(subtotal) : "Price unavailable"}
           </p>
         </div>
       </div>
