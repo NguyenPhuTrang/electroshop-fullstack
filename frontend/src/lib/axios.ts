@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import {
   getAccessToken,
@@ -5,8 +6,15 @@ import {
   clearAccessToken,
 } from "@/src/features/auth/services/auth-token";
 
+const apiBaseURL =
+  typeof window === "undefined"
+    ? `${(process.env.BACKEND_URL || "http://localhost:5000").replace(/\/$/, "")}/api`
+    : "/api";
+
+const refreshTokenURL = `${apiBaseURL}/auth/refresh-token`;
+
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: apiBaseURL,
   withCredentials: true,
 });
 
@@ -27,18 +35,19 @@ api.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
 
       try {
         const res = await axios.post(
-          "/api/auth/refresh-token",
+          refreshTokenURL,
           {},
           { withCredentials: true }
         );
 
-        const newAccessToken = res.data.accessToken;
+        const newAccessToken = res.data.data.accessToken;
 
         setAccessToken(newAccessToken);
 
