@@ -10,8 +10,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const bootstrapAuth = async () => {
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/auth/refresh-token",
+       const res = await axios.post(
+          "/api/auth/refresh-token",
           {},
           { withCredentials: true }
         );
