@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { Link } from "@/src/i18n/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";

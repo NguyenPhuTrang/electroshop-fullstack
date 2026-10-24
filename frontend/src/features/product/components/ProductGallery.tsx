@@ -1,7 +1,9 @@
+
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import type { ProductImage } from "../types/product";
 import { useProductImages } from "../hooks/useProductImages";
@@ -35,6 +37,8 @@ export default function ProductGallery({
   productName,
   selectedColorId,
 }: ProductGalleryProps) {
+  const t = useTranslations("ProductGallery");
+
   const {
     images: fetchedImages,
     loading,
@@ -84,7 +88,6 @@ export default function ProductGallery({
           sortedImages[0]
         );
 
-
   const manuallySelectedImage = sortedImages.find(
     (image) => image.id === selectedImageId
   );
@@ -123,7 +126,7 @@ export default function ProductGallery({
 
             {selectedImage.isPrimary && (
               <div className="absolute left-3 top-3 rounded-full border border-white/70 bg-white/90 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-700 shadow-sm backdrop-blur-sm sm:left-4 sm:top-4">
-                Main image
+                {t("mainImage")}
               </div>
             )}
           </>
@@ -151,7 +154,7 @@ export default function ProductGallery({
             </div>
 
             <p className="text-sm font-medium">
-              No images available
+              {t("noImagesAvailable")}
             </p>
           </div>
         )}
@@ -161,18 +164,17 @@ export default function ProductGallery({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-semibold text-slate-800">
-              Product images
+              {t("productImages")}
             </h3>
 
             <p className="mt-1 text-xs text-slate-500">
-              Images for all available colors
+              {t("imagesForAllColors")}
             </p>
           </div>
 
           {sortedImages.length > 0 && (
             <p className="text-xs text-slate-500">
-              {sortedImages.length}{" "}
-              {sortedImages.length === 1 ? "image" : "images"}
+              {t("imageCount", { count: sortedImages.length })}
             </p>
           )}
         </div>
@@ -180,21 +182,29 @@ export default function ProductGallery({
         {sortedImages.length > 0 ? (
           <div
             className="flex gap-3 overflow-x-auto pb-2"
-            aria-label="All product image thumbnails"
+            aria-label={t("imageThumbnailsLabel")}
           >
             {sortedImages.map((image, index) => {
               const isSelected = selectedImage?.id === image.id;
+              const colorName = image.colorOption?.name;
 
               return (
                 <button
                   key={image.id}
                   type="button"
                   onClick={() => setSelectedImageId(image.id)}
-                  aria-label={`View image ${index + 1} of ${sortedImages.length}${
-                    image.colorOption?.name
-                      ? `, ${image.colorOption.name}`
-                      : ""
-                  }`}
+                  aria-label={
+                    colorName
+                      ? t("viewImageWithColor", {
+                          index: index + 1,
+                          total: sortedImages.length,
+                          color: colorName,
+                        })
+                      : t("viewImage", {
+                          index: index + 1,
+                          total: sortedImages.length,
+                        })
+                  }
                   aria-pressed={isSelected}
                   className={`group relative size-[68px] shrink-0 overflow-hidden rounded-xl border-2 bg-white transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:size-20 ${
                     isSelected
@@ -206,7 +216,10 @@ export default function ProductGallery({
                     src={image.url}
                     alt={
                       image.alt ??
-                      `${productName} - image ${index + 1}`
+                      t("imageAlt", {
+                        productName,
+                        index: index + 1,
+                      })
                     }
                     fill
                     sizes="80px"
@@ -230,7 +243,7 @@ export default function ProductGallery({
         ) : (
           <div className="flex min-h-20 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5">
             <p className="text-sm text-slate-500">
-              No product images available.
+              {t("noProductImages")}
             </p>
           </div>
         )}
@@ -245,7 +258,7 @@ export default function ProductGallery({
             aria-hidden="true"
             className="size-3.5 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600"
           />
-          Loading product images...
+          {t("loadingProductImages")}
         </p>
       )}
 
@@ -254,7 +267,7 @@ export default function ProductGallery({
           role="status"
           className="text-xs leading-5 text-amber-700"
         >
-          Unable to refresh product images. Existing product images are still displayed.
+          {t("refreshError")}
         </p>
       )}
     </div>

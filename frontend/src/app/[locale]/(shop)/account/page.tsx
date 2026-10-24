@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, type ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
 import { toast } from "sonner";
 
 import {

@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 type ProductPromotionalVideoProps = {
   videoUrl: string | null;
@@ -9,6 +11,7 @@ type ProductPromotionalVideoProps = {
 export default function ProductPromotionalVideo({
   videoUrl,
 }: ProductPromotionalVideoProps) {
+  const t = useTranslations("ProductPromotionalVideo");
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -22,7 +25,6 @@ export default function ProductPromotionalVideo({
       ([entry]) => {
         if (!entry) return;
 
-        // Automatically play when at least 50% of the video is visible
         if (
           entry.isIntersecting &&
           entry.intersectionRatio >= 0.5
@@ -36,7 +38,6 @@ export default function ProductPromotionalVideo({
             );
           });
         } else {
-          // Pause when the video leaves the visible area
           video.pause();
         }
       },
@@ -60,7 +61,7 @@ export default function ProductPromotionalVideo({
 
   return (
     <section
-      aria-label="Product promotional video"
+      aria-label={t("sectionLabel")}
       className="mt-5 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-sm sm:mt-6"
     >
       {/* Video Header */}
@@ -69,12 +70,12 @@ export default function ProductPromotionalVideo({
           <span className="size-1.5 rounded-full bg-cyan-500" />
 
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Discover the Product
+            {t("eyebrow")}
           </p>
         </div>
 
         <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-white sm:text-xl">
-          Product Promotional Video
+          {t("heading")}
         </h2>
       </div>
 
@@ -89,7 +90,7 @@ export default function ProductPromotionalVideo({
           playsInline
           preload="metadata"
         >
-          Your browser does not support video playback.
+          {t("unsupportedMessage")}
         </video>
       </div>
     </section>

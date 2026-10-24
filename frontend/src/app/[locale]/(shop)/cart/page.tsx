@@ -4,7 +4,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import { toast } from "sonner";
 
 import {

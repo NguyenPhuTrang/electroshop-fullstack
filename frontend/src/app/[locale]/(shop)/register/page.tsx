@@ -1,11 +1,15 @@
+
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
+import {
+  Link,
+  useRouter,
+} from "@/src/i18n/navigation";
 import { register } from "@/src/features/auth/services/auth.service";
 
 export default function RegisterPage() {
@@ -14,28 +18,26 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const t = useTranslations("Register");
   const router = useRouter();
 
   const handleRegister = async (
-    event: FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
     if (isSubmitting) return;
 
-    // Validate password confirmation
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error(t("passwordMismatch"));
       return;
     }
 
     setIsSubmitting(true);
 
-    // Show loading notification
-    const toastId = toast.loading("Creating your account...");
+    const toastId = toast.loading(t("toastLoading"));
 
     try {
       await register({
@@ -45,22 +47,19 @@ export default function RegisterPage() {
         avatarUrl: avatarUrl.trim() || undefined,
       });
 
-      // Update loading notification to success
-      toast.success("Account created successfully!", {
+      toast.success(t("toastSuccess"), {
         id: toastId,
-        description: "You can now sign in with your new account.",
+        description: t("toastSuccessDescription"),
       });
 
       router.push("/login");
     } catch (error: unknown) {
-      let errorMessage = "Registration failed. Please try again.";
+      let errorMessage = t("toastError");
 
       if (axios.isAxiosError<{ message?: string }>(error)) {
-        errorMessage =
-          error.response?.data?.message ?? errorMessage;
+        errorMessage = error.response?.data?.message ?? errorMessage;
       }
 
-      // Update loading notification to error
       toast.error(errorMessage, {
         id: toastId,
       });
@@ -70,19 +69,24 @@ export default function RegisterPage() {
   };
 
   const inputClassName =
-    "h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50";
+    "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:bg-slate-50";
 
   const labelClassName =
-    "mb-1.5 block text-sm font-medium text-slate-700";
+    "mb-2 block text-sm font-semibold text-slate-700";
 
   return (
-    <main className="flex min-h-[70vh] items-center justify-center bg-[#f7f8fa] px-4 py-10 sm:py-14">
-      <div className="w-full max-w-md">
-        {/* Register Card */}
-        <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-8">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-4 py-16 sm:px-6">
+      {/* Background decoration */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-blue-100/70 via-blue-50/40 to-transparent"
+      />
+
+      <div className="relative z-0 w-full max-w-md">
+        <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-900/[0.04] sm:p-9">
           {/* Header */}
-          <div className="mb-7 text-center">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-blue-600">
+          <div className="mb-8 text-center">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600">
               <svg
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +94,7 @@ export default function RegisterPage() {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={1.7}
-                className="size-6"
+                className="size-7"
               >
                 <path
                   strokeLinecap="round"
@@ -100,24 +104,23 @@ export default function RegisterPage() {
               </svg>
             </div>
 
-            <h1 className="mt-5 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Create Account
+            <h1 className="mt-5 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              {t("title")}
             </h1>
 
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Join Electroshop and start shopping today.
+            <p className="mt-3 text-sm leading-6 text-slate-500">
+              {t("description")}
             </p>
           </div>
 
-          {/* Register Form */}
+          {/* Register form */}
           <form onSubmit={handleRegister} className="space-y-5">
-            {/* Full Name */}
             <div>
               <label
                 htmlFor="register-name"
                 className={labelClassName}
               >
-                Full Name
+                {t("nameLabel")}
               </label>
 
               <input
@@ -127,20 +130,19 @@ export default function RegisterPage() {
                 onChange={(event) => setName(event.target.value)}
                 minLength={2}
                 autoComplete="name"
-                placeholder="Enter your full name"
+                placeholder={t("namePlaceholder")}
                 required
                 disabled={isSubmitting}
                 className={inputClassName}
               />
             </div>
 
-            {/* Email */}
             <div>
               <label
                 htmlFor="register-email"
                 className={labelClassName}
               >
-                Email Address
+                {t("emailLabel")}
               </label>
 
               <input
@@ -149,20 +151,19 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 autoComplete="email"
-                placeholder="Enter your email"
+                placeholder={t("emailPlaceholder")}
                 required
                 disabled={isSubmitting}
                 className={inputClassName}
               />
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="register-password"
                 className={labelClassName}
               >
-                Password
+                {t("passwordLabel")}
               </label>
 
               <input
@@ -172,20 +173,19 @@ export default function RegisterPage() {
                 onChange={(event) => setPassword(event.target.value)}
                 minLength={6}
                 autoComplete="new-password"
-                placeholder="Create a password"
+                placeholder={t("passwordPlaceholder")}
                 required
                 disabled={isSubmitting}
                 className={inputClassName}
               />
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label
                 htmlFor="register-confirm-password"
                 className={labelClassName}
               >
-                Confirm Password
+                {t("confirmPasswordLabel")}
               </label>
 
               <input
@@ -197,22 +197,21 @@ export default function RegisterPage() {
                 }
                 minLength={6}
                 autoComplete="new-password"
-                placeholder="Re-enter your password"
+                placeholder={t("confirmPasswordPlaceholder")}
                 required
                 disabled={isSubmitting}
                 className={inputClassName}
               />
             </div>
 
-            {/* Avatar URL */}
             <div>
               <label
                 htmlFor="register-avatar"
                 className={labelClassName}
               >
-                Avatar URL
+                {t("avatarLabel")}
                 <span className="ml-1 font-normal text-slate-400">
-                  (Optional)
+                  {t("optional")}
                 </span>
               </label>
 
@@ -221,17 +220,16 @@ export default function RegisterPage() {
                 type="url"
                 value={avatarUrl}
                 onChange={(event) => setAvatarUrl(event.target.value)}
-                placeholder="Image URL"
+                placeholder={t("avatarPlaceholder")}
                 disabled={isSubmitting}
                 className={inputClassName}
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>
@@ -239,11 +237,11 @@ export default function RegisterPage() {
                     aria-hidden="true"
                     className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
                   />
-                  Creating Account...
+                  {t("submitting")}
                 </>
               ) : (
                 <>
-                  Create Account
+                  {t("submit")}
 
                   <svg
                     aria-hidden="true"
@@ -251,7 +249,7 @@ export default function RegisterPage() {
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth={1.7}
+                    strokeWidth={1.8}
                     className="size-4"
                   >
                     <path
@@ -265,22 +263,22 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          {/* Login Link */}
-          <div className="mt-6 border-t border-slate-100 pt-5 text-center">
+          {/* Sign-in link */}
+          <div className="mt-7 border-t border-slate-100 pt-5 text-center">
             <p className="text-sm text-slate-500">
-              Already have an account?{" "}
+              {t("alreadyHaveAccount")}{" "}
               <Link
                 href="/login"
                 className="font-semibold text-blue-700 transition-colors hover:text-blue-800"
               >
-                Sign In
+                {t("signIn")}
               </Link>
             </p>
           </div>
         </section>
 
-        <p className="mt-4 text-center text-xs leading-5 text-slate-400">
-          Create your account to manage your profile and orders.
+        <p className="mt-6 text-center text-xs leading-5 text-slate-400">
+          © {new Date().getFullYear()} Electroshop · {t("footerNote")}
         </p>
       </div>
     </main>

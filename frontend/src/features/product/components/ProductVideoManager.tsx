@@ -1,6 +1,8 @@
+
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -8,6 +10,7 @@ import {
   type MouseEvent,
 } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -44,6 +47,8 @@ export default function ProductVideoManager({
   productName,
   initialVideoUrl,
 }: ProductVideoManagerProps) {
+  const t = useTranslations("ProductVideoManager");
+
   const [videoUrl, setVideoUrl] = useState<string | null>(
     initialVideoUrl
   );
@@ -69,7 +74,7 @@ export default function ProductVideoManager({
     setVideoUrl(initialVideoUrl);
   }, [initialVideoUrl]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setSource("file");
     setSelectedFile(null);
     setSourceUrl("");
@@ -80,7 +85,7 @@ export default function ProductVideoManager({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
+  }, []);
 
   // Allow closing the modal with Escape.
   useEffect(() => {
@@ -99,7 +104,7 @@ export default function ProductVideoManager({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [videoModalOpen, busy]);
+  }, [videoModalOpen, busy, resetForm]);
 
   const handleAddVideo = () => {
     if (busy || hasVideo) {
@@ -138,7 +143,7 @@ export default function ProductVideoManager({
 
     // Validate the selected file.
     if (source === "file" && !selectedFile) {
-      setFormError("Please select a video file.");
+      setFormError(t("errors.selectFile"));
       return;
     }
 
@@ -147,21 +152,19 @@ export default function ProductVideoManager({
       selectedFile?.type &&
       !selectedFile.type.startsWith("video/")
     ) {
-      setFormError("Please select a valid video file.");
+      setFormError(t("errors.invalidFile"));
       return;
     }
 
     // Validate the video URL.
     if (source === "url") {
       if (!trimmedUrl) {
-        setFormError("Video URL is required.");
+        setFormError(t("errors.urlRequired"));
         return;
       }
 
       if (!isValidHttpUrl(trimmedUrl)) {
-        setFormError(
-          "Please enter a valid HTTP or HTTPS video URL."
-        );
+        setFormError(t("errors.invalidUrl"));
         return;
       }
     }
@@ -170,8 +173,8 @@ export default function ProductVideoManager({
 
     const toastId = toast.loading(
       replacingVideo
-        ? "Replacing product video..."
-        : "Adding product video..."
+        ? t("toast.loadingReplace")
+        : t("toast.loadingAdd")
     );
 
     setSubmitting(true);
@@ -187,14 +190,8 @@ export default function ProductVideoManager({
           : await uploadProductVideo(productId, file);
       } else {
         result = replacingVideo
-          ? await updateProductVideoFromUrl(
-              productId,
-              trimmedUrl
-            )
-          : await uploadProductVideoFromUrl(
-              productId,
-              trimmedUrl
-            );
+          ? await updateProductVideoFromUrl(productId, trimmedUrl)
+          : await uploadProductVideoFromUrl(productId, trimmedUrl);
       }
 
       // Update the UI only after the API succeeds.
@@ -202,8 +199,8 @@ export default function ProductVideoManager({
 
       toast.success(
         replacingVideo
-          ? "Product video updated successfully."
-          : "Product video added successfully.",
+          ? t("toast.updated")
+          : t("toast.added"),
         { id: toastId }
       );
 
@@ -214,14 +211,11 @@ export default function ProductVideoManager({
       const message =
         error instanceof Error
           ? error.message
-          : "Unable to save product video.";
+          : t("errors.saveGeneric");
 
       setFormError(message);
 
-      toast.error(
-        "Unable to save product video. Please try again.",
-        { id: toastId }
-      );
+      toast.error(t("toast.saveFailed"), { id: toastId });
     } finally {
       setSubmitting(false);
     }
@@ -233,14 +227,14 @@ export default function ProductVideoManager({
     }
 
     const confirmed = window.confirm(
-      `Are you sure you want to delete the promotional video for "${productName}"?`
+      t("confirmDelete", { productName })
     );
 
     if (!confirmed) {
       return;
     }
 
-    const toastId = toast.loading("Deleting product video...");
+    const toastId = toast.loading(t("toast.loadingDelete"));
 
     setDeleting(true);
 
@@ -250,16 +244,11 @@ export default function ProductVideoManager({
       // Remove the video from the UI only after deletion succeeds.
       setVideoUrl(null);
 
-      toast.success("Product video deleted successfully.", {
-        id: toastId,
-      });
+      toast.success(t("toast.deleted"), { id: toastId });
     } catch (error) {
       console.error("Failed to delete product video:", error);
 
-      toast.error(
-        "Unable to delete product video. Please try again.",
-        { id: toastId }
-      );
+      toast.error(t("toast.deleteFailed"), { id: toastId });
     } finally {
       setDeleting(false);
     }
@@ -275,29 +264,29 @@ export default function ProductVideoManager({
 
   return (
     <section
-      aria-label="Product video management"
+      aria-label={t("sectionLabel")}
       className="space-y-6"
     >
       {/* Header */}
       <header className="flex flex-col justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-            Product Management
+            {t("header.eyebrow")}
           </p>
 
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
-            Product Video
+            {t("header.title")}
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Manage the promotional video for this product.
+            {t("header.description")}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
             <span className="size-1.5 rounded-full bg-cyan-500" />
-            {hasVideo ? "1 video" : "0 videos"}
+            {t("header.videoCount", { count: hasVideo ? 1 : 0 })}
           </span>
 
           {!hasVideo && (
@@ -320,7 +309,7 @@ export default function ProductVideoManager({
                 <path d="M12 5v14M5 12h14" />
               </svg>
 
-              Add Video
+              {t("buttons.addVideo")}
             </button>
           )}
         </div>
@@ -330,11 +319,11 @@ export default function ProductVideoManager({
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
           <h3 className="text-base font-semibold text-slate-900">
-            Video Library
+            {t("library.title")}
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            Preview and manage the promotional video associated with this product.
+            {t("library.description")}
           </p>
         </div>
 
@@ -357,13 +346,12 @@ export default function ProductVideoManager({
             </div>
 
             <p className="mt-4 text-sm font-semibold text-slate-900">
-              No promotional video
+              {t("empty.title")}
             </p>
 
             <p className="mt-1 text-sm text-slate-500">
-              Add a video to get started.
+              {t("empty.description")}
             </p>
-
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 p-4 sm:p-5">
@@ -382,7 +370,7 @@ export default function ProductVideoManager({
                   preload="metadata"
                   className="aspect-video w-full"
                 >
-                  Your browser does not support HTML video.
+                  {t("player.unsupportedMessage")}
                 </video>
 
                 <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
@@ -395,7 +383,7 @@ export default function ProductVideoManager({
                     <path d="M8 5v14l11-7-11-7Z" />
                   </svg>
 
-                  Promotional Video
+                  {t("player.badge")}
                 </span>
               </div>
 
@@ -417,7 +405,7 @@ export default function ProductVideoManager({
                 <div className="flex flex-wrap gap-2 text-xs">
                   <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-emerald-700">
                     <span className="size-1.5 rounded-full bg-emerald-500" />
-                    Video available
+                    {t("player.available")}
                   </span>
                 </div>
 
@@ -429,7 +417,7 @@ export default function ProductVideoManager({
                     disabled={busy}
                     className="inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Edit
+                    {t("buttons.edit")}
                   </button>
 
                   <button
@@ -438,7 +426,9 @@ export default function ProductVideoManager({
                     disabled={busy}
                     className="inline-flex min-h-9 items-center justify-center rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {deleting ? "Deleting..." : "Delete"}
+                    {deleting
+                      ? t("buttons.deleting")
+                      : t("buttons.delete")}
                   </button>
 
                   <a
@@ -461,7 +451,7 @@ export default function ProductVideoManager({
                       <path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6" />
                     </svg>
 
-                    Open Video in New Tab
+                    {t("buttons.openVideo")}
                   </a>
                 </div>
               </div>
@@ -490,13 +480,15 @@ export default function ProductVideoManager({
                   id="product-video-modal-title"
                   className="text-lg font-semibold tracking-tight text-slate-900"
                 >
-                  {editing ? "Edit Video" : "Add Video"}
+                  {editing
+                    ? t("modal.editTitle")
+                    : t("modal.addTitle")}
                 </h3>
 
                 <p className="mt-1 text-sm leading-5 text-slate-500">
                   {editing
-                    ? "Replace the existing promotional video."
-                    : "Add a promotional video to this product."}
+                    ? t("modal.editDescription")
+                    : t("modal.addDescription")}
                 </p>
               </div>
 
@@ -504,7 +496,7 @@ export default function ProductVideoManager({
                 type="button"
                 onClick={resetForm}
                 disabled={busy}
-                aria-label="Close video editor"
+                aria-label={t("modal.closeLabel")}
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <svg
@@ -531,7 +523,7 @@ export default function ProductVideoManager({
               {/* Video Source */}
               <div>
                 <p className="mb-2 block text-sm font-medium text-slate-700">
-                  Video Source
+                  {t("source.title")}
                 </p>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -550,11 +542,11 @@ export default function ProductVideoManager({
                     } disabled:cursor-not-allowed disabled:opacity-60`}
                   >
                     <span className="block text-sm font-semibold text-slate-900">
-                      Upload from Computer
+                      {t("source.fileTitle")}
                     </span>
 
                     <span className="mt-1 block text-xs leading-5 text-slate-500">
-                      Select a video file from your device.
+                      {t("source.fileDescription")}
                     </span>
                   </button>
 
@@ -573,24 +565,25 @@ export default function ProductVideoManager({
                     } disabled:cursor-not-allowed disabled:opacity-60`}
                   >
                     <span className="block text-sm font-semibold text-slate-900">
-                      Import from URL
+                      {t("source.urlTitle")}
                     </span>
 
                     <span className="mt-1 block text-xs leading-5 text-slate-500">
-                      Provide a direct video URL.
+                      {t("source.urlDescription")}
                     </span>
                   </button>
                 </div>
               </div>
 
               {/* Video File */}
-             {source === "file" ? (
+              {source === "file" ? (
                 <div key="video-file-source">
                   <label
                     htmlFor="product-video-file"
                     className="mb-2 block text-sm font-medium text-slate-700"
                   >
-                    Video File <span className="text-rose-500">*</span>
+                    {t("fields.file")}{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
 
                   <input
@@ -600,9 +593,7 @@ export default function ProductVideoManager({
                     accept="video/*"
                     disabled={busy}
                     onChange={(event) => {
-                      setSelectedFile(
-                        event.target.files?.[0] ?? null
-                      );
+                      setSelectedFile(event.target.files?.[0] ?? null);
                       setFormError("");
                     }}
                     className="block w-full rounded-lg border border-slate-200 bg-white text-sm text-slate-700 file:mr-4 file:h-11 file:border-0 file:bg-slate-50 file:px-4 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
@@ -610,7 +601,9 @@ export default function ProductVideoManager({
 
                   {selectedFile && (
                     <p className="mt-2 break-all text-xs text-slate-500">
-                      Selected: {selectedFile.name}
+                      {t("fields.selectedFile", {
+                        fileName: selectedFile.name,
+                      })}
                     </p>
                   )}
                 </div>
@@ -620,7 +613,8 @@ export default function ProductVideoManager({
                     htmlFor="product-video-url"
                     className="mb-2 block text-sm font-medium text-slate-700"
                   >
-                    Video URL <span className="text-rose-500">*</span>
+                    {t("fields.url")}{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
 
                   <input
@@ -637,7 +631,7 @@ export default function ProductVideoManager({
                   />
 
                   <p className="mt-1.5 text-xs leading-5 text-slate-400">
-                    Use a direct HTTP or HTTPS video URL that Cloudinary can access.
+                    {t("fields.urlHelp")}
                   </p>
                 </div>
               )}
@@ -660,7 +654,7 @@ export default function ProductVideoManager({
                   disabled={busy}
                   className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Cancel
+                  {t("buttons.cancel")}
                 </button>
 
                 <button
@@ -676,10 +670,10 @@ export default function ProductVideoManager({
                   )}
 
                   {submitting
-                    ? "Saving..."
+                    ? t("buttons.saving")
                     : editing
-                      ? "Save Changes"
-                      : "Add Video"}
+                      ? t("buttons.saveChanges")
+                      : t("buttons.addVideo")}
                 </button>
               </div>
             </form>

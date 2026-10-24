@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { Link } from "@/src/i18n/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
 import {
     useCallback,
     useEffect,

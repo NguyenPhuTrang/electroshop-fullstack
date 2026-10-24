@@ -1,0 +1,824 @@
+{
+  "HomePage": {
+    "loadingAria": "正在載入產品",
+    "errorTitle": "無法載入產品",
+    "heroEyebrow": "現代科技新據點",
+    "heroTitleLine1": "更好的科技。",
+    "heroTitleLine2": "每天更美好。",
+    "heroDescription": "探索精心挑選的電子產品，結合效能、設計與您的生活方式。",
+    "exploreCollection": "探索系列商品",
+    "discover": "看看這裡有什麼",
+    "latestProducts": "最新產品",
+    "madeForEveryday": "為日常而生",
+    "techFitsLife": "貼合您生活的科技",
+    "viewProduct": "查看 {name}",
+    "featuredProduct": "精選產品",
+    "showProduct": "顯示第 {index} 項產品：{name}",
+    "explorePossibilities": "探索無限可能",
+    "welcome": "歡迎光臨 ~~~",
+    "findTech": "找到適合日常生活的科技",
+    "carefullySelected": "精心挑選",
+    "collectionTitle": "找到您的下一個最愛。",
+    "collectionDescription": "探索我們最新的產品，適用於工作、娛樂與日常生活。",
+    "viewAll": "查看所有產品",
+    "previousProducts": "上一組產品",
+    "nextProducts": "下一組產品",
+    "emptyTitle": "精彩即將到來。",
+    "emptyDescription": "我們的商品系列正在準備中，請稍後再來探索 Electroshop 的產品。"
+  },
+  "Header": {
+    "homeAria": "Electroshop 首頁",
+    "navAria": "主要導覽",
+    "home": "首頁",
+    "products": "產品",
+    "cart": "購物車"
+  },
+  "Metadata": {
+    "title": "Electroshop",
+    "description": "Electroshop - 線上電子產品商店"
+  },
+  "ProductCard": {
+    "imageUnavailable": "暫無圖片",
+    "sale": "特價",
+    "priceUnavailable": "暫無價格",
+    "viewProduct": "查看產品"
+  },
+  "UserMenu": {
+    "login": "登入",
+    "register": "註冊",
+    "adminDashboard": "管理後台",
+    "myAccount": "我的帳戶",
+    "orders": "我的訂單",
+    "logout": "登出"
+  },
+  "LogoutButton": {
+    "logout": "登出"
+  },
+  "Navigation": {
+    "mainNavigation": "主要導覽",
+    "storeHomeAriaLabel": "Electroshop 首頁",
+    "home": "首頁",
+    "products": "商品",
+    "cart": "購物車",
+    "language": "語言",
+    "languages": {
+      "en": "英文",
+      "vi": "越南文",
+      "zh-TW": "繁體中文"
+    }
+  },
+  "Login": {
+    "title": "歡迎~~~",
+    "description": "登入您的 Electroshop 帳戶以繼續。",
+    "emailLabel": "電子郵件地址",
+    "emailPlaceholder": "請輸入電子郵件",
+    "passwordLabel": "密碼",
+    "passwordPlaceholder": "請輸入密碼",
+    "submit": "登入",
+    "submitting": "登入中...",
+    "footerNote": "登入以管理您的帳戶並追蹤訂單。",
+    "toastLoading": "登入中...",
+    "toastSuccess": "登入成功！",
+    "toastError": "無法登入。請確認電子郵件和密碼後再試一次。"
+  },
+  "Register": {
+    "title": "建立帳戶",
+    "description": "加入 Electroshop，立即開始購物。",
+    "nameLabel": "姓名",
+    "namePlaceholder": "請輸入姓名",
+    "emailLabel": "電子郵件地址",
+    "emailPlaceholder": "請輸入電子郵件",
+    "passwordLabel": "密碼",
+    "passwordPlaceholder": "請建立密碼",
+    "confirmPasswordLabel": "確認密碼",
+    "confirmPasswordPlaceholder": "請再次輸入密碼",
+    "avatarLabel": "頭像網址",
+    "optional": "（選填）",
+    "avatarPlaceholder": "圖片網址",
+    "submit": "建立帳戶",
+    "submitting": "正在建立帳戶...",
+    "alreadyHaveAccount": "已經有帳戶了嗎？",
+    "signIn": "登入",
+    "footerNote": "建立帳戶以管理個人資料和訂單。",
+    "passwordMismatch": "兩次輸入的密碼不一致。",
+    "toastLoading": "正在建立帳戶...",
+    "toastSuccess": "帳戶建立成功！",
+    "toastSuccessDescription": "您現在可以使用新帳戶登入。",
+    "toastError": "註冊失敗，請稍後再試。"
+  },
+  "ProductForm": {
+    "title": "商品資訊",
+    "subtitle": "請輸入商品的基本資訊。",
+    "productName": "商品名稱",
+    "productNamePlaceholder": "請輸入商品名稱",
+    "brand": "品牌",
+    "selectBrand": "請選擇品牌",
+    "category": "商品類別",
+    "selectCategory": "請選擇商品類別",
+    "description": "商品描述",
+    "optional": "（選填）",
+    "descriptionPlaceholder": "請描述商品的特色與優點",
+    "requiredFields": "必填欄位",
+    "cancel": "取消",
+    "createProduct": "建立商品",
+    "creatingProduct": "正在建立商品...",
+    "updateProduct": "更新商品",
+    "updatingProduct": "正在更新...",
+    "nameRequired": "請輸入商品名稱。",
+    "brandRequired": "請選擇品牌。",
+    "categoryRequired": "請選擇商品類別。"
+  },
+  "ProductGallery": {
+    "mainImage": "主圖片",
+    "noImagesAvailable": "暫無圖片",
+    "productImages": "商品圖片",
+    "imagesForAllColors": "所有顏色的可用圖片",
+    "imageCount": "{count} 張圖片",
+    "imageThumbnailsLabel": "所有商品圖片縮圖",
+    "viewImage": "查看第 {index} 張圖片，共 {total} 張",
+    "viewImageWithColor": "查看第 {index} 張圖片，共 {total} 張，顏色：{color}",
+    "imageAlt": "{productName}－圖片 {index}",
+    "noProductImages": "尚無商品圖片。",
+    "loadingProductImages": "正在載入商品圖片...",
+    "refreshError": "無法更新商品圖片，目前仍顯示原有圖片。"
+  },
+  "ProductInfo": {
+    "ratedOutOfFive": "評分為 {rating}／5",
+    "noRatings": "尚無評分",
+    "reviewCount": "{count} 則評論",
+    "noReviews": "尚無評論",
+    "loadingConfigurations": "正在載入商品規格...",
+    "configurationLoadError": "無法載入商品規格，請重新整理頁面。",
+    "unavailable": "此商品目前無法使用。",
+    "storage": "容量",
+    "color": "顏色",
+    "sku": "SKU",
+    "selectOptionsHint": "請選擇商品規格以查看確切價格與庫存。",
+    "from": "最低",
+    "priceUnavailable": "暫無價格",
+    "youSave": "您省下了 {amount}",
+    "selectOptionsForStock": "請選擇規格以查看庫存",
+    "outOfStock": "缺貨",
+    "onlyLeftInStock": "庫存僅剩 {count} 件",
+    "inStock": "有現貨",
+    "description": "商品描述",
+    "noDescription": "尚無商品描述。",
+    "quantity": "數量",
+    "decreaseQuantity": "減少數量",
+    "increaseQuantity": "增加數量",
+    "selectedQuantity": "已選數量",
+    "selectOptionsFirst": "請先選擇商品規格",
+    "unitsAvailable": "尚有 {count} 件",
+    "currentlyUnavailable": "目前無法提供",
+    "addingToCart": "正在加入購物車...",
+    "selectOptions": "選擇規格",
+    "addToCart": "加入購物車",
+    "trustLine": "安全結帳 · 優質商品 · 客戶支援",
+    "toast": {
+      "verifyError": "無法確認商品規格，請再試一次。",
+      "selectRequired": "請先選擇所有必要的商品規格。",
+      "configurationOutOfStock": "此商品規格目前缺貨。",
+      "addedToCart": "商品已加入購物車。",
+      "addedDescription": "{name} — {configuration}",
+      "addError": "無法將商品加入購物車，請再試一次。"
+    }
+  },
+  "ProductImageManager": {
+    "aria": {
+      "productImageManagement": "商品圖片管理",
+      "closeImageEditor": "關閉圖片編輯器",
+      "chooseNewProductColor": "選擇新的商品顏色"
+    },
+    "productManagement": "商品管理",
+    "title": "商品圖片",
+    "subtitle": "管理商品圖片、替代文字、顯示順序，以及各顏色的主圖片。",
+    "imageCount": "{count} 張圖片",
+    "addImage": "新增圖片",
+    "imageLibrary": "圖片庫",
+    "imageLibrarySubtitle": "檢視並管理此商品的所有圖片。",
+    "loadingImages": "正在載入商品圖片...",
+    "loadImagesErrorTitle": "無法載入商品圖片",
+    "noProductImages": "尚無商品圖片",
+    "addFirstImageSubtitle": "新增第一張圖片以開始使用。",
+    "addFirstImage": "新增第一張圖片",
+    "productImageAlt": "商品圖片",
+    "primary": "主圖片",
+    "untitledImage": "未命名圖片",
+    "orderLabel": "順序：{order}",
+    "colorLabel": "顏色：{color}",
+    "edit": "編輯",
+    "deleting": "正在刪除...",
+    "delete": "刪除",
+    "updating": "正在更新...",
+    "setAsPrimary": "設為主圖片",
+    "editImage": "編輯圖片",
+    "addImageDescription": "為此商品新增圖片。",
+    "editImageDescription": "更新圖片資訊及顯示設定。",
+    "imageUrl": "圖片網址",
+    "alternativeText": "替代文字",
+    "alternativeTextPlaceholder": "描述商品圖片",
+    "alternativeTextHelp": "協助螢幕閱讀器描述圖片內容。",
+    "applyToColor": "套用至顏色",
+    "cancel": "取消",
+    "addNewColor": "+ 新增顏色",
+    "loadingProductColors": "正在載入商品顏色...",
+    "generalImageNoColor": "一般商品圖片（不指定顏色）",
+    "selectedColorUnavailable": "所選顏色目前無法使用",
+    "noExistingColors": "目前沒有可用的顏色。",
+    "createNewColor": "建立新顏色",
+    "createColorDescription": "為此商品建立顏色，並套用至圖片。",
+    "colorName": "顏色名稱",
+    "colorNamePlaceholder": "例如：午夜藍",
+    "color": "顏色",
+    "displayOrder": "顯示順序",
+    "setAsPrimaryImage": "設為主圖片",
+    "primaryImageHelp": "每個顏色群組都有自己的主圖片。一般商品圖片則屬於獨立群組。",
+    "saving": "正在儲存...",
+    "saveChanges": "儲存變更",
+    "general": "一般",
+    "colorNumber": "顏色 #{id}",
+    "creatingColor": "正在建立...",
+    "createColor": "建立顏色",
+    "colorsLoadWarning": "無法載入現有顏色，您仍可嘗試建立新顏色。",
+    "chooseColorHelp": "選擇現有顏色、建立新顏色，或選擇一般圖片。",
+    "validation": {
+      "colorNameRequired": "請輸入顏色名稱。",
+      "invalidColor": "請選擇有效的顏色。",
+      "duplicateColorName": "此商品已存在相同的顏色名稱。",
+      "imageUrlRequired": "請輸入圖片網址。",
+      "invalidImageUrl": "請輸入有效的 HTTP 或 HTTPS 圖片網址。",
+      "validColorRequired": "請選擇有效的商品顏色。",
+      "colorUnavailable": "所選顏色無法使用，請選擇現有顏色。",
+      "invalidSortOrder": "顯示順序必須是非負整數。"
+    },
+    "fallbackErrors": {
+      "loadColors": "無法載入商品顏色。",
+      "createColor": "無法建立商品顏色。",
+      "saveImage": "無法儲存商品圖片。"
+    },
+    "confirmDeleteImage": "確定要刪除此圖片嗎？",
+    "toast": {
+      "creatingColor": "正在建立商品顏色...",
+      "colorCreated": "商品顏色建立成功。",
+      "createColorError": "無法建立商品顏色。",
+      "addingImage": "正在新增商品圖片...",
+      "updatingImage": "正在更新商品圖片...",
+      "imageAdded": "商品圖片新增成功。",
+      "imageUpdated": "商品圖片更新成功。",
+      "saveImageError": "無法儲存商品圖片，請再試一次。",
+      "updatingPrimary": "正在更新主圖片...",
+      "primaryUpdated": "主圖片更新成功。",
+      "primaryUpdateError": "無法更新主圖片，請再試一次。",
+      "deletingImage": "正在刪除商品圖片...",
+      "imageDeleted": "商品圖片刪除成功。",
+      "deleteImageError": "無法刪除商品圖片，請再試一次。"
+    }
+  },
+  "ProductPromotionalVideo": {
+    "sectionLabel": "產品介紹影片",
+    "eyebrow": "探索產品",
+    "heading": "產品介紹影片",
+    "unsupportedMessage": "您的瀏覽器不支援影片播放。"
+  },
+  "ProductSpecificationManager": {
+    "page": {
+      "title": "產品規格",
+      "count": "{count} 項規格"
+    },
+    "buttons": {
+      "add": "新增規格",
+      "refresh": "重新整理",
+      "refreshing": "正在重新整理...",
+      "tryAgain": "重試",
+      "edit": "編輯",
+      "deleting": "正在刪除...",
+      "delete": "刪除",
+      "cancel": "取消",
+      "saving": "正在儲存...",
+      "updateSpecification": "更新規格",
+      "addSpecification": "新增規格"
+    },
+    "states": {
+      "loading": "正在載入產品規格...",
+      "emptyTitle": "尚無產品規格",
+      "emptyDescription": "按一下「新增規格」以建立第一項規格。"
+    },
+    "table": {
+      "group": "分組",
+      "label": "規格名稱",
+      "value": "規格值",
+      "order": "排序",
+      "actions": "操作",
+      "ungrouped": "未分組",
+      "id": "ID：{id}"
+    },
+    "modal": {
+      "eyebrow": "產品管理",
+      "addTitle": "新增規格",
+      "editTitle": "編輯規格",
+      "description": "將技術資訊分類至螢幕、效能、電池及連線等群組。",
+      "closeLabel": "關閉規格表單"
+    },
+    "fields": {
+      "groupName": "群組名稱",
+      "optional": "選填",
+      "groupPlaceholder": "例如：螢幕",
+      "sortOrder": "顯示順序",
+      "sortOrderHelp": "數字越小，越優先顯示。",
+      "label": "規格名稱",
+      "labelPlaceholder": "例如：螢幕尺寸",
+      "value": "規格值",
+      "valuePlaceholder": "例如：6.7 吋 OLED"
+    },
+    "errors": {
+      "invalidProductId": "產品 ID 無效。",
+      "labelRequired": "請輸入規格名稱。",
+      "valueRequired": "請輸入規格值。",
+      "invalidSortOrder": "排序必須是非負整數。",
+      "generic": "發生錯誤，請再試一次。"
+    },
+    "confirmDelete": "確定要刪除規格「{label}」嗎？",
+    "toast": {
+      "loadingUpdate": "正在更新產品規格...",
+      "loadingAdd": "正在新增產品規格...",
+      "updated": "產品規格已成功更新。",
+      "added": "產品規格已成功新增。",
+      "refreshFailedAfterSave": "已儲存，但無法重新整理規格清單。",
+      "updateFailed": "無法更新產品規格。",
+      "addFailed": "無法新增產品規格。",
+      "loadingDelete": "正在刪除產品規格...",
+      "deleted": "產品規格已成功刪除。",
+      "refreshFailedAfterDelete": "已刪除，但無法重新整理規格清單。",
+      "deleteFailed": "無法刪除產品規格。"
+    }
+  },
+  "ProductVariantManager": {
+    "page": {
+      "eyebrow": "產品管理",
+      "title": "產品款式",
+      "description": "管理各款式的 SKU、容量、顏色、售價、庫存及狀態。",
+      "variantCount": "{count} 個款式"
+    },
+    "modal": {
+      "createTitle": "新增款式",
+      "editTitle": "編輯款式",
+      "createDescription": "請輸入新款式的相關資訊。",
+      "editDescription": "更新款式 #{id}。",
+      "closeLabel": "關閉款式表單"
+    },
+    "fields": {
+      "storage": "容量",
+      "storagePlaceholder": "例如：256GB",
+      "color": "顏色",
+      "noColor": "不指定顏色",
+      "previousColorUnavailable": "先前選取的顏色（無法使用）",
+      "loadingColors": "正在載入顏色...",
+      "noColorsAvailable": "此產品尚無可用顏色。",
+      "loadColorsError": "無法載入顏色：{error}",
+      "price": "售價（VND）",
+      "pricePlaceholder": "輸入售價",
+      "salePrice": "優惠價（VND）",
+      "salePricePlaceholder": "不打折請留空",
+      "stock": "庫存",
+      "status": "狀態",
+      "managedByInventory": "由庫存系統管理",
+      "outOfStockHelp": "除非選擇「販售中」或「已停用」，否則不會變更目前狀態。"
+    },
+    "statuses": {
+      "active": "販售中",
+      "inactive": "已停用",
+      "outOfStock": "缺貨"
+    },
+    "buttons": {
+      "createVariant": "新增款式",
+      "cancel": "取消",
+      "saving": "正在儲存...",
+      "updateVariant": "更新款式",
+      "refresh": "重新整理",
+      "refreshing": "正在重新整理...",
+      "edit": "編輯",
+      "deactivating": "正在停用...",
+      "deactivate": "停用"
+    },
+    "table": {
+      "existingTitle": "現有款式",
+      "sku": "SKU",
+      "storage": "容量",
+      "color": "顏色",
+      "price": "售價",
+      "stock": "庫存",
+      "status": "狀態",
+      "actions": "操作",
+      "id": "ID：{id}",
+      "colorUnavailable": "顏色無法使用"
+    },
+    "states": {
+      "loadingVariants": "正在載入款式...",
+      "noVariantsTitle": "尚無產品款式",
+      "noVariantsDescription": "按一下「新增款式」以建立第一個款式。"
+    },
+    "errors": {
+      "invalidProductId": "產品 ID 無效。",
+      "priceMustBePositive": "售價必須大於 0。",
+      "invalidSalePrice": "優惠價必須介於 0 與原價之間。",
+      "invalidStock": "庫存必須是非負整數。",
+      "invalidColor": "請選擇有效的顏色。",
+      "colorUnavailable": "所選顏色無法使用，請選擇其他顏色。",
+      "generic": "發生錯誤，請再試一次。"
+    },
+    "confirmDeactivate": "確定要停用款式「{sku}」嗎？",
+    "toast": {
+      "loadingUpdate": "正在更新產品款式...",
+      "loadingCreate": "正在建立產品款式...",
+      "updated": "產品款式已成功更新。",
+      "created": "產品款式已成功建立。",
+      "refreshFailedAfterSave": "款式已儲存，但無法重新整理清單。請按一下「重新整理」再試一次。",
+      "updateFailed": "無法更新產品款式，請再試一次。",
+      "createFailed": "無法建立產品款式，請再試一次。",
+      "loadingDeactivate": "正在停用產品款式...",
+      "deactivated": "產品款式已成功停用。",
+      "refreshFailedAfterDeactivate": "款式已停用，但無法重新整理清單。請按一下「重新整理」再試一次。",
+      "deactivateFailed": "無法停用產品款式，請再試一次。"
+    }
+  },
+  "ProductVideoManager": {
+    "sectionLabel": "產品影片管理",
+    "header": {
+      "eyebrow": "產品管理",
+      "title": "產品影片",
+      "description": "管理此產品的介紹影片。",
+      "videoCount": "{count} 部影片"
+    },
+    "buttons": {
+      "addVideo": "新增影片",
+      "edit": "編輯",
+      "deleting": "正在刪除...",
+      "delete": "刪除",
+      "openVideo": "在新分頁開啟影片",
+      "cancel": "取消",
+      "saving": "正在儲存...",
+      "saveChanges": "儲存變更"
+    },
+    "library": {
+      "title": "影片庫",
+      "description": "預覽並管理與此產品相關的介紹影片。"
+    },
+    "empty": {
+      "title": "尚無介紹影片",
+      "description": "新增影片以開始使用。"
+    },
+    "player": {
+      "unsupportedMessage": "您的瀏覽器不支援 HTML 影片播放。",
+      "badge": "產品介紹影片",
+      "available": "影片可用"
+    },
+    "modal": {
+      "addTitle": "新增影片",
+      "editTitle": "編輯影片",
+      "addDescription": "為此產品新增介紹影片。",
+      "editDescription": "替換目前的介紹影片。",
+      "closeLabel": "關閉影片編輯器"
+    },
+    "source": {
+      "title": "影片來源",
+      "fileTitle": "從電腦上傳",
+      "fileDescription": "從您的裝置選取影片檔案。",
+      "urlTitle": "從網址匯入",
+      "urlDescription": "提供影片的直接網址。"
+    },
+    "fields": {
+      "file": "影片檔案",
+      "url": "影片網址",
+      "selectedFile": "已選取：{fileName}",
+      "urlHelp": "請使用 Cloudinary 可以存取的直接 HTTP 或 HTTPS 影片網址。"
+    },
+    "errors": {
+      "selectFile": "請選取影片檔案。",
+      "invalidFile": "請選取有效的影片檔案。",
+      "urlRequired": "影片網址為必填欄位。",
+      "invalidUrl": "請輸入有效的 HTTP 或 HTTPS 影片網址。",
+      "saveGeneric": "無法儲存產品影片。",
+      "saveFailed": "無法儲存產品影片，請再試一次。"
+    },
+    "confirmDelete": "確定要刪除產品「{productName}」的介紹影片嗎？",
+    "toast": {
+      "loadingReplace": "正在替換產品影片...",
+      "loadingAdd": "正在新增產品影片...",
+      "updated": "產品影片已成功更新。",
+      "added": "產品影片已成功新增。",
+      "loadingDelete": "正在刪除產品影片...",
+      "deleted": "產品影片已成功刪除。",
+      "saveFailed": "無法儲存產品影片，請再試一次。",
+      "deleteFailed": "無法刪除產品影片，請再試一次。"
+    }
+  },
+  "TechnicalSpecifications": {
+    "sectionLabel": "產品技術規格",
+    "eyebrow": "產品詳細資訊",
+    "title": "技術規格",
+    "generalGroup": "一般規格",
+    "loadingLabel": "正在載入技術規格",
+    "tryAgain": "重試",
+    "emptyMessage": "此產品目前尚無技術規格。"
+  },
+  "ProductsPage": {
+    "loading": {
+      "page": "正在載入產品"
+    },
+    "heading": {
+      "eyebrow": "探索產品系列",
+      "title": "所有產品",
+      "description": "探索適合工作、娛樂及日常生活的電子產品。"
+    },
+    "searchSort": {
+      "ariaLabel": "搜尋及排序產品",
+      "searchLabel": "搜尋產品",
+      "searchPlaceholder": "依產品名稱搜尋...",
+      "sortLabel": "排序方式"
+    },
+    "sort": {
+      "default": "預設排序",
+      "newest": "最新上架",
+      "priceAscending": "價格：由低至高",
+      "priceDescending": "價格：由高至低"
+    },
+    "errors": {
+      "invalidMinimumPrice": "最低價格必須是有效的非負數字。",
+      "invalidMaximumPrice": "最高價格必須是有效的非負數字。",
+      "minimumGreaterThanMaximum": "最低價格不能高於最高價格。"
+    },
+    "filters": {
+      "title": "篩選條件",
+      "clearAll": "清除全部",
+      "category": "產品類別",
+      "allCategories": "所有類別",
+      "brand": "品牌",
+      "allBrands": "所有品牌",
+      "priceRange": "價格範圍",
+      "minimumPrice": "最低價格",
+      "maximumPrice": "最高價格",
+      "minimumPlaceholder": "最低",
+      "maximumPlaceholder": "最高"
+    },
+    "results": {
+      "ariaLabel": "產品搜尋結果",
+      "searchTitle": "搜尋結果",
+      "exploreTitle": "探索產品",
+      "summary": "{count} 項產品 · 第 {page}/{totalPages} 頁"
+    },
+    "priceError": {
+      "title": "請檢查價格範圍",
+      "description": "請修正上方的價格篩選條件，以查看符合條件的產品。"
+    },
+    "errorState": {
+      "title": "無法載入產品"
+    },
+    "empty": {
+      "title": "找不到產品",
+      "description": "請嘗試其他關鍵字或調整篩選條件，以尋找符合需求的產品。"
+    },
+    "pagination": {
+      "ariaLabel": "產品分頁",
+      "previousAriaLabel": "上一頁",
+      "previous": "上一頁",
+      "goToPage": "前往第 {page} 頁",
+      "nextAriaLabel": "下一頁",
+      "next": "下一頁"
+    }
+  },
+  "AdminProductsPage": {
+    "loading": {
+      "products": "正在載入產品...",
+      "loadingProductsPage": "正在載入產品..."
+    },
+    "header": {
+      "eyebrow": "Electroshop 管理後台",
+      "title": "產品",
+      "description": "管理產品、各款式售價及庫存。",
+      "lowStockDescription": "顯示至少有一個款式的庫存不超過 10 件的啟用產品。",
+      "lowStockBadge": "已啟用低庫存篩選"
+    },
+    "buttons": {
+      "addProduct": "新增產品",
+      "tryAgain": "重試",
+      "edit": "編輯",
+      "deleting": "正在刪除...",
+      "delete": "刪除",
+      "manage": "管理"
+    },
+    "filters": {
+      "ariaLabel": "產品篩選條件",
+      "title": "搜尋與篩選",
+      "searchPlaceholder": "搜尋產品...",
+      "searchAriaLabel": "搜尋產品",
+      "categoryAriaLabel": "依產品類別篩選",
+      "allCategories": "所有類別",
+      "brandAriaLabel": "依品牌篩選",
+      "allBrands": "所有品牌",
+      "sortAriaLabel": "產品排序方式"
+    },
+    "sort": {
+      "label": "排序方式",
+      "newest": "最新上架",
+      "priceAscending": "價格：由低至高",
+      "priceDescending": "價格：由高至低"
+    },
+    "table": {
+      "ariaLabel": "產品清單",
+      "title": "產品庫存",
+      "description": "檢視及管理產品資訊與各款式的庫存。",
+      "productsOnPage": "本頁共 {count} 項產品",
+      "product": "產品",
+      "sku": "SKU",
+      "brand": "品牌",
+      "category": "類別",
+      "price": "售價",
+      "stock": "庫存",
+      "status": "狀態",
+      "actions": "操作"
+    },
+    "empty": {
+      "title": "找不到產品",
+      "description": "請嘗試更改搜尋關鍵字或調整篩選條件。",
+      "lowStockTitle": "找不到低庫存產品",
+      "lowStockDescription": "沒有符合條件且款式庫存低於或等於警示門檻的產品。"
+    },
+    "stock": {
+      "noActiveVariants": "沒有啟用中的款式",
+      "outOfStock": "缺貨",
+      "totalUnits": "總庫存 {count} 件",
+      "noActiveVariantPrice": "沒有啟用中的款式"
+    },
+    "statuses": {
+      "active": "啟用",
+      "inactive": "停用"
+    },
+    "errorState": {
+      "title": "無法載入產品"
+    },
+    "links": {
+      "video": "影片",
+      "images": "圖片",
+      "variants": "款式",
+      "specifications": "規格",
+      "manageVideoAria": "管理 {name} 的介紹影片",
+      "manageVideoTitle": "管理產品介紹影片",
+      "manageImagesAria": "管理 {name} 的圖片",
+      "manageImagesTitle": "管理產品圖片",
+      "manageVariantsAria": "管理 {name} 的款式",
+      "manageVariantsTitle": "管理產品款式",
+      "manageSpecificationsAria": "管理 {name} 的規格",
+      "manageSpecificationsTitle": "管理產品規格"
+    },
+    "pagination": {
+      "page": "第",
+      "of": "頁，共",
+      "previous": "上一頁",
+      "next": "下一頁"
+    },
+    "confirmDelete": "確定要刪除此產品嗎？",
+    "toast": {
+      "deleting": "正在刪除產品...",
+      "deleted": "產品已成功刪除。",
+      "deleteFailed": "無法刪除產品，請再試一次。",
+      "refreshFailedAfterDelete": "產品已刪除，但無法重新整理清單，請再試一次。"
+    }
+  },
+  "AdminProductModal": {
+    "loadingProduct": "正在載入產品...",
+    "toast": {
+      "creating": "正在建立產品...",
+      "created": "產品建立成功。",
+      "createdDescription": "接著設定產品款式與圖片。",
+      "createFailed": "無法建立產品。",
+      "updating": "正在更新產品...",
+      "updated": "產品資訊已成功更新。",
+      "updateFailed": "無法更新產品。"
+    },
+    "errors": {
+      "createFallback": "無法建立產品，請再試一次。",
+      "invalidProductId": "產品 ID 無效。",
+      "updateFallback": "無法更新產品，請再試一次。"
+    },
+    "loadFailedTitle": "無法載入產品",
+    "productNotFound": "找不到產品。",
+    "closeButton": "關閉",
+    "createTitle": "新增產品",
+    "editTitle": "編輯產品",
+    "closeLabel": "關閉產品對話框"
+  },
+  "CreateProductPage": {
+    "header": {
+      "eyebrow": "Electroshop 管理後台",
+      "title": "新增產品",
+      "description": "建立產品，接著設定產品款式與圖片。"
+    },
+    "buttons": {
+      "backToProducts": "返回產品列表"
+    },
+    "toast": {
+      "creating": "正在建立產品...",
+      "created": "產品建立成功。",
+      "createdDescription": "接著設定產品款式與圖片。",
+      "createFailed": "無法建立產品。"
+    },
+    "errors": {
+      "createFallback": "無法建立產品，請再試一次。"
+    }
+  },
+  "EditProductPage": {
+    "loading": {
+      "label": "正在載入產品"
+    },
+    "header": {
+      "eyebrow": "Electroshop 管理後台",
+      "title": "編輯產品",
+      "description": "更新產品的一般資訊。"
+    },
+    "buttons": {
+      "backToProducts": "返回產品列表"
+    },
+    "toast": {
+      "updating": "正在更新產品...",
+      "updated": "產品資訊已成功更新。",
+      "updateFailed": "無法更新產品。"
+    },
+    "errors": {
+      "invalidProductId": "產品 ID 無效。",
+      "updateFallback": "無法更新產品，請再試一次。"
+    },
+    "errorState": {
+      "title": "無法載入產品",
+      "productNotFound": "找不到產品。"
+    }
+  },
+  "ProductImagesPage": {
+    "loading": {
+      "label": "正在載入產品圖片"
+    },
+    "invalidProduct": {
+      "title": "產品 ID 無效",
+      "description": "請選擇有效的產品以管理其圖片。"
+    },
+    "header": {
+      "eyebrow": "Electroshop 管理後台",
+      "title": "管理產品圖片",
+      "description": "管理產品 #{id} 的圖片。",
+      "productId": "產品 ID：{id}"
+    },
+    "buttons": {
+      "backToProducts": "返回產品列表"
+    }
+  },
+  "ProductSpecificationsPage": {
+    "loading": {
+      "label": "正在載入產品規格"
+    },
+    "header": {
+      "eyebrow": "Electroshop 管理後台",
+      "title": "產品規格",
+      "description": "管理此產品的技術詳細資訊與規格。",
+      "productId": "產品 ID：{id}"
+    },
+    "buttons": {
+      "backToProducts": "返回產品列表"
+    },
+    "invalidProduct": {
+      "description": "產品 ID 無效。請返回產品列表並選擇有效的產品。"
+    }
+  },
+  "ProductVariantsPage": {
+    "loading": {
+      "label": "正在載入產品款式"
+    },
+    "header": {
+      "eyebrow": "Electroshop 管理後台",
+      "title": "產品款式",
+      "productId": "產品 ID：{id}"
+    },
+    "buttons": {
+      "backToProducts": "返回產品列表"
+    },
+    "invalidProduct": {
+      "description": "產品 ID 無效。請返回產品列表並選擇有效的產品。"
+    }
+  },
+  "ProductVideoPage": {
+    "loading": {
+      "label": "正在載入產品"
+    },
+    "header": {
+      "eyebrow": "Electroshop 管理後台",
+      "title": "產品影片管理",
+      "description": "管理產品「{name}」的宣傳影片。"
+    },
+    "buttons": {
+      "backToProducts": "返回產品列表"
+    },
+    "errors": {
+      "loadFailedTitle": "無法載入產品",
+      "invalidProductId": "產品 ID 無效。",
+      "productNotFound": "找不到產品。"
+    }
+  }
+}

@@ -1,6 +1,824 @@
 {
   "HomePage": {
-    "title": "Welcome",
-    "description": "This is my website"
+    "loadingAria": "Loading products",
+    "errorTitle": "Unable to load products",
+    "heroEyebrow": "The modern tech destination",
+    "heroTitleLine1": "Better tech.",
+    "heroTitleLine2": "Better everyday.",
+    "heroDescription": "Discover thoughtfully selected electronics that bring together performance, design, and the way you live.",
+    "exploreCollection": "Explore collection",
+    "discover": "Discover what's here",
+    "latestProducts": "Latest products",
+    "madeForEveryday": "Made for everyday",
+    "techFitsLife": "Technology that fits your life",
+    "viewProduct": "View {name}",
+    "featuredProduct": "Featured product",
+    "showProduct": "Show product {index}: {name}",
+    "explorePossibilities": "Explore possibilities",
+    "welcome": "Welcome ~~~",
+    "findTech": "Find tech for everyday life",
+    "carefullySelected": "Carefully selected",
+    "collectionTitle": "Find your next favorite.",
+    "collectionDescription": "Explore our latest products for work, entertainment, and everyday life.",
+    "viewAll": "View All Products",
+    "previousProducts": "Previous products",
+    "nextProducts": "Next products",
+    "emptyTitle": "Something great is on the way.",
+    "emptyDescription": "Our collection is getting ready. Check back soon to explore the products available in Electroshop."
+  },
+  "Header": {
+    "homeAria": "Electroshop home",
+    "navAria": "Main navigation",
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart"
+  },
+  "Metadata": {
+    "title": "Electroshop",
+    "description": "Electroshop - Online Electronics Store"
+  },
+  "ProductCard": {
+    "imageUnavailable": "Image unavailable",
+    "sale": "Sale",
+    "priceUnavailable": "Price unavailable",
+    "viewProduct": "View product"
+  },
+  "UserMenu": {
+    "login": "Login",
+    "register": "Register",
+    "adminDashboard": "Admin Dashboard",
+    "myAccount": "My Account",
+    "orders": "Orders",
+    "logout": "Logout"
+  },
+  "LogoutButton": {
+    "logout": "Logout"
+  },
+  "Navigation": {
+    "mainNavigation": "Main navigation",
+    "storeHomeAriaLabel": "Electroshop home",
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "vi": "Vietnamese",
+      "zh-TW": "Traditional Chinese"
+    }
+  },
+  "Login": {
+    "title": "Welcome ~~~",
+    "description": "Sign in to your Electroshop account to continue.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "footerNote": "Sign in to manage your account and track your orders.",
+    "toastLoading": "Signing in...",
+    "toastSuccess": "Signed in successfully!",
+    "toastError": "Unable to sign in. Please check your email and password and try again."
+  },
+  "Register": {
+    "title": "Create account",
+    "description": "Join Electroshop and start shopping today.",
+    "nameLabel": "Full name",
+    "namePlaceholder": "Enter your full name",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Create a password",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "avatarLabel": "Avatar URL",
+    "optional": "(Optional)",
+    "avatarPlaceholder": "Image URL",
+    "submit": "Create account",
+    "submitting": "Creating account...",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "footerNote": "Create your account to manage your profile and orders.",
+    "passwordMismatch": "Passwords do not match.",
+    "toastLoading": "Creating your account...",
+    "toastSuccess": "Account created successfully!",
+    "toastSuccessDescription": "You can now sign in with your new account.",
+    "toastError": "Registration failed. Please try again."
+  },
+  "ProductForm": {
+    "title": "Product Information",
+    "subtitle": "Enter the basic details of your product.",
+    "productName": "Product Name",
+    "productNamePlaceholder": "Enter product name",
+    "brand": "Brand",
+    "selectBrand": "Select brand",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "description": "Description",
+    "optional": "(Optional)",
+    "descriptionPlaceholder": "Describe the product features and benefits",
+    "requiredFields": "Required fields",
+    "cancel": "Cancel",
+    "createProduct": "Create Product",
+    "creatingProduct": "Creating Product...",
+    "updateProduct": "Update Product",
+    "updatingProduct": "Updating...",
+    "nameRequired": "Product name is required.",
+    "brandRequired": "Please select a brand.",
+    "categoryRequired": "Please select a category."
+  },
+  "ProductGallery": {
+    "mainImage": "Main image",
+    "noImagesAvailable": "No images available",
+    "productImages": "Product images",
+    "imagesForAllColors": "Images for all available colors",
+    "imageCount": "{count, plural, one {# image} other {# images}}",
+    "imageThumbnailsLabel": "All product image thumbnails",
+    "viewImage": "View image {index} of {total}",
+    "viewImageWithColor": "View image {index} of {total}, color: {color}",
+    "imageAlt": "{productName} - image {index}",
+    "noProductImages": "No product images available.",
+    "loadingProductImages": "Loading product images...",
+    "refreshError": "Unable to refresh product images. Existing product images are still displayed."
+  },
+  "ProductInfo": {
+    "ratedOutOfFive": "Rated {rating} out of 5",
+    "noRatings": "No ratings yet",
+    "reviewCount": "{count, plural, one {# review} other {# reviews}}",
+    "noReviews": "No reviews yet",
+    "loadingConfigurations": "Loading configurations...",
+    "configurationLoadError": "Unable to load product configurations. Please refresh the page.",
+    "unavailable": "This product is currently unavailable.",
+    "storage": "Storage",
+    "color": "Color",
+    "sku": "SKU",
+    "selectOptionsHint": "Select your preferred options to check the exact price and availability.",
+    "from": "From",
+    "priceUnavailable": "Price unavailable",
+    "youSave": "You save {amount}",
+    "selectOptionsForStock": "Select options to check stock",
+    "outOfStock": "Out of Stock",
+    "onlyLeftInStock": "Only {count} left in stock",
+    "inStock": "In Stock",
+    "description": "Product Description",
+    "noDescription": "No description available.",
+    "quantity": "Quantity",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "selectedQuantity": "Selected quantity",
+    "selectOptionsFirst": "Select options first",
+    "unitsAvailable": "{count, plural, one {# unit available} other {# units available}}",
+    "currentlyUnavailable": "Currently unavailable",
+    "addingToCart": "Adding to your cart...",
+    "selectOptions": "Select Options",
+    "addToCart": "Add to Cart",
+    "trustLine": "Secure checkout · Quality products · Customer support",
+    "toast": {
+      "verifyError": "Unable to verify product configurations. Please try again.",
+      "selectRequired": "Please select the required product options first.",
+      "configurationOutOfStock": "This product configuration is out of stock.",
+      "addedToCart": "Product added to your cart.",
+      "addedDescription": "{name} — {configuration}",
+      "addError": "Unable to add this product to your cart. Please try again."
+    }
+  },
+  "ProductImageManager": {
+    "aria": {
+      "productImageManagement": "Product image management",
+      "closeImageEditor": "Close image editor",
+      "chooseNewProductColor": "Choose new product color"
+    },
+    "productManagement": "Product Management",
+    "title": "Product Images",
+    "subtitle": "Manage product images, alternative text, display order, and the primary image for each color.",
+    "imageCount": "{count, plural, one {# image} other {# images}}",
+    "addImage": "Add Image",
+    "imageLibrary": "Image Library",
+    "imageLibrarySubtitle": "Review and manage all images associated with this product.",
+    "loadingImages": "Loading product images...",
+    "loadImagesErrorTitle": "Unable to load product images",
+    "noProductImages": "No product images",
+    "addFirstImageSubtitle": "Add your first image to get started.",
+    "addFirstImage": "Add First Image",
+    "productImageAlt": "Product image",
+    "primary": "Primary",
+    "untitledImage": "Untitled image",
+    "orderLabel": "Order: {order}",
+    "colorLabel": "Color: {color}",
+    "edit": "Edit",
+    "deleting": "Deleting...",
+    "delete": "Delete",
+    "updating": "Updating...",
+    "setAsPrimary": "Set as Primary",
+    "editImage": "Edit Image",
+    "addImageDescription": "Add a new image to this product.",
+    "editImageDescription": "Update the image information and display settings.",
+    "imageUrl": "Image URL",
+    "alternativeText": "Alternative Text",
+    "alternativeTextPlaceholder": "Describe the product image",
+    "alternativeTextHelp": "Helps screen readers describe the image.",
+    "applyToColor": "Apply to Color",
+    "cancel": "Cancel",
+    "addNewColor": "+ Add New Color",
+    "loadingProductColors": "Loading product colors...",
+    "generalImageNoColor": "General product image (no color)",
+    "selectedColorUnavailable": "Selected color unavailable",
+    "noExistingColors": "No existing colors are available.",
+    "createNewColor": "Create New Color",
+    "createColorDescription": "Create a color for this product and use it for the image.",
+    "colorName": "Color Name",
+    "colorNamePlaceholder": "e.g. Midnight Blue",
+    "color": "Color",
+    "displayOrder": "Display Order",
+    "setAsPrimaryImage": "Set as primary image",
+    "primaryImageHelp": "Each color group has its own primary image. General product images form a separate group.",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "general": "General",
+    "colorNumber": "Color #{id}",
+    "creatingColor": "Creating...",
+    "createColor": "Create Color",
+    "colorsLoadWarning": "Unable to load existing colors. You can still try creating a new color.",
+    "chooseColorHelp": "Choose an existing color, create a new one, or select a general image.",
+    "validation": {
+      "colorNameRequired": "Color name is required.",
+      "invalidColor": "Please select a valid color.",
+      "duplicateColorName": "This color name already exists for this product.",
+      "imageUrlRequired": "Image URL is required.",
+      "invalidImageUrl": "Please enter a valid HTTP or HTTPS image URL.",
+      "validColorRequired": "Please select a valid product color.",
+      "colorUnavailable": "The selected color is unavailable. Please select an existing color.",
+      "invalidSortOrder": "Sort order must be a non-negative integer."
+    },
+    "fallbackErrors": {
+      "loadColors": "Unable to load product colors.",
+      "createColor": "Unable to create product color.",
+      "saveImage": "Unable to save product image."
+    },
+    "confirmDeleteImage": "Are you sure you want to delete this image?",
+    "toast": {
+      "creatingColor": "Creating product color...",
+      "colorCreated": "Product color created successfully.",
+      "createColorError": "Unable to create product color.",
+      "addingImage": "Adding product image...",
+      "updatingImage": "Updating product image...",
+      "imageAdded": "Product image added successfully.",
+      "imageUpdated": "Product image updated successfully.",
+      "saveImageError": "Unable to save product image. Please try again.",
+      "updatingPrimary": "Updating primary image...",
+      "primaryUpdated": "Primary image updated successfully.",
+      "primaryUpdateError": "Unable to update primary image. Please try again.",
+      "deletingImage": "Deleting product image...",
+      "imageDeleted": "Product image deleted successfully.",
+      "deleteImageError": "Unable to delete product image. Please try again."
+    }
+  },
+  "ProductPromotionalVideo": {
+    "sectionLabel": "Product promotional video",
+    "eyebrow": "Discover the Product",
+    "heading": "Product Promotional Video",
+    "unsupportedMessage": "Your browser does not support video playback."
+  },
+  "ProductSpecificationManager": {
+    "page": {
+      "title": "Product Specifications",
+      "count": "{count, plural, one {# specification} other {# specifications}}"
+    },
+    "buttons": {
+      "add": "Add Specification",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "tryAgain": "Try Again",
+      "edit": "Edit",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "updateSpecification": "Update Specification",
+      "addSpecification": "Add Specification"
+    },
+    "states": {
+      "loading": "Loading specifications...",
+      "emptyTitle": "No specifications yet",
+      "emptyDescription": "Click Add Specification to create the first specification."
+    },
+    "table": {
+      "group": "Group",
+      "label": "Label",
+      "value": "Value",
+      "order": "Order",
+      "actions": "Actions",
+      "ungrouped": "Ungrouped",
+      "id": "ID: {id}"
+    },
+    "modal": {
+      "eyebrow": "Product Management",
+      "addTitle": "Add Specification",
+      "editTitle": "Edit Specification",
+      "description": "Organize technical details into groups such as Display, Performance, Battery, and Connectivity.",
+      "closeLabel": "Close specification form"
+    },
+    "fields": {
+      "groupName": "Group Name",
+      "optional": "Optional",
+      "groupPlaceholder": "e.g. Display",
+      "sortOrder": "Sort Order",
+      "sortOrderHelp": "Lower numbers appear first.",
+      "label": "Label",
+      "labelPlaceholder": "e.g. Screen Size",
+      "value": "Value",
+      "valuePlaceholder": "e.g. 6.7-inch OLED"
+    },
+    "errors": {
+      "invalidProductId": "Invalid product ID.",
+      "labelRequired": "Specification label is required.",
+      "valueRequired": "Specification value is required.",
+      "invalidSortOrder": "Sort order must be a non-negative whole number.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "confirmDelete": "Delete specification \"{label}\"?",
+    "toast": {
+      "loadingUpdate": "Updating product specification...",
+      "loadingAdd": "Adding product specification...",
+      "updated": "Product specification updated successfully.",
+      "added": "Product specification added successfully.",
+      "refreshFailedAfterSave": "Saved, but the specifications list could not refresh.",
+      "updateFailed": "Unable to update product specification.",
+      "addFailed": "Unable to add product specification.",
+      "loadingDelete": "Deleting product specification...",
+      "deleted": "Product specification deleted successfully.",
+      "refreshFailedAfterDelete": "Deleted, but the specifications list could not refresh.",
+      "deleteFailed": "Unable to delete product specification."
+    }
+  },
+  "ProductVariantManager": {
+    "page": {
+      "eyebrow": "Product Management",
+      "title": "Product Variants",
+      "description": "Manage variant SKU, storage, color, pricing, stock, and status.",
+      "variantCount": "{count, plural, one {# variant} other {# variants}}"
+    },
+    "modal": {
+      "createTitle": "Create Variant",
+      "editTitle": "Edit Variant",
+      "createDescription": "Enter the information for the new variant.",
+      "editDescription": "Update variant #{id}.",
+      "closeLabel": "Close variant form"
+    },
+    "fields": {
+      "storage": "Storage",
+      "storagePlaceholder": "e.g. 256GB",
+      "color": "Color",
+      "noColor": "No color",
+      "previousColorUnavailable": "Previously selected color (unavailable)",
+      "loadingColors": "Loading colors...",
+      "noColorsAvailable": "No colors available for this product.",
+      "loadColorsError": "Unable to load colors: {error}",
+      "price": "Price (VND)",
+      "pricePlaceholder": "Enter price",
+      "salePrice": "Sale Price (VND)",
+      "salePricePlaceholder": "Leave blank for no sale",
+      "stock": "Stock",
+      "status": "Status",
+      "managedByInventory": "managed by inventory",
+      "outOfStockHelp": "The current status will not be changed unless you select Active or Inactive."
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "outOfStock": "Out of Stock"
+    },
+    "buttons": {
+      "createVariant": "Create Variant",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "updateVariant": "Update Variant",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "edit": "Edit",
+      "deactivating": "Deactivating...",
+      "deactivate": "Deactivate"
+    },
+    "table": {
+      "existingTitle": "Existing Variants",
+      "sku": "SKU",
+      "storage": "Storage",
+      "color": "Color",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "actions": "Actions",
+      "id": "ID: {id}",
+      "colorUnavailable": "Color unavailable"
+    },
+    "states": {
+      "loadingVariants": "Loading variants...",
+      "noVariantsTitle": "No variants yet",
+      "noVariantsDescription": "Click Create Variant to add the first variant."
+    },
+    "errors": {
+      "invalidProductId": "Invalid product ID.",
+      "priceMustBePositive": "Price must be greater than zero.",
+      "invalidSalePrice": "Sale price must be between zero and the regular price.",
+      "invalidStock": "Stock must be a non-negative whole number.",
+      "invalidColor": "Please select a valid color.",
+      "colorUnavailable": "The selected color is unavailable. Please select another color.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "confirmDeactivate": "Deactivate variant \"{sku}\"?",
+    "toast": {
+      "loadingUpdate": "Updating product variant...",
+      "loadingCreate": "Creating product variant...",
+      "updated": "Product variant updated successfully.",
+      "created": "Product variant created successfully.",
+      "refreshFailedAfterSave": "Variant was saved, but the list could not be refreshed. Please click Refresh to try again.",
+      "updateFailed": "Unable to update product variant. Please try again.",
+      "createFailed": "Unable to create product variant. Please try again.",
+      "loadingDeactivate": "Deactivating product variant...",
+      "deactivated": "Product variant deactivated successfully.",
+      "refreshFailedAfterDeactivate": "Variant was deactivated, but the list could not be refreshed. Please click Refresh to try again.",
+      "deactivateFailed": "Unable to deactivate product variant. Please try again."
+    }
+  },
+  "ProductVideoManager": {
+    "sectionLabel": "Product video management",
+    "header": {
+      "eyebrow": "Product Management",
+      "title": "Product Video",
+      "description": "Manage the promotional video for this product.",
+      "videoCount": "{count, plural, one {# video} other {# videos}}"
+    },
+    "buttons": {
+      "addVideo": "Add Video",
+      "edit": "Edit",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "openVideo": "Open Video in New Tab",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
+    },
+    "library": {
+      "title": "Video Library",
+      "description": "Preview and manage the promotional video associated with this product."
+    },
+    "empty": {
+      "title": "No promotional video",
+      "description": "Add a video to get started."
+    },
+    "player": {
+      "unsupportedMessage": "Your browser does not support HTML video.",
+      "badge": "Promotional Video",
+      "available": "Video available"
+    },
+    "modal": {
+      "addTitle": "Add Video",
+      "editTitle": "Edit Video",
+      "addDescription": "Add a promotional video to this product.",
+      "editDescription": "Replace the existing promotional video.",
+      "closeLabel": "Close video editor"
+    },
+    "source": {
+      "title": "Video Source",
+      "fileTitle": "Upload from Computer",
+      "fileDescription": "Select a video file from your device.",
+      "urlTitle": "Import from URL",
+      "urlDescription": "Provide a direct video URL."
+    },
+    "fields": {
+      "file": "Video File",
+      "url": "Video URL",
+      "selectedFile": "Selected: {fileName}",
+      "urlHelp": "Use a direct HTTP or HTTPS video URL that Cloudinary can access."
+    },
+    "errors": {
+      "selectFile": "Please select a video file.",
+      "invalidFile": "Please select a valid video file.",
+      "urlRequired": "Video URL is required.",
+      "invalidUrl": "Please enter a valid HTTP or HTTPS video URL.",
+      "saveGeneric": "Unable to save product video.",
+      "saveFailed": "Unable to save product video. Please try again."
+    },
+    "confirmDelete": "Are you sure you want to delete the promotional video for \"{productName}\"?",
+    "toast": {
+      "loadingReplace": "Replacing product video...",
+      "loadingAdd": "Adding product video...",
+      "updated": "Product video updated successfully.",
+      "added": "Product video added successfully.",
+      "loadingDelete": "Deleting product video...",
+      "deleted": "Product video deleted successfully.",
+      "saveFailed": "Unable to save product video. Please try again.",
+      "deleteFailed": "Unable to delete product video. Please try again."
+    }
+  },
+  "TechnicalSpecifications": {
+    "sectionLabel": "Technical specifications",
+    "eyebrow": "Product Details",
+    "title": "Technical Specifications",
+    "generalGroup": "General",
+    "loadingLabel": "Loading technical specifications",
+    "tryAgain": "Try Again",
+    "emptyMessage": "No technical specifications available for this product yet."
+  },
+  "ProductsPage": {
+    "loading": {
+      "page": "Loading products"
+    },
+    "heading": {
+      "eyebrow": "Explore our collection",
+      "title": "All Products",
+      "description": "Discover electronics for work, entertainment, and everyday life."
+    },
+    "searchSort": {
+      "ariaLabel": "Search and sort products",
+      "searchLabel": "Search products",
+      "searchPlaceholder": "Search by product name...",
+      "sortLabel": "Sort by"
+    },
+    "sort": {
+      "default": "Default order",
+      "newest": "Newest",
+      "priceAscending": "Price: Low to High",
+      "priceDescending": "Price: High to Low"
+    },
+    "errors": {
+      "invalidMinimumPrice": "Minimum price must be a valid non-negative number.",
+      "invalidMaximumPrice": "Maximum price must be a valid non-negative number.",
+      "minimumGreaterThanMaximum": "Minimum price cannot be greater than maximum price."
+    },
+    "filters": {
+      "title": "Filters",
+      "clearAll": "Clear all",
+      "category": "Category",
+      "allCategories": "All categories",
+      "brand": "Brand",
+      "allBrands": "All brands",
+      "priceRange": "Price range",
+      "minimumPrice": "Minimum price",
+      "maximumPrice": "Maximum price",
+      "minimumPlaceholder": "Min",
+      "maximumPlaceholder": "Max"
+    },
+    "results": {
+      "ariaLabel": "Product results",
+      "searchTitle": "Search Results",
+      "exploreTitle": "Explore Products",
+      "summary": "{count, plural, one {# product} other {# products}} · Page {page} of {totalPages}"
+    },
+    "priceError": {
+      "title": "Check your price range",
+      "description": "Correct the price filters above to see matching products."
+    },
+    "errorState": {
+      "title": "Unable to load products"
+    },
+    "empty": {
+      "title": "No products found",
+      "description": "Try a different keyword or adjust your filters to find what you are looking for."
+    },
+    "pagination": {
+      "ariaLabel": "Product pagination",
+      "previousAriaLabel": "Previous page",
+      "previous": "Previous",
+      "goToPage": "Go to page {page}",
+      "nextAriaLabel": "Next page",
+      "next": "Next"
+    }
+  },
+  "AdminProductsPage": {
+    "loading": {
+      "products": "Loading products...",
+      "loadingProductsPage": "Loading products..."
+    },
+    "header": {
+      "eyebrow": "Electroshop Administration",
+      "title": "Products",
+      "description": "Manage your products and variant-level pricing and inventory.",
+      "lowStockDescription": "Showing active products with at least one variant at 10 units or fewer in stock.",
+      "lowStockBadge": "Low Stock Filter Active"
+    },
+    "buttons": {
+      "addProduct": "Add Product",
+      "tryAgain": "Try Again",
+      "edit": "Edit",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "manage": "Manage"
+    },
+    "filters": {
+      "ariaLabel": "Product filters",
+      "title": "Search and Filters",
+      "searchPlaceholder": "Search products...",
+      "searchAriaLabel": "Search products",
+      "categoryAriaLabel": "Filter by category",
+      "allCategories": "All Categories",
+      "brandAriaLabel": "Filter by brand",
+      "allBrands": "All Brands",
+      "sortAriaLabel": "Sort products"
+    },
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest",
+      "priceAscending": "Price: Low to High",
+      "priceDescending": "Price: High to Low"
+    },
+    "table": {
+      "ariaLabel": "Products list",
+      "title": "Product Inventory",
+      "description": "View and manage product details and variant-level stock levels.",
+      "productsOnPage": "{count, plural, one {# product on this page} other {# products on this page}}",
+      "product": "Product",
+      "sku": "SKU",
+      "brand": "Brand",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No products found",
+      "description": "Try changing your search terms or adjusting the filters.",
+      "lowStockTitle": "No low-stock products found",
+      "lowStockDescription": "No matching products have variants at or below the low-stock threshold."
+    },
+    "stock": {
+      "noActiveVariants": "No active variants",
+      "outOfStock": "Out of stock",
+      "totalUnits": "{count, plural, one {# total unit} other {# total units}}",
+      "noActiveVariantPrice": "No active variant"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "errorState": {
+      "title": "Unable to load products"
+    },
+    "links": {
+      "video": "Video",
+      "images": "Images",
+      "variants": "Variants",
+      "specifications": "Specs",
+      "manageVideoAria": "Manage promotional video for {name}",
+      "manageVideoTitle": "Manage product promotional video",
+      "manageImagesAria": "Manage images for {name}",
+      "manageImagesTitle": "Manage product images",
+      "manageVariantsAria": "Manage variants for {name}",
+      "manageVariantsTitle": "Manage product variants",
+      "manageSpecificationsAria": "Manage specifications for {name}",
+      "manageSpecificationsTitle": "Manage product specifications"
+    },
+    "pagination": {
+      "page": "Page",
+      "of": "of",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "confirmDelete": "Are you sure you want to delete this product?",
+    "toast": {
+      "deleting": "Deleting product...",
+      "deleted": "Product deleted successfully.",
+      "deleteFailed": "Unable to delete product. Please try again.",
+      "refreshFailedAfterDelete": "Product deleted, but the list could not be refreshed. Please try again."
+    }
+  },
+  "AdminProductModal": {
+    "loadingProduct": "Loading product...",
+    "toast": {
+      "creating": "Creating product...",
+      "created": "Product created successfully.",
+      "createdDescription": "Continue by configuring product variants and images.",
+      "createFailed": "Failed to create product.",
+      "updating": "Updating product...",
+      "updated": "Product information updated successfully.",
+      "updateFailed": "Failed to update product."
+    },
+    "errors": {
+      "createFallback": "Failed to create product. Please try again.",
+      "invalidProductId": "Invalid product ID.",
+      "updateFallback": "Failed to update product. Please try again."
+    },
+    "loadFailedTitle": "Unable to load product",
+    "productNotFound": "Product not found.",
+    "closeButton": "Close",
+    "createTitle": "Create Product",
+    "editTitle": "Edit Product",
+    "closeLabel": "Close product modal"
+  },
+  "CreateProductPage": {
+    "header": {
+      "eyebrow": "Electroshop Administration",
+      "title": "Add Product",
+      "description": "Create a product, then configure its variants and images."
+    },
+    "buttons": {
+      "backToProducts": "Back to Products"
+    },
+    "toast": {
+      "creating": "Creating product...",
+      "created": "Product created successfully.",
+      "createdDescription": "Continue by configuring product variants and images.",
+      "createFailed": "Failed to create product."
+    },
+    "errors": {
+      "createFallback": "Failed to create product. Please try again."
+    }
+  },
+  "EditProductPage": {
+    "loading": {
+      "label": "Loading product"
+    },
+    "header": {
+      "eyebrow": "Electroshop Administration",
+      "title": "Edit Product",
+      "description": "Update general product information."
+    },
+    "buttons": {
+      "backToProducts": "Back to Products"
+    },
+    "toast": {
+      "updating": "Updating product...",
+      "updated": "Product information updated successfully.",
+      "updateFailed": "Unable to update product."
+    },
+    "errors": {
+      "invalidProductId": "Invalid product ID.",
+      "updateFallback": "Unable to update product. Please try again."
+    },
+    "errorState": {
+      "title": "Unable to Load Product",
+      "productNotFound": "Product not found."
+    }
+  },
+  "ProductImagesPage": {
+    "loading": {
+      "label": "Loading product images"
+    },
+    "invalidProduct": {
+      "title": "Invalid Product ID",
+      "description": "Please select a valid product to manage its images."
+    },
+    "header": {
+      "eyebrow": "Electroshop Administration",
+      "title": "Manage Product Images",
+      "description": "Manage images for product #{id}.",
+      "productId": "Product ID: {id}"
+    },
+    "buttons": {
+      "backToProducts": "Back to Products"
+    }
+  },
+  "ProductSpecificationsPage": {
+    "loading": {
+      "label": "Loading product specifications"
+    },
+    "header": {
+      "eyebrow": "Electroshop Administration",
+      "title": "Product Specifications",
+      "description": "Manage technical details and specifications for this product.",
+      "productId": "Product ID: {id}"
+    },
+    "buttons": {
+      "backToProducts": "Back to Products"
+    },
+    "invalidProduct": {
+      "description": "Invalid product ID. Please return to the products list and select a valid product."
+    }
+  },
+  "ProductVariantsPage": {
+    "loading": {
+      "label": "Loading product variants"
+    },
+    "header": {
+      "eyebrow": "Electroshop Administration",
+      "title": "Product Variants",
+      "productId": "Product ID: {id}"
+    },
+    "buttons": {
+      "backToProducts": "Back to Products"
+    },
+    "invalidProduct": {
+      "description": "Invalid product ID. Please return to the products list and select a valid product."
+    }
+  },
+  "ProductVideoPage": {
+    "loading": {
+      "label": "Loading product"
+    },
+    "header": {
+      "eyebrow": "Electroshop Administration",
+      "title": "Product Video Management",
+      "description": "Manage the promotional video for {name}."
+    },
+    "buttons": {
+      "backToProducts": "Back to Products"
+    },
+    "errors": {
+      "loadFailedTitle": "Unable to Load Product",
+      "invalidProductId": "Invalid product ID.",
+      "productNotFound": "Product not found."
+    }
   }
 }

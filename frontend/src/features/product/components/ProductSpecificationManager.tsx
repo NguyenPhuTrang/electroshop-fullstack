@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { useProductSpecifications } from "@/src/features/product/hooks/useProductSpecifications";
@@ -33,16 +35,16 @@ const INITIAL_FORM: SpecificationFormValues = {
   sortOrder: "0",
 };
 
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message
-    : "Something went wrong. Please try again.";
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
 export default function ProductSpecificationManager({
   productId,
   onLoadingChange,
 }: ProductSpecificationManagerProps) {
+  const t = useTranslations("ProductSpecificationManager");
+
   const {
     specifications,
     loading,
@@ -132,7 +134,7 @@ export default function ProductSpecificationManager({
     setActionError(null);
 
     if (!Number.isSafeInteger(productId) || productId <= 0) {
-      setActionError("Invalid product ID.");
+      setActionError(t("errors.invalidProductId"));
       return;
     }
 
@@ -142,12 +144,12 @@ export default function ProductSpecificationManager({
     const sortOrder = Number(rawSortOrder);
 
     if (!label) {
-      setActionError("Specification label is required.");
+      setActionError(t("errors.labelRequired"));
       return;
     }
 
     if (!value) {
-      setActionError("Specification value is required.");
+      setActionError(t("errors.valueRequired"));
       return;
     }
 
@@ -156,9 +158,7 @@ export default function ProductSpecificationManager({
       !Number.isInteger(sortOrder) ||
       sortOrder < 0
     ) {
-      setActionError(
-        "Sort order must be a non-negative whole number."
-      );
+      setActionError(t("errors.invalidSortOrder"));
       return;
     }
 
@@ -170,10 +170,9 @@ export default function ProductSpecificationManager({
     };
 
     const isEditing = editingId !== null;
+
     const toastId = toast.loading(
-      isEditing
-        ? "Updating product specification..."
-        : "Adding product specification..."
+      t(isEditing ? "toast.loadingUpdate" : "toast.loadingAdd")
     );
 
     setSubmitting(true);
@@ -195,28 +194,27 @@ export default function ProductSpecificationManager({
       setActionError(null);
       setIsFormOpen(false);
 
-      const successMessage = isEditing
-        ? "Product specification updated successfully."
-        : "Product specification added successfully.";
-
-      // The mutation succeeded; finish its toast before refreshing the list.
-      toast.success(successMessage, { id: toastId });
+      toast.success(
+        t(isEditing ? "toast.updated" : "toast.added"),
+        { id: toastId }
+      );
 
       try {
         await refetch();
       } catch (refreshError) {
-        toast.error("Saved, but the specifications list could not refresh.", {
-          description: getErrorMessage(refreshError),
+        toast.error(t("toast.refreshFailedAfterSave"), {
+          description: getErrorMessage(
+            refreshError,
+            t("errors.generic")
+          ),
         });
       }
     } catch (error) {
       toast.error(
-        isEditing
-          ? "Unable to update product specification."
-          : "Unable to add product specification.",
+        t(isEditing ? "toast.updateFailed" : "toast.addFailed"),
         {
           id: toastId,
-          description: getErrorMessage(error),
+          description: getErrorMessage(error, t("errors.generic")),
         }
       );
     } finally {
@@ -232,7 +230,7 @@ export default function ProductSpecificationManager({
     }
 
     const confirmed = window.confirm(
-      `Delete specification "${specification.label}"?`
+      t("confirmDelete", { label: specification.label })
     );
 
     if (!confirmed) {
@@ -240,7 +238,8 @@ export default function ProductSpecificationManager({
     }
 
     setActionError(null);
-    const toastId = toast.loading("Deleting product specification...");
+
+    const toastId = toast.loading(t("toast.loadingDelete"));
     setDeletingId(specification.id);
 
     try {
@@ -252,21 +251,24 @@ export default function ProductSpecificationManager({
         setIsFormOpen(false);
       }
 
-      toast.success("Product specification deleted successfully.", {
+      toast.success(t("toast.deleted"), {
         id: toastId,
       });
 
       try {
         await refetch();
       } catch (refreshError) {
-        toast.error("Deleted, but the specifications list could not refresh.", {
-          description: getErrorMessage(refreshError),
+        toast.error(t("toast.refreshFailedAfterDelete"), {
+          description: getErrorMessage(
+            refreshError,
+            t("errors.generic")
+          ),
         });
       }
     } catch (error) {
-      toast.error("Unable to delete product specification.", {
+      toast.error(t("toast.deleteFailed"), {
         id: toastId,
-        description: getErrorMessage(error),
+        description: getErrorMessage(error, t("errors.generic")),
       });
     } finally {
       setDeletingId(null);
@@ -286,7 +288,7 @@ export default function ProductSpecificationManager({
         role="alert"
         className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"
       >
-        Invalid product ID.
+        {t("errors.invalidProductId")}
       </div>
     );
   }
@@ -298,14 +300,11 @@ export default function ProductSpecificationManager({
         <div className="flex flex-col gap-3 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold text-slate-900">
-              Product Specifications
+              {t("page.title")}
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              {specifications.length}{" "}
-              {specifications.length === 1
-                ? "specification"
-                : "specifications"}
+              {t("page.count", { count: specifications.length })}
             </p>
           </div>
 
@@ -316,7 +315,7 @@ export default function ProductSpecificationManager({
               disabled={loading || submitting || deletingId !== null}
               className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Add Specification
+              {t("buttons.add")}
             </button>
 
             <button
@@ -325,7 +324,7 @@ export default function ProductSpecificationManager({
               disabled={loading || submitting || deletingId !== null}
               className="self-start rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
             >
-              {loading ? "Refreshing..." : "Refresh"}
+              {loading ? t("buttons.refreshing") : t("buttons.refresh")}
             </button>
           </div>
         </div>
@@ -345,7 +344,7 @@ export default function ProductSpecificationManager({
               disabled={loading}
               className="mt-3 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
             >
-              Try Again
+              {t("buttons.tryAgain")}
             </button>
           </div>
         ) : loading && specifications.length === 0 ? (
@@ -353,16 +352,16 @@ export default function ProductSpecificationManager({
             className="px-5 py-12 text-center text-sm text-slate-500"
             aria-busy="true"
           >
-            Loading specifications...
+            {t("states.loading")}
           </p>
         ) : sortedSpecifications.length === 0 ? (
           <div className="px-5 py-12 text-center">
             <h3 className="font-medium text-slate-800">
-              No specifications yet
+              {t("states.emptyTitle")}
             </h3>
 
             <p className="mt-1 text-sm text-slate-500">
-              Click “Add Specification” to create the first specification.
+              {t("states.emptyDescription")}
             </p>
           </div>
         ) : (
@@ -371,23 +370,23 @@ export default function ProductSpecificationManager({
               <thead className="bg-slate-50">
                 <tr>
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Group
+                    {t("table.group")}
                   </th>
 
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Label
+                    {t("table.label")}
                   </th>
 
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Value
+                    {t("table.value")}
                   </th>
 
                   <th className="px-5 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Order
+                    {t("table.order")}
                   </th>
 
                   <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Actions
+                    {t("table.actions")}
                   </th>
                 </tr>
               </thead>
@@ -405,7 +404,7 @@ export default function ProductSpecificationManager({
                         </span>
                       ) : (
                         <span className="text-sm text-slate-400">
-                          Ungrouped
+                          {t("table.ungrouped")}
                         </span>
                       )}
                     </td>
@@ -416,7 +415,7 @@ export default function ProductSpecificationManager({
                       </div>
 
                       <div className="mt-1 text-xs text-slate-400">
-                        ID: {specification.id}
+                        {t("table.id", { id: specification.id })}
                       </div>
                     </td>
 
@@ -438,7 +437,7 @@ export default function ProductSpecificationManager({
                           }
                           className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-blue-700 transition hover:border-blue-200 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          Edit
+                          {t("buttons.edit")}
                         </button>
 
                         <button
@@ -450,8 +449,8 @@ export default function ProductSpecificationManager({
                           className="rounded-lg border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {deletingId === specification.id
-                            ? "Deleting..."
-                            : "Delete"}
+                            ? t("buttons.deleting")
+                            : t("buttons.delete")}
                         </button>
                       </div>
                     </td>
@@ -462,7 +461,6 @@ export default function ProductSpecificationManager({
           </div>
         )}
       </section>
-
 
       {/* Add / Edit Specification Modal */}
       {isFormOpen && (
@@ -487,26 +485,28 @@ export default function ProductSpecificationManager({
             <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                  Product Management
+                  {t("modal.eyebrow")}
                 </p>
+
                 <h2
                   id="specification-modal-title"
                   className="mt-1 text-lg font-semibold text-slate-900"
                 >
                   {editingId === null
-                    ? "Add Specification"
-                    : "Edit Specification"}
+                    ? t("modal.addTitle")
+                    : t("modal.editTitle")}
                 </h2>
+
                 <p className="mt-1 text-sm leading-5 text-slate-500">
-                  Organize technical details into groups such as Display,
-                  Performance, Battery, and Connectivity.
+                  {t("modal.description")}
                 </p>
               </div>
+
               <button
                 type="button"
                 onClick={resetForm}
                 disabled={submitting || deletingId !== null}
-                aria-label="Close specification form"
+                aria-label={t("modal.closeLabel")}
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <svg
@@ -540,11 +540,12 @@ export default function ProductSpecificationManager({
                       htmlFor="specification-group"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Group Name
+                      {t("fields.groupName")}
                       <span className="ml-1 font-normal text-slate-400">
-                        (Optional)
+                        ({t("fields.optional")})
                       </span>
                     </label>
+
                     <input
                       id="specification-group"
                       type="text"
@@ -553,7 +554,7 @@ export default function ProductSpecificationManager({
                         handleChange("groupName", event.target.value)
                       }
                       disabled={submitting || deletingId !== null}
-                      placeholder="e.g. Display"
+                      placeholder={t("fields.groupPlaceholder")}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
                     />
                   </div>
@@ -563,8 +564,9 @@ export default function ProductSpecificationManager({
                       htmlFor="specification-sort-order"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Sort Order
+                      {t("fields.sortOrder")}
                     </label>
+
                     <input
                       id="specification-sort-order"
                       type="number"
@@ -578,8 +580,9 @@ export default function ProductSpecificationManager({
                       disabled={submitting || deletingId !== null}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
                     />
+
                     <p className="mt-1 text-xs text-slate-500">
-                      Lower numbers appear first.
+                      {t("fields.sortOrderHelp")}
                     </p>
                   </div>
                 </div>
@@ -589,8 +592,10 @@ export default function ProductSpecificationManager({
                     htmlFor="specification-label"
                     className="mb-1.5 block text-sm font-medium text-slate-700"
                   >
-                    Label <span className="text-rose-500">*</span>
+                    {t("fields.label")}{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
+
                   <input
                     id="specification-label"
                     type="text"
@@ -600,7 +605,7 @@ export default function ProductSpecificationManager({
                       handleChange("label", event.target.value)
                     }
                     disabled={submitting || deletingId !== null}
-                    placeholder="e.g. Screen Size"
+                    placeholder={t("fields.labelPlaceholder")}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
                   />
                 </div>
@@ -610,8 +615,10 @@ export default function ProductSpecificationManager({
                     htmlFor="specification-value"
                     className="mb-1.5 block text-sm font-medium text-slate-700"
                   >
-                    Value <span className="text-rose-500">*</span>
+                    {t("fields.value")}{" "}
+                    <span className="text-rose-500">*</span>
                   </label>
+
                   <textarea
                     id="specification-value"
                     required
@@ -621,7 +628,7 @@ export default function ProductSpecificationManager({
                       handleChange("value", event.target.value)
                     }
                     disabled={submitting || deletingId !== null}
-                    placeholder="e.g. 6.7-inch OLED"
+                    placeholder={t("fields.valuePlaceholder")}
                     className="w-full resize-y rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
                   />
                 </div>
@@ -633,18 +640,19 @@ export default function ProductSpecificationManager({
                     disabled={submitting || deletingId !== null}
                     className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Cancel
+                    {t("buttons.cancel")}
                   </button>
+
                   <button
                     type="submit"
                     disabled={submitting || deletingId !== null}
                     className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {submitting
-                      ? "Saving..."
+                      ? t("buttons.saving")
                       : editingId !== null
-                        ? "Update Specification"
-                        : "Add Specification"}
+                        ? t("buttons.updateSpecification")
+                        : t("buttons.addSpecification")}
                   </button>
                 </div>
               </form>

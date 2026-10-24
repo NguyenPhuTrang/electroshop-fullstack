@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type {
@@ -10,9 +12,7 @@ import type {
 
 import { useProductVariants } from "@/src/features/product/hooks/useProductVariants";
 
-import {
-  getProductColors,
-} from "@/src/features/product/services/product-color.service";
+import { getProductColors } from "@/src/features/product/services/product-color.service";
 
 import {
   createProductVariant,
@@ -50,13 +50,14 @@ const INITIAL_FORM: VariantFormValues = {
   status: "ACTIVE",
 };
 
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message
-    : "Something went wrong. Please try again.";
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
-function formatPrice(value: string | number | null): string {
+function formatPrice(
+  value: string | number | null,
+  locale: string
+): string {
   if (value === null || value === "") {
     return "—";
   }
@@ -67,7 +68,12 @@ function formatPrice(value: string | number | null): string {
     return "—";
   }
 
-  return `${price.toLocaleString("en-US")} VND`;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+    currencyDisplay: "code",
+    maximumFractionDigits: 0,
+  }).format(price);
 }
 
 function getStatusClass(status: ProductVariant["status"]): string {
@@ -94,9 +100,7 @@ function getColorName(
     return variant.colorOption.name;
   }
 
-  const color = colors.find(
-    (item) => item.id === variant.colorId
-  );
+  const color = colors.find((item) => item.id === variant.colorId);
 
   return color?.name ?? null;
 }
@@ -105,9 +109,7 @@ function getColorHex(
   variant: ProductVariant,
   colors: ProductColor[]
 ): string | null {
-  const color = colors.find(
-    (item) => item.id === variant.colorId
-  );
+  const color = colors.find((item) => item.id === variant.colorId);
 
   return color?.hexCode ?? null;
 }
@@ -116,6 +118,10 @@ export default function ProductVariantManager({
   productId,
   onLoadingChange,
 }: ProductVariantManagerProps) {
+  const t = useTranslations("ProductVariantManager");
+  const locale = useLocale();
+  const genericError = t("errors.generic");
+
   const {
     variants,
     loading,
@@ -134,6 +140,7 @@ export default function ProductVariantManager({
   const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  // Keep the parent page skeleton synchronized with the real API loading state.
   useEffect(() => {
     onLoadingChange?.(loading);
   }, [loading, onLoadingChange]);
@@ -155,7 +162,7 @@ export default function ProductVariantManager({
         }
       } catch (error) {
         if (!cancelled) {
-          setColorsError(getErrorMessage(error));
+          setColorsError(getErrorMessage(error, genericError));
         }
       } finally {
         if (!cancelled) {
@@ -175,7 +182,7 @@ export default function ProductVariantManager({
     return () => {
       cancelled = true;
     };
-  }, [productId]);
+  }, [productId, genericError]);
 
   const selectedColor =
     colors.find((color) => String(color.id) === form.colorId) ?? null;
@@ -216,8 +223,7 @@ export default function ProductVariantManager({
     setForm({
       sku: variant.sku,
       storage: variant.storage ?? "",
-      colorId:
-        variant.colorId === null ? "" : String(variant.colorId),
+      colorId: variant.colorId === null ? "" : String(variant.colorId),
       price: String(variant.price),
       salePrice:
         variant.salePrice === null ? "" : String(variant.salePrice),
@@ -235,7 +241,7 @@ export default function ProductVariantManager({
     setActionError(null);
 
     if (!Number.isInteger(productId) || productId <= 0) {
-      setActionError("Invalid product ID.");
+      setActionError(t("errors.invalidProductId"));
       return;
     }
 
@@ -246,14 +252,12 @@ export default function ProductVariantManager({
       !Number.isFinite(price) ||
       price <= 0
     ) {
-      setActionError("Price must be greater than zero.");
+      setActionError(t("errors.priceMustBePositive"));
       return;
     }
 
     const salePrice =
-      form.salePrice.trim() === ""
-        ? null
-        : Number(form.salePrice);
+      form.salePrice.trim() === "" ? null : Number(form.salePrice);
 
     if (
       salePrice !== null &&
@@ -261,9 +265,7 @@ export default function ProductVariantManager({
         salePrice < 0 ||
         salePrice > price)
     ) {
-      setActionError(
-        "Sale price must be between zero and the regular price."
-      );
+      setActionError(t("errors.invalidSalePrice"));
       return;
     }
 
@@ -275,20 +277,18 @@ export default function ProductVariantManager({
       !Number.isInteger(stock) ||
       stock < 0
     ) {
-      setActionError("Stock must be a non-negative whole number.");
+      setActionError(t("errors.invalidStock"));
       return;
     }
 
     const colorId =
-      form.colorId.trim() === ""
-        ? null
-        : Number(form.colorId);
+      form.colorId.trim() === "" ? null : Number(form.colorId);
 
     if (
       colorId !== null &&
       (!Number.isInteger(colorId) || colorId <= 0)
     ) {
-      setActionError("Please select a valid color.");
+      setActionError(t("errors.invalidColor"));
       return;
     }
 
@@ -296,9 +296,7 @@ export default function ProductVariantManager({
       colorId !== null &&
       !colors.some((color) => color.id === colorId)
     ) {
-      setActionError(
-        "The selected color is unavailable. Please select another color."
-      );
+      setActionError(t("errors.colorUnavailable"));
       return;
     }
 
@@ -311,8 +309,9 @@ export default function ProductVariantManager({
     };
 
     const isEditing = editingId !== null;
+
     const toastId = toast.loading(
-      isEditing ? "Updating product variant..." : "Creating product variant..."
+      t(isEditing ? "toast.loadingUpdate" : "toast.loadingCreate")
     );
 
     setSubmitting(true);
@@ -333,9 +332,7 @@ export default function ProductVariantManager({
         const payload: CreateProductVariantInput = {
           ...commonPayload,
           status:
-            form.status === "OUT_OF_STOCK"
-              ? "ACTIVE"
-              : form.status,
+            form.status === "OUT_OF_STOCK" ? "ACTIVE" : form.status,
         };
 
         await createProductVariant(productId, payload);
@@ -346,26 +343,21 @@ export default function ProductVariantManager({
       setIsFormOpen(false);
 
       toast.success(
-        isEditing
-          ? "Product variant updated successfully."
-          : "Product variant created successfully.",
+        t(isEditing ? "toast.updated" : "toast.created"),
         { id: toastId }
       );
 
       try {
         await refetch();
       } catch {
-        toast.error(
-          "Variant was saved, but the list could not be refreshed. Please click Refresh to try again."
-        );
+        toast.error(t("toast.refreshFailedAfterSave"));
       }
     } catch (error) {
       console.error("Failed to save product variant:", error);
-      setActionError(getErrorMessage(error));
+      setActionError(getErrorMessage(error, genericError));
+
       toast.error(
-        isEditing
-          ? "Unable to update product variant. Please try again."
-          : "Unable to create product variant. Please try again.",
+        t(isEditing ? "toast.updateFailed" : "toast.createFailed"),
         { id: toastId }
       );
     } finally {
@@ -379,14 +371,14 @@ export default function ProductVariantManager({
     }
 
     const confirmed = window.confirm(
-      `Deactivate variant "${variant.sku}"?`
+      t("confirmDeactivate", { sku: variant.sku })
     );
 
     if (!confirmed) {
       return;
     }
 
-    const toastId = toast.loading("Deactivating product variant...");
+    const toastId = toast.loading(t("toast.loadingDeactivate"));
     setDeactivatingId(variant.id);
 
     try {
@@ -399,20 +391,19 @@ export default function ProductVariantManager({
         setActionError(null);
       }
 
-      toast.success("Product variant deactivated successfully.", {
+      toast.success(t("toast.deactivated"), {
         id: toastId,
       });
 
       try {
         await refetch();
       } catch {
-        toast.error(
-          "Variant was deactivated, but the list could not be refreshed. Please click Refresh to try again."
-        );
+        toast.error(t("toast.refreshFailedAfterDeactivate"));
       }
     } catch (error) {
       console.error("Failed to deactivate product variant:", error);
-      toast.error("Unable to deactivate product variant. Please try again.", {
+
+      toast.error(t("toast.deactivateFailed"), {
         id: toastId,
       });
     } finally {
@@ -426,7 +417,7 @@ export default function ProductVariantManager({
         role="alert"
         className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"
       >
-        Invalid product ID.
+        {t("errors.invalidProductId")}
       </div>
     );
   }
@@ -437,24 +428,22 @@ export default function ProductVariantManager({
       <header className="flex flex-col justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-            Product Management
+            {t("page.eyebrow")}
           </p>
 
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
-            Product Variants
+            {t("page.title")}
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Manage variant SKU, storage, color, pricing, stock, and status.
+            {t("page.description")}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
             <span className="size-1.5 rounded-full bg-cyan-500" />
-
-            {variants.length}{" "}
-            {variants.length === 1 ? "variant" : "variants"}
+            {t("page.variantCount", { count: variants.length })}
           </span>
 
           <button
@@ -476,7 +465,7 @@ export default function ProductVariantManager({
               <path d="M12 5v14M5 12h14" />
             </svg>
 
-            Create Variant
+            {t("buttons.createVariant")}
           </button>
         </div>
       </header>
@@ -508,14 +497,14 @@ export default function ProductVariantManager({
                   className="text-lg font-semibold text-slate-900"
                 >
                   {editingId === null
-                    ? "Create Variant"
-                    : "Edit Variant"}
+                    ? t("modal.createTitle")
+                    : t("modal.editTitle")}
                 </h3>
 
                 <p className="mt-1 text-sm text-slate-500">
                   {editingId === null
-                    ? "Enter the information for the new variant."
-                    : `Update variant #${editingId}.`}
+                    ? t("modal.createDescription")
+                    : t("modal.editDescription", { id: editingId })}
                 </p>
               </div>
 
@@ -523,7 +512,7 @@ export default function ProductVariantManager({
                 type="button"
                 onClick={closeForm}
                 disabled={submitting}
-                aria-label="Close variant form"
+                aria-label={t("modal.closeLabel")}
                 className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-2xl leading-none text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 ×
@@ -553,7 +542,7 @@ export default function ProductVariantManager({
                       htmlFor="variant-storage"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Storage
+                      {t("fields.storage")}
                     </label>
 
                     <input
@@ -564,7 +553,7 @@ export default function ProductVariantManager({
                         handleChange("storage", event.target.value)
                       }
                       disabled={submitting}
-                      placeholder="e.g. 256GB"
+                      placeholder={t("fields.storagePlaceholder")}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
                     />
                   </div>
@@ -575,7 +564,7 @@ export default function ProductVariantManager({
                       htmlFor="variant-color"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Color
+                      {t("fields.color")}
                     </label>
 
                     <select
@@ -587,22 +576,19 @@ export default function ProductVariantManager({
                       disabled={submitting || colorsLoading}
                       className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50"
                     >
-                      <option value="">No color</option>
+                      <option value="">{t("fields.noColor")}</option>
 
                       {form.colorId &&
                         !colors.some(
                           (color) => String(color.id) === form.colorId
                         ) && (
                           <option value={form.colorId}>
-                            Previously selected color (unavailable)
+                            {t("fields.previousColorUnavailable")}
                           </option>
                         )}
 
                       {colors.map((color) => (
-                        <option
-                          key={color.id}
-                          value={String(color.id)}
-                        >
+                        <option key={color.id} value={String(color.id)}>
                           {color.name}
                         </option>
                       ))}
@@ -614,7 +600,8 @@ export default function ProductVariantManager({
                           aria-hidden="true"
                           className="size-5 rounded-full border border-slate-200"
                           style={{
-                           backgroundColor: selectedColor.hexCode ?? "#e2e8f0",
+                            backgroundColor:
+                              selectedColor.hexCode ?? "#e2e8f0",
                           }}
                         />
 
@@ -626,7 +613,7 @@ export default function ProductVariantManager({
 
                     {colorsLoading && (
                       <p className="mt-1 text-xs text-slate-500">
-                        Loading colors...
+                        {t("fields.loadingColors")}
                       </p>
                     )}
 
@@ -634,7 +621,7 @@ export default function ProductVariantManager({
                       !colorsError &&
                       colors.length === 0 && (
                         <p className="mt-1 text-xs text-slate-500">
-                          No colors available for this product.
+                          {t("fields.noColorsAvailable")}
                         </p>
                       )}
 
@@ -643,7 +630,9 @@ export default function ProductVariantManager({
                         role="alert"
                         className="mt-1 text-xs text-rose-600"
                       >
-                        Unable to load colors: {colorsError}
+                        {t("fields.loadColorsError", {
+                          error: colorsError,
+                        })}
                       </p>
                     )}
                   </div>
@@ -654,7 +643,7 @@ export default function ProductVariantManager({
                       htmlFor="variant-price"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Price (VND){" "}
+                      {t("fields.price")}{" "}
                       <span className="text-rose-500">*</span>
                     </label>
 
@@ -669,7 +658,7 @@ export default function ProductVariantManager({
                         handleChange("price", event.target.value)
                       }
                       disabled={submitting}
-                      placeholder="Enter price"
+                      placeholder={t("fields.pricePlaceholder")}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
                     />
                   </div>
@@ -680,7 +669,7 @@ export default function ProductVariantManager({
                       htmlFor="variant-sale-price"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Sale Price (VND)
+                      {t("fields.salePrice")}
                     </label>
 
                     <input
@@ -693,7 +682,7 @@ export default function ProductVariantManager({
                         handleChange("salePrice", event.target.value)
                       }
                       disabled={submitting}
-                      placeholder="Leave blank for no sale"
+                      placeholder={t("fields.salePricePlaceholder")}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
                     />
                   </div>
@@ -704,7 +693,7 @@ export default function ProductVariantManager({
                       htmlFor="variant-stock"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Stock{" "}
+                      {t("fields.stock")}{" "}
                       <span className="text-rose-500">*</span>
                     </label>
 
@@ -729,7 +718,7 @@ export default function ProductVariantManager({
                       htmlFor="variant-status"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Status
+                      {t("fields.status")}
                     </label>
 
                     <select
@@ -746,18 +735,22 @@ export default function ProductVariantManager({
                     >
                       {form.status === "OUT_OF_STOCK" && (
                         <option value="OUT_OF_STOCK" disabled>
-                          Out of Stock — managed by inventory
+                          {t("statuses.outOfStock")} —{" "}
+                          {t("fields.managedByInventory")}
                         </option>
                       )}
 
-                      <option value="ACTIVE">Active</option>
-                      <option value="INACTIVE">Inactive</option>
+                      <option value="ACTIVE">
+                        {t("statuses.active")}
+                      </option>
+                      <option value="INACTIVE">
+                        {t("statuses.inactive")}
+                      </option>
                     </select>
 
                     {form.status === "OUT_OF_STOCK" && (
                       <p className="mt-1 text-xs text-slate-500">
-                        The current status will not be changed unless you
-                        select Active or Inactive.
+                        {t("fields.outOfStockHelp")}
                       </p>
                     )}
                   </div>
@@ -773,7 +766,7 @@ export default function ProductVariantManager({
                 disabled={submitting}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancel
+                {t("buttons.cancel")}
               </button>
 
               <button
@@ -783,10 +776,10 @@ export default function ProductVariantManager({
                 className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting
-                  ? "Saving..."
+                  ? t("buttons.saving")
                   : editingId !== null
-                    ? "Update Variant"
-                    : "Create Variant"}
+                    ? t("buttons.updateVariant")
+                    : t("buttons.createVariant")}
               </button>
             </div>
           </section>
@@ -798,12 +791,11 @@ export default function ProductVariantManager({
         <div className="flex flex-col gap-3 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="font-semibold text-slate-900">
-              Existing Variants
+              {t("table.existingTitle")}
             </h3>
 
             <p className="mt-1 text-sm text-slate-500">
-              {variants.length}{" "}
-              {variants.length === 1 ? "variant" : "variants"}
+              {t("page.variantCount", { count: variants.length })}
             </p>
           </div>
 
@@ -813,7 +805,7 @@ export default function ProductVariantManager({
             disabled={loading || submitting || deactivatingId !== null}
             className="self-start rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
           >
-            {loading ? "Refreshing..." : "Refresh"}
+            {loading ? t("buttons.refreshing") : t("buttons.refresh")}
           </button>
         </div>
 
@@ -827,17 +819,20 @@ export default function ProductVariantManager({
         )}
 
         {loading && variants.length === 0 ? (
-          <p className="px-5 py-12 text-center text-sm text-slate-500">
-            Loading variants...
+          <p
+            className="px-5 py-12 text-center text-sm text-slate-500"
+            aria-busy="true"
+          >
+            {t("states.loadingVariants")}
           </p>
         ) : variants.length === 0 ? (
           <div className="px-5 py-12 text-center">
             <h4 className="font-medium text-slate-800">
-              No variants yet
+              {t("states.noVariantsTitle")}
             </h4>
 
             <p className="mt-1 text-sm text-slate-500">
-              Click Create Variant to add the first variant.
+              {t("states.noVariantsDescription")}
             </p>
           </div>
         ) : (
@@ -846,31 +841,31 @@ export default function ProductVariantManager({
               <thead className="bg-slate-50">
                 <tr>
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    SKU
+                    {t("table.sku")}
                   </th>
 
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Storage
+                    {t("table.storage")}
                   </th>
 
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Color
+                    {t("table.color")}
                   </th>
 
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Price
+                    {t("table.price")}
                   </th>
 
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Stock
+                    {t("table.stock")}
                   </th>
 
                   <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Status
+                    {t("table.status")}
                   </th>
 
                   <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Actions
+                    {t("table.actions")}
                   </th>
                 </tr>
               </thead>
@@ -879,6 +874,13 @@ export default function ProductVariantManager({
                 {variants.map((variant) => {
                   const colorName = getColorName(variant, colors);
                   const colorHex = getColorHex(variant, colors);
+
+                  const statusLabel =
+                    variant.status === "ACTIVE"
+                      ? t("statuses.active")
+                      : variant.status === "INACTIVE"
+                        ? t("statuses.inactive")
+                        : t("statuses.outOfStock");
 
                   return (
                     <tr
@@ -891,7 +893,7 @@ export default function ProductVariantManager({
                         </div>
 
                         <div className="mt-1 text-xs text-slate-500">
-                          ID: {variant.id}
+                          {t("table.id", { id: variant.id })}
                         </div>
                       </td>
 
@@ -914,7 +916,7 @@ export default function ProductVariantManager({
                           </div>
                         ) : variant.colorId !== null ? (
                           <span className="text-slate-400">
-                            Color unavailable
+                            {t("table.colorUnavailable")}
                           </span>
                         ) : (
                           "—"
@@ -927,16 +929,16 @@ export default function ProductVariantManager({
                           Number(variant.price) ? (
                           <>
                             <div className="text-sm font-semibold text-rose-600">
-                              {formatPrice(variant.salePrice)}
+                              {formatPrice(variant.salePrice, locale)}
                             </div>
 
                             <div className="mt-1 text-xs text-slate-400 line-through">
-                              {formatPrice(variant.price)}
+                              {formatPrice(variant.price, locale)}
                             </div>
                           </>
                         ) : (
                           <div className="text-sm font-medium text-slate-900">
-                            {formatPrice(variant.price)}
+                            {formatPrice(variant.price, locale)}
                           </div>
                         )}
                       </td>
@@ -951,7 +953,7 @@ export default function ProductVariantManager({
                             variant.status
                           )}`}
                         >
-                          {variant.status.replace(/_/g, " ")}
+                          {statusLabel}
                         </span>
                       </td>
 
@@ -965,23 +967,21 @@ export default function ProductVariantManager({
                             }
                             className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-blue-700 transition hover:border-blue-200 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            Edit
+                            {t("buttons.edit")}
                           </button>
 
                           {variant.status === "ACTIVE" && (
                             <button
                               type="button"
-                              onClick={() =>
-                                void handleDeactivate(variant)
-                              }
+                              onClick={() => void handleDeactivate(variant)}
                               disabled={
                                 submitting || deactivatingId !== null
                               }
                               className="rounded-lg border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               {deactivatingId === variant.id
-                                ? "Deactivating..."
-                                : "Deactivate"}
+                                ? t("buttons.deactivating")
+                                : t("buttons.deactivate")}
                             </button>
                           )}
                         </div>

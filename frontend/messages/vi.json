@@ -1,0 +1,824 @@
+{
+  "HomePage": {
+    "loadingAria": "Đang tải sản phẩm",
+    "errorTitle": "Không thể tải sản phẩm",
+    "heroEyebrow": "Điểm đến công nghệ hiện đại",
+    "heroTitleLine1": "Công nghệ tốt hơn.",
+    "heroTitleLine2": "Mỗi ngày tốt hơn.",
+    "heroDescription": "Khám phá những thiết bị điện tử được tuyển chọn kỹ lưỡng, kết hợp hiệu năng, thiết kế và phong cách sống của bạn.",
+    "exploreCollection": "Khám phá bộ sưu tập",
+    "discover": "Xem có gì ở đây",
+    "latestProducts": "Sản phẩm mới nhất",
+    "madeForEveryday": "Dành cho mỗi ngày",
+    "techFitsLife": "Công nghệ phù hợp với cuộc sống của bạn",
+    "viewProduct": "Xem {name}",
+    "featuredProduct": "Sản phẩm nổi bật",
+    "showProduct": "Hiển thị sản phẩm {index}: {name}",
+    "explorePossibilities": "Khám phá khả năng",
+    "welcome": "Chào mừng ~~~",
+    "findTech": "Tìm công nghệ cho cuộc sống hằng ngày",
+    "carefullySelected": "Tuyển chọn kỹ lưỡng",
+    "collectionTitle": "Tìm món yêu thích tiếp theo của bạn.",
+    "collectionDescription": "Khám phá các sản phẩm mới nhất cho công việc, giải trí và cuộc sống hằng ngày.",
+    "viewAll": "Xem tất cả sản phẩm",
+    "previousProducts": "Sản phẩm trước",
+    "nextProducts": "Sản phẩm tiếp theo",
+    "emptyTitle": "Điều tuyệt vời đang đến.",
+    "emptyDescription": "Bộ sưu tập đang được chuẩn bị. Hãy quay lại sớm để khám phá các sản phẩm có tại Electroshop."
+  },
+  "Header": {
+    "homeAria": "Trang chủ Electroshop",
+    "navAria": "Điều hướng chính",
+    "home": "Trang chủ",
+    "products": "Sản phẩm",
+    "cart": "Giỏ hàng"
+  },
+  "Metadata": {
+    "title": "Electroshop",
+    "description": "Electroshop - Cửa hàng điện tử trực tuyến"
+  },
+  "ProductCard": {
+    "imageUnavailable": "Chưa có hình ảnh",
+    "sale": "Giảm giá",
+    "priceUnavailable": "Chưa có giá",
+    "viewProduct": "Xem sản phẩm"
+  },
+  "UserMenu": {
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "adminDashboard": "Trang quản trị",
+    "myAccount": "Tài khoản của tôi",
+    "orders": "Đơn hàng",
+    "logout": "Đăng xuất"
+  },
+  "LogoutButton": {
+    "logout": "Đăng xuất"
+  },
+  "Navigation": {
+    "mainNavigation": "Điều hướng chính",
+    "storeHomeAriaLabel": "Trang chủ Electroshop",
+    "home": "Trang chủ",
+    "products": "Sản phẩm",
+    "cart": "Giỏ hàng",
+    "language": "Ngôn ngữ",
+    "languages": {
+      "en": "Tiếng Anh",
+      "vi": "Tiếng Việt",
+      "zh-TW": "Tiếng Trung phồn thể"
+    }
+  },
+  "Login": {
+    "title": "Chào mừng ~~~",
+    "description": "Đăng nhập vào tài khoản Electroshop để tiếp tục.",
+    "emailLabel": "Địa chỉ email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu của bạn",
+    "submit": "Đăng nhập",
+    "submitting": "Đang đăng nhập...",
+    "footerNote": "Đăng nhập để quản lý tài khoản và theo dõi đơn hàng.",
+    "toastLoading": "Đang đăng nhập...",
+    "toastSuccess": "Đăng nhập thành công!",
+    "toastError": "Không thể đăng nhập. Vui lòng kiểm tra email và mật khẩu rồi thử lại."
+  },
+  "Register": {
+    "title": "Tạo tài khoản",
+    "description": "Tham gia Electroshop và bắt đầu mua sắm ngay hôm nay.",
+    "nameLabel": "Họ và tên",
+    "namePlaceholder": "Nhập họ và tên của bạn",
+    "emailLabel": "Địa chỉ email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "Tạo mật khẩu",
+    "confirmPasswordLabel": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+    "avatarLabel": "URL ảnh đại diện",
+    "optional": "(Không bắt buộc)",
+    "avatarPlaceholder": "URL hình ảnh",
+    "submit": "Tạo tài khoản",
+    "submitting": "Đang tạo tài khoản...",
+    "alreadyHaveAccount": "Bạn đã có tài khoản?",
+    "signIn": "Đăng nhập",
+    "footerNote": "Tạo tài khoản để quản lý hồ sơ và đơn hàng.",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp.",
+    "toastLoading": "Đang tạo tài khoản...",
+    "toastSuccess": "Tạo tài khoản thành công!",
+    "toastSuccessDescription": "Bạn có thể đăng nhập bằng tài khoản mới.",
+    "toastError": "Đăng ký thất bại. Vui lòng thử lại."
+  },
+  "ProductForm": {
+    "title": "Thông tin sản phẩm",
+    "subtitle": "Nhập các thông tin cơ bản của sản phẩm.",
+    "productName": "Tên sản phẩm",
+    "productNamePlaceholder": "Nhập tên sản phẩm",
+    "brand": "Thương hiệu",
+    "selectBrand": "Chọn thương hiệu",
+    "category": "Danh mục",
+    "selectCategory": "Chọn danh mục",
+    "description": "Mô tả",
+    "optional": "(Không bắt buộc)",
+    "descriptionPlaceholder": "Mô tả đặc điểm và lợi ích của sản phẩm",
+    "requiredFields": "Các trường bắt buộc",
+    "cancel": "Hủy",
+    "createProduct": "Tạo sản phẩm",
+    "creatingProduct": "Đang tạo sản phẩm...",
+    "updateProduct": "Cập nhật sản phẩm",
+    "updatingProduct": "Đang cập nhật...",
+    "nameRequired": "Vui lòng nhập tên sản phẩm.",
+    "brandRequired": "Vui lòng chọn thương hiệu.",
+    "categoryRequired": "Vui lòng chọn danh mục."
+  },
+  "ProductGallery": {
+    "mainImage": "Ảnh chính",
+    "noImagesAvailable": "Không có hình ảnh",
+    "productImages": "Hình ảnh sản phẩm",
+    "imagesForAllColors": "Hình ảnh của tất cả màu sắc hiện có",
+    "imageCount": "{count} hình ảnh",
+    "imageThumbnailsLabel": "Tất cả ảnh thu nhỏ của sản phẩm",
+    "viewImage": "Xem ảnh {index} trên tổng số {total} ảnh",
+    "viewImageWithColor": "Xem ảnh {index} trên tổng số {total} ảnh, màu: {color}",
+    "imageAlt": "{productName} - ảnh {index}",
+    "noProductImages": "Chưa có hình ảnh sản phẩm.",
+    "loadingProductImages": "Đang tải hình ảnh sản phẩm...",
+    "refreshError": "Không thể tải lại hình ảnh sản phẩm. Các hình ảnh hiện có vẫn được hiển thị."
+  },
+  "ProductInfo": {
+    "ratedOutOfFive": "Được đánh giá {rating}/5",
+    "noRatings": "Chưa có đánh giá",
+    "reviewCount": "{count} đánh giá",
+    "noReviews": "Chưa có bài đánh giá",
+    "loadingConfigurations": "Đang tải các cấu hình sản phẩm...",
+    "configurationLoadError": "Không thể tải cấu hình sản phẩm. Vui lòng tải lại trang.",
+    "unavailable": "Sản phẩm hiện không có sẵn.",
+    "storage": "Dung lượng",
+    "color": "Màu sắc",
+    "sku": "SKU",
+    "selectOptionsHint": "Chọn tùy chọn để xem chính xác giá và tình trạng hàng.",
+    "from": "Từ",
+    "priceUnavailable": "Chưa có giá",
+    "youSave": "Bạn tiết kiệm được {amount}",
+    "selectOptionsForStock": "Chọn tùy chọn để kiểm tra tồn kho",
+    "outOfStock": "Hết hàng",
+    "onlyLeftInStock": "Chỉ còn {count} sản phẩm",
+    "inStock": "Còn hàng",
+    "description": "Mô tả sản phẩm",
+    "noDescription": "Chưa có mô tả sản phẩm.",
+    "quantity": "Số lượng",
+    "decreaseQuantity": "Giảm số lượng",
+    "increaseQuantity": "Tăng số lượng",
+    "selectedQuantity": "Số lượng đã chọn",
+    "selectOptionsFirst": "Vui lòng chọn tùy chọn trước",
+    "unitsAvailable": "Còn {count} sản phẩm",
+    "currentlyUnavailable": "Hiện không có sẵn",
+    "addingToCart": "Đang thêm vào giỏ hàng...",
+    "selectOptions": "Chọn tùy chọn",
+    "addToCart": "Thêm vào giỏ hàng",
+    "trustLine": "Thanh toán an toàn · Sản phẩm chất lượng · Hỗ trợ khách hàng",
+    "toast": {
+      "verifyError": "Không thể kiểm tra cấu hình sản phẩm. Vui lòng thử lại.",
+      "selectRequired": "Vui lòng chọn đầy đủ tùy chọn sản phẩm.",
+      "configurationOutOfStock": "Cấu hình sản phẩm này đã hết hàng.",
+      "addedToCart": "Đã thêm sản phẩm vào giỏ hàng.",
+      "addedDescription": "{name} — {configuration}",
+      "addError": "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại."
+    }
+  },
+  "ProductImageManager": {
+    "aria": {
+      "productImageManagement": "Quản lý hình ảnh sản phẩm",
+      "closeImageEditor": "Đóng trình chỉnh sửa ảnh",
+      "chooseNewProductColor": "Chọn màu sản phẩm mới"
+    },
+    "productManagement": "Quản lý sản phẩm",
+    "title": "Hình ảnh sản phẩm",
+    "subtitle": "Quản lý hình ảnh, văn bản thay thế, thứ tự hiển thị và ảnh chính cho từng màu.",
+    "imageCount": "{count} hình ảnh",
+    "addImage": "Thêm hình ảnh",
+    "imageLibrary": "Thư viện hình ảnh",
+    "imageLibrarySubtitle": "Xem và quản lý tất cả hình ảnh của sản phẩm này.",
+    "loadingImages": "Đang tải hình ảnh sản phẩm...",
+    "loadImagesErrorTitle": "Không thể tải hình ảnh sản phẩm",
+    "noProductImages": "Chưa có hình ảnh sản phẩm",
+    "addFirstImageSubtitle": "Thêm hình ảnh đầu tiên để bắt đầu.",
+    "addFirstImage": "Thêm hình ảnh đầu tiên",
+    "productImageAlt": "Hình ảnh sản phẩm",
+    "primary": "Ảnh chính",
+    "untitledImage": "Hình ảnh chưa có tên",
+    "orderLabel": "Thứ tự: {order}",
+    "colorLabel": "Màu sắc: {color}",
+    "edit": "Chỉnh sửa",
+    "deleting": "Đang xóa...",
+    "delete": "Xóa",
+    "updating": "Đang cập nhật...",
+    "setAsPrimary": "Đặt làm ảnh chính",
+    "editImage": "Chỉnh sửa hình ảnh",
+    "addImageDescription": "Thêm hình ảnh mới cho sản phẩm này.",
+    "editImageDescription": "Cập nhật thông tin và cài đặt hiển thị hình ảnh.",
+    "imageUrl": "URL hình ảnh",
+    "alternativeText": "Văn bản thay thế",
+    "alternativeTextPlaceholder": "Mô tả hình ảnh sản phẩm",
+    "alternativeTextHelp": "Giúp trình đọc màn hình mô tả hình ảnh.",
+    "applyToColor": "Áp dụng cho màu",
+    "cancel": "Hủy",
+    "addNewColor": "+ Thêm màu mới",
+    "loadingProductColors": "Đang tải màu sản phẩm...",
+    "generalImageNoColor": "Ảnh sản phẩm chung (không gắn màu)",
+    "selectedColorUnavailable": "Màu đã chọn không còn khả dụng",
+    "noExistingColors": "Chưa có màu nào.",
+    "createNewColor": "Tạo màu mới",
+    "createColorDescription": "Tạo màu cho sản phẩm này để sử dụng cho hình ảnh.",
+    "colorName": "Tên màu",
+    "colorNamePlaceholder": "Ví dụ: Xanh đêm",
+    "color": "Màu sắc",
+    "displayOrder": "Thứ tự hiển thị",
+    "setAsPrimaryImage": "Đặt làm ảnh chính",
+    "primaryImageHelp": "Mỗi nhóm màu có một ảnh chính riêng. Ảnh chung của sản phẩm thuộc một nhóm riêng.",
+    "saving": "Đang lưu...",
+    "saveChanges": "Lưu thay đổi",
+    "general": "Chung",
+    "colorNumber": "Màu #{id}",
+    "creatingColor": "Đang tạo...",
+    "createColor": "Tạo màu",
+    "colorsLoadWarning": "Không thể tải các màu hiện có. Bạn vẫn có thể thử tạo màu mới.",
+    "chooseColorHelp": "Chọn màu có sẵn, tạo màu mới hoặc chọn ảnh chung.",
+    "validation": {
+      "colorNameRequired": "Vui lòng nhập tên màu.",
+      "invalidColor": "Vui lòng chọn màu hợp lệ.",
+      "duplicateColorName": "Tên màu này đã tồn tại cho sản phẩm.",
+      "imageUrlRequired": "Vui lòng nhập URL hình ảnh.",
+      "invalidImageUrl": "Vui lòng nhập URL hình ảnh HTTP hoặc HTTPS hợp lệ.",
+      "validColorRequired": "Vui lòng chọn màu sản phẩm hợp lệ.",
+      "colorUnavailable": "Màu đã chọn không khả dụng. Vui lòng chọn màu hiện có.",
+      "invalidSortOrder": "Thứ tự phải là số nguyên không âm."
+    },
+    "fallbackErrors": {
+      "loadColors": "Không thể tải màu sản phẩm.",
+      "createColor": "Không thể tạo màu sản phẩm.",
+      "saveImage": "Không thể lưu hình ảnh sản phẩm."
+    },
+    "confirmDeleteImage": "Bạn có chắc chắn muốn xóa hình ảnh này không?",
+    "toast": {
+      "creatingColor": "Đang tạo màu sản phẩm...",
+      "colorCreated": "Tạo màu sản phẩm thành công.",
+      "createColorError": "Không thể tạo màu sản phẩm.",
+      "addingImage": "Đang thêm hình ảnh sản phẩm...",
+      "updatingImage": "Đang cập nhật hình ảnh sản phẩm...",
+      "imageAdded": "Đã thêm hình ảnh sản phẩm thành công.",
+      "imageUpdated": "Đã cập nhật hình ảnh sản phẩm thành công.",
+      "saveImageError": "Không thể lưu hình ảnh sản phẩm. Vui lòng thử lại.",
+      "updatingPrimary": "Đang cập nhật ảnh chính...",
+      "primaryUpdated": "Đã cập nhật ảnh chính thành công.",
+      "primaryUpdateError": "Không thể cập nhật ảnh chính. Vui lòng thử lại.",
+      "deletingImage": "Đang xóa hình ảnh sản phẩm...",
+      "imageDeleted": "Đã xóa hình ảnh sản phẩm thành công.",
+      "deleteImageError": "Không thể xóa hình ảnh sản phẩm. Vui lòng thử lại."
+    }
+  },
+  "ProductPromotionalVideo": {
+    "sectionLabel": "Video giới thiệu sản phẩm",
+    "eyebrow": "Khám phá sản phẩm",
+    "heading": "Video giới thiệu sản phẩm",
+    "unsupportedMessage": "Trình duyệt của bạn không hỗ trợ phát video."
+  },
+  "ProductSpecificationManager": {
+    "page": {
+      "title": "Thông số sản phẩm",
+      "count": "{count} thông số"
+    },
+    "buttons": {
+      "add": "Thêm thông số",
+      "refresh": "Làm mới",
+      "refreshing": "Đang làm mới...",
+      "tryAgain": "Thử lại",
+      "edit": "Chỉnh sửa",
+      "deleting": "Đang xóa...",
+      "delete": "Xóa",
+      "cancel": "Hủy",
+      "saving": "Đang lưu...",
+      "updateSpecification": "Cập nhật thông số",
+      "addSpecification": "Thêm thông số"
+    },
+    "states": {
+      "loading": "Đang tải thông số...",
+      "emptyTitle": "Chưa có thông số nào",
+      "emptyDescription": "Nhấn Thêm thông số để tạo thông số đầu tiên."
+    },
+    "table": {
+      "group": "Nhóm",
+      "label": "Tên thông số",
+      "value": "Giá trị",
+      "order": "Thứ tự",
+      "actions": "Thao tác",
+      "ungrouped": "Chưa phân nhóm",
+      "id": "Mã ID: {id}"
+    },
+    "modal": {
+      "eyebrow": "Quản lý sản phẩm",
+      "addTitle": "Thêm thông số",
+      "editTitle": "Chỉnh sửa thông số",
+      "description": "Phân loại thông tin kỹ thuật theo các nhóm như Màn hình, Hiệu năng, Pin và Kết nối.",
+      "closeLabel": "Đóng biểu mẫu thông số"
+    },
+    "fields": {
+      "groupName": "Tên nhóm",
+      "optional": "Không bắt buộc",
+      "groupPlaceholder": "Ví dụ: Màn hình",
+      "sortOrder": "Thứ tự hiển thị",
+      "sortOrderHelp": "Số nhỏ hơn sẽ được hiển thị trước.",
+      "label": "Tên thông số",
+      "labelPlaceholder": "Ví dụ: Kích thước màn hình",
+      "value": "Giá trị",
+      "valuePlaceholder": "Ví dụ: OLED 6,7 inch"
+    },
+    "errors": {
+      "invalidProductId": "ID sản phẩm không hợp lệ.",
+      "labelRequired": "Vui lòng nhập tên thông số.",
+      "valueRequired": "Vui lòng nhập giá trị thông số.",
+      "invalidSortOrder": "Thứ tự phải là số nguyên không âm.",
+      "generic": "Đã xảy ra lỗi. Vui lòng thử lại."
+    },
+    "confirmDelete": "Bạn có chắc muốn xóa thông số \"{label}\" không?",
+    "toast": {
+      "loadingUpdate": "Đang cập nhật thông số sản phẩm...",
+      "loadingAdd": "Đang thêm thông số sản phẩm...",
+      "updated": "Cập nhật thông số sản phẩm thành công.",
+      "added": "Thêm thông số sản phẩm thành công.",
+      "refreshFailedAfterSave": "Đã lưu nhưng không thể làm mới danh sách thông số.",
+      "updateFailed": "Không thể cập nhật thông số sản phẩm.",
+      "addFailed": "Không thể thêm thông số sản phẩm.",
+      "loadingDelete": "Đang xóa thông số sản phẩm...",
+      "deleted": "Xóa thông số sản phẩm thành công.",
+      "refreshFailedAfterDelete": "Đã xóa nhưng không thể làm mới danh sách thông số.",
+      "deleteFailed": "Không thể xóa thông số sản phẩm."
+    }
+  },
+  "ProductVariantManager": {
+    "page": {
+      "eyebrow": "Quản lý sản phẩm",
+      "title": "Biến thể sản phẩm",
+      "description": "Quản lý SKU, dung lượng, màu sắc, giá bán, tồn kho và trạng thái của từng biến thể.",
+      "variantCount": "{count} biến thể"
+    },
+    "modal": {
+      "createTitle": "Tạo biến thể",
+      "editTitle": "Chỉnh sửa biến thể",
+      "createDescription": "Nhập thông tin cho biến thể mới.",
+      "editDescription": "Cập nhật biến thể #{id}.",
+      "closeLabel": "Đóng biểu mẫu biến thể"
+    },
+    "fields": {
+      "storage": "Dung lượng",
+      "storagePlaceholder": "Ví dụ: 256GB",
+      "color": "Màu sắc",
+      "noColor": "Không chọn màu",
+      "previousColorUnavailable": "Màu đã chọn trước đó (không khả dụng)",
+      "loadingColors": "Đang tải màu sắc...",
+      "noColorsAvailable": "Sản phẩm này chưa có màu sắc nào.",
+      "loadColorsError": "Không thể tải màu sắc: {error}",
+      "price": "Giá bán (VND)",
+      "pricePlaceholder": "Nhập giá bán",
+      "salePrice": "Giá khuyến mãi (VND)",
+      "salePricePlaceholder": "Để trống nếu không giảm giá",
+      "stock": "Tồn kho",
+      "status": "Trạng thái",
+      "managedByInventory": "do hệ thống tồn kho quản lý",
+      "outOfStockHelp": "Trạng thái hiện tại sẽ không thay đổi trừ khi bạn chọn Đang bán hoặc Ngừng bán."
+    },
+    "statuses": {
+      "active": "Đang bán",
+      "inactive": "Ngừng bán",
+      "outOfStock": "Hết hàng"
+    },
+    "buttons": {
+      "createVariant": "Tạo biến thể",
+      "cancel": "Hủy",
+      "saving": "Đang lưu...",
+      "updateVariant": "Cập nhật biến thể",
+      "refresh": "Làm mới",
+      "refreshing": "Đang làm mới...",
+      "edit": "Chỉnh sửa",
+      "deactivating": "Đang vô hiệu hóa...",
+      "deactivate": "Vô hiệu hóa"
+    },
+    "table": {
+      "existingTitle": "Các biến thể hiện có",
+      "sku": "SKU",
+      "storage": "Dung lượng",
+      "color": "Màu sắc",
+      "price": "Giá bán",
+      "stock": "Tồn kho",
+      "status": "Trạng thái",
+      "actions": "Thao tác",
+      "id": "ID: {id}",
+      "colorUnavailable": "Màu không khả dụng"
+    },
+    "states": {
+      "loadingVariants": "Đang tải biến thể...",
+      "noVariantsTitle": "Chưa có biến thể nào",
+      "noVariantsDescription": "Nhấn Tạo biến thể để thêm biến thể đầu tiên."
+    },
+    "errors": {
+      "invalidProductId": "ID sản phẩm không hợp lệ.",
+      "priceMustBePositive": "Giá bán phải lớn hơn 0.",
+      "invalidSalePrice": "Giá khuyến mãi phải từ 0 đến giá bán thông thường.",
+      "invalidStock": "Tồn kho phải là số nguyên không âm.",
+      "invalidColor": "Vui lòng chọn màu hợp lệ.",
+      "colorUnavailable": "Màu đã chọn không khả dụng. Vui lòng chọn màu khác.",
+      "generic": "Đã xảy ra lỗi. Vui lòng thử lại."
+    },
+    "confirmDeactivate": "Bạn có chắc muốn vô hiệu hóa biến thể \"{sku}\" không?",
+    "toast": {
+      "loadingUpdate": "Đang cập nhật biến thể sản phẩm...",
+      "loadingCreate": "Đang tạo biến thể sản phẩm...",
+      "updated": "Cập nhật biến thể sản phẩm thành công.",
+      "created": "Tạo biến thể sản phẩm thành công.",
+      "refreshFailedAfterSave": "Đã lưu biến thể nhưng không thể làm mới danh sách. Vui lòng nhấn Làm mới để thử lại.",
+      "updateFailed": "Không thể cập nhật biến thể sản phẩm. Vui lòng thử lại.",
+      "createFailed": "Không thể tạo biến thể sản phẩm. Vui lòng thử lại.",
+      "loadingDeactivate": "Đang vô hiệu hóa biến thể sản phẩm...",
+      "deactivated": "Vô hiệu hóa biến thể sản phẩm thành công.",
+      "refreshFailedAfterDeactivate": "Đã vô hiệu hóa biến thể nhưng không thể làm mới danh sách. Vui lòng nhấn Làm mới để thử lại.",
+      "deactivateFailed": "Không thể vô hiệu hóa biến thể sản phẩm. Vui lòng thử lại."
+    }
+  },
+  "ProductVideoManager": {
+    "sectionLabel": "Quản lý video sản phẩm",
+    "header": {
+      "eyebrow": "Quản lý sản phẩm",
+      "title": "Video sản phẩm",
+      "description": "Quản lý video giới thiệu của sản phẩm này.",
+      "videoCount": "{count} video"
+    },
+    "buttons": {
+      "addVideo": "Thêm video",
+      "edit": "Chỉnh sửa",
+      "deleting": "Đang xóa...",
+      "delete": "Xóa",
+      "openVideo": "Mở video trong tab mới",
+      "cancel": "Hủy",
+      "saving": "Đang lưu...",
+      "saveChanges": "Lưu thay đổi"
+    },
+    "library": {
+      "title": "Thư viện video",
+      "description": "Xem trước và quản lý video giới thiệu được liên kết với sản phẩm này."
+    },
+    "empty": {
+      "title": "Chưa có video giới thiệu",
+      "description": "Thêm video để bắt đầu."
+    },
+    "player": {
+      "unsupportedMessage": "Trình duyệt của bạn không hỗ trợ phát video HTML.",
+      "badge": "Video giới thiệu",
+      "available": "Video khả dụng"
+    },
+    "modal": {
+      "addTitle": "Thêm video",
+      "editTitle": "Chỉnh sửa video",
+      "addDescription": "Thêm video giới thiệu cho sản phẩm này.",
+      "editDescription": "Thay thế video giới thiệu hiện tại.",
+      "closeLabel": "Đóng trình chỉnh sửa video"
+    },
+    "source": {
+      "title": "Nguồn video",
+      "fileTitle": "Tải từ máy tính",
+      "fileDescription": "Chọn một tệp video từ thiết bị của bạn.",
+      "urlTitle": "Nhập từ URL",
+      "urlDescription": "Cung cấp đường dẫn trực tiếp đến video."
+    },
+    "fields": {
+      "file": "Tệp video",
+      "url": "URL video",
+      "selectedFile": "Đã chọn: {fileName}",
+      "urlHelp": "Sử dụng URL video HTTP hoặc HTTPS trực tiếp mà Cloudinary có thể truy cập."
+    },
+    "errors": {
+      "selectFile": "Vui lòng chọn tệp video.",
+      "invalidFile": "Vui lòng chọn tệp video hợp lệ.",
+      "urlRequired": "URL video là bắt buộc.",
+      "invalidUrl": "Vui lòng nhập URL video HTTP hoặc HTTPS hợp lệ.",
+      "saveGeneric": "Không thể lưu video sản phẩm.",
+      "saveFailed": "Không thể lưu video sản phẩm. Vui lòng thử lại."
+    },
+    "confirmDelete": "Bạn có chắc muốn xóa video giới thiệu của sản phẩm \"{productName}\" không?",
+    "toast": {
+      "loadingReplace": "Đang thay thế video sản phẩm...",
+      "loadingAdd": "Đang thêm video sản phẩm...",
+      "updated": "Cập nhật video sản phẩm thành công.",
+      "added": "Thêm video sản phẩm thành công.",
+      "loadingDelete": "Đang xóa video sản phẩm...",
+      "deleted": "Xóa video sản phẩm thành công.",
+      "saveFailed": "Không thể lưu video sản phẩm. Vui lòng thử lại.",
+      "deleteFailed": "Không thể xóa video sản phẩm. Vui lòng thử lại."
+    }
+  },
+  "TechnicalSpecifications": {
+    "sectionLabel": "Thông số kỹ thuật",
+    "eyebrow": "Chi tiết sản phẩm",
+    "title": "Thông số kỹ thuật",
+    "generalGroup": "Thông tin chung",
+    "loadingLabel": "Đang tải thông số kỹ thuật",
+    "tryAgain": "Thử lại",
+    "emptyMessage": "Sản phẩm này hiện chưa có thông số kỹ thuật."
+  },
+  "ProductsPage": {
+    "loading": {
+      "page": "Đang tải sản phẩm"
+    },
+    "heading": {
+      "eyebrow": "Khám phá bộ sưu tập",
+      "title": "Tất cả sản phẩm",
+      "description": "Khám phá các thiết bị điện tử phục vụ công việc, giải trí và cuộc sống hằng ngày."
+    },
+    "searchSort": {
+      "ariaLabel": "Tìm kiếm và sắp xếp sản phẩm",
+      "searchLabel": "Tìm kiếm sản phẩm",
+      "searchPlaceholder": "Tìm theo tên sản phẩm...",
+      "sortLabel": "Sắp xếp theo"
+    },
+    "sort": {
+      "default": "Thứ tự mặc định",
+      "newest": "Mới nhất",
+      "priceAscending": "Giá: Từ thấp đến cao",
+      "priceDescending": "Giá: Từ cao đến thấp"
+    },
+    "errors": {
+      "invalidMinimumPrice": "Giá tối thiểu phải là số hợp lệ không âm.",
+      "invalidMaximumPrice": "Giá tối đa phải là số hợp lệ không âm.",
+      "minimumGreaterThanMaximum": "Giá tối thiểu không thể lớn hơn giá tối đa."
+    },
+    "filters": {
+      "title": "Bộ lọc",
+      "clearAll": "Xóa tất cả",
+      "category": "Danh mục",
+      "allCategories": "Tất cả danh mục",
+      "brand": "Thương hiệu",
+      "allBrands": "Tất cả thương hiệu",
+      "priceRange": "Khoảng giá",
+      "minimumPrice": "Giá tối thiểu",
+      "maximumPrice": "Giá tối đa",
+      "minimumPlaceholder": "Tối thiểu",
+      "maximumPlaceholder": "Tối đa"
+    },
+    "results": {
+      "ariaLabel": "Kết quả sản phẩm",
+      "searchTitle": "Kết quả tìm kiếm",
+      "exploreTitle": "Khám phá sản phẩm",
+      "summary": "{count} sản phẩm · Trang {page}/{totalPages}"
+    },
+    "priceError": {
+      "title": "Kiểm tra khoảng giá",
+      "description": "Vui lòng sửa bộ lọc giá ở trên để xem các sản phẩm phù hợp."
+    },
+    "errorState": {
+      "title": "Không thể tải sản phẩm"
+    },
+    "empty": {
+      "title": "Không tìm thấy sản phẩm",
+      "description": "Hãy thử từ khóa khác hoặc điều chỉnh bộ lọc để tìm sản phẩm phù hợp."
+    },
+    "pagination": {
+      "ariaLabel": "Phân trang sản phẩm",
+      "previousAriaLabel": "Trang trước",
+      "previous": "Trước",
+      "goToPage": "Đến trang {page}",
+      "nextAriaLabel": "Trang tiếp theo",
+      "next": "Tiếp"
+    }
+  },
+  "AdminProductsPage": {
+    "loading": {
+      "products": "Đang tải sản phẩm...",
+      "loadingProductsPage": "Đang tải sản phẩm..."
+    },
+    "header": {
+      "eyebrow": "Quản trị Electroshop",
+      "title": "Sản phẩm",
+      "description": "Quản lý sản phẩm, giá bán và tồn kho theo từng biến thể.",
+      "lowStockDescription": "Hiển thị các sản phẩm đang hoạt động có ít nhất một biến thể còn không quá 10 đơn vị.",
+      "lowStockBadge": "Đang bật bộ lọc tồn kho thấp"
+    },
+    "buttons": {
+      "addProduct": "Thêm sản phẩm",
+      "tryAgain": "Thử lại",
+      "edit": "Chỉnh sửa",
+      "deleting": "Đang xóa...",
+      "delete": "Xóa",
+      "manage": "Quản lý"
+    },
+    "filters": {
+      "ariaLabel": "Bộ lọc sản phẩm",
+      "title": "Tìm kiếm và bộ lọc",
+      "searchPlaceholder": "Tìm kiếm sản phẩm...",
+      "searchAriaLabel": "Tìm kiếm sản phẩm",
+      "categoryAriaLabel": "Lọc theo danh mục",
+      "allCategories": "Tất cả danh mục",
+      "brandAriaLabel": "Lọc theo thương hiệu",
+      "allBrands": "Tất cả thương hiệu",
+      "sortAriaLabel": "Sắp xếp sản phẩm"
+    },
+    "sort": {
+      "label": "Sắp xếp theo",
+      "newest": "Mới nhất",
+      "priceAscending": "Giá: Từ thấp đến cao",
+      "priceDescending": "Giá: Từ cao đến thấp"
+    },
+    "table": {
+      "ariaLabel": "Danh sách sản phẩm",
+      "title": "Kho sản phẩm",
+      "description": "Xem và quản lý thông tin sản phẩm cùng tồn kho của từng biến thể.",
+      "productsOnPage": "{count} sản phẩm trên trang này",
+      "product": "Sản phẩm",
+      "sku": "SKU",
+      "brand": "Thương hiệu",
+      "category": "Danh mục",
+      "price": "Giá bán",
+      "stock": "Tồn kho",
+      "status": "Trạng thái",
+      "actions": "Thao tác"
+    },
+    "empty": {
+      "title": "Không tìm thấy sản phẩm",
+      "description": "Hãy thay đổi từ khóa tìm kiếm hoặc điều chỉnh bộ lọc.",
+      "lowStockTitle": "Không tìm thấy sản phẩm tồn kho thấp",
+      "lowStockDescription": "Không có sản phẩm phù hợp nào có biến thể tồn kho bằng hoặc thấp hơn ngưỡng cảnh báo."
+    },
+    "stock": {
+      "noActiveVariants": "Không có biến thể đang hoạt động",
+      "outOfStock": "Hết hàng",
+      "totalUnits": "Số lượng {count}",
+      "noActiveVariantPrice": "Không có biến thể đang hoạt động"
+    },
+    "statuses": {
+      "active": "Đang hoạt động",
+      "inactive": "Ngừng hoạt động"
+    },
+    "errorState": {
+      "title": "Không thể tải sản phẩm"
+    },
+    "links": {
+      "video": "Video",
+      "images": "Hình ảnh",
+      "variants": "Biến thể",
+      "specifications": "Thông số",
+      "manageVideoAria": "Quản lý video giới thiệu của {name}",
+      "manageVideoTitle": "Quản lý video giới thiệu sản phẩm",
+      "manageImagesAria": "Quản lý hình ảnh của {name}",
+      "manageImagesTitle": "Quản lý hình ảnh sản phẩm",
+      "manageVariantsAria": "Quản lý biến thể của {name}",
+      "manageVariantsTitle": "Quản lý biến thể sản phẩm",
+      "manageSpecificationsAria": "Quản lý thông số của {name}",
+      "manageSpecificationsTitle": "Quản lý thông số sản phẩm"
+    },
+    "pagination": {
+      "page": "Trang",
+      "of": "trên",
+      "previous": "Trước",
+      "next": "Tiếp"
+    },
+    "confirmDelete": "Bạn có chắc chắn muốn xóa sản phẩm này không?",
+    "toast": {
+      "deleting": "Đang xóa sản phẩm...",
+      "deleted": "Xóa sản phẩm thành công.",
+      "deleteFailed": "Không thể xóa sản phẩm. Vui lòng thử lại.",
+      "refreshFailedAfterDelete": "Đã xóa sản phẩm nhưng không thể làm mới danh sách. Vui lòng thử lại."
+    }
+  },
+  "AdminProductModal": {
+    "loadingProduct": "Đang tải thông tin sản phẩm...",
+    "toast": {
+      "creating": "Đang tạo sản phẩm...",
+      "created": "Tạo sản phẩm thành công.",
+      "createdDescription": "Tiếp tục cấu hình các phiên bản và hình ảnh sản phẩm.",
+      "createFailed": "Không thể tạo sản phẩm.",
+      "updating": "Đang cập nhật sản phẩm...",
+      "updated": "Cập nhật thông tin sản phẩm thành công.",
+      "updateFailed": "Không thể cập nhật sản phẩm."
+    },
+    "errors": {
+      "createFallback": "Không thể tạo sản phẩm. Vui lòng thử lại.",
+      "invalidProductId": "ID sản phẩm không hợp lệ.",
+      "updateFallback": "Không thể cập nhật sản phẩm. Vui lòng thử lại."
+    },
+    "loadFailedTitle": "Không thể tải sản phẩm",
+    "productNotFound": "Không tìm thấy sản phẩm.",
+    "closeButton": "Đóng",
+    "createTitle": "Thêm sản phẩm",
+    "editTitle": "Chỉnh sửa sản phẩm",
+    "closeLabel": "Đóng hộp thoại sản phẩm"
+  },
+  "CreateProductPage": {
+    "header": {
+      "eyebrow": "Quản trị Electroshop",
+      "title": "Thêm sản phẩm",
+      "description": "Tạo sản phẩm, sau đó cấu hình các phiên bản và hình ảnh."
+    },
+    "buttons": {
+      "backToProducts": "Quay lại danh sách sản phẩm"
+    },
+    "toast": {
+      "creating": "Đang tạo sản phẩm...",
+      "created": "Tạo sản phẩm thành công.",
+      "createdDescription": "Tiếp tục cấu hình các phiên bản và hình ảnh sản phẩm.",
+      "createFailed": "Không thể tạo sản phẩm."
+    },
+    "errors": {
+      "createFallback": "Không thể tạo sản phẩm. Vui lòng thử lại."
+    }
+  },
+  "EditProductPage": {
+    "loading": {
+      "label": "Đang tải sản phẩm"
+    },
+    "header": {
+      "eyebrow": "Quản trị Electroshop",
+      "title": "Chỉnh sửa sản phẩm",
+      "description": "Cập nhật thông tin chung của sản phẩm."
+    },
+    "buttons": {
+      "backToProducts": "Quay lại danh sách sản phẩm"
+    },
+    "toast": {
+      "updating": "Đang cập nhật sản phẩm...",
+      "updated": "Cập nhật thông tin sản phẩm thành công.",
+      "updateFailed": "Không thể cập nhật sản phẩm."
+    },
+    "errors": {
+      "invalidProductId": "ID sản phẩm không hợp lệ.",
+      "updateFallback": "Không thể cập nhật sản phẩm. Vui lòng thử lại."
+    },
+    "errorState": {
+      "title": "Không thể tải sản phẩm",
+      "productNotFound": "Không tìm thấy sản phẩm."
+    }
+  },
+  "ProductImagesPage": {
+    "loading": {
+      "label": "Đang tải hình ảnh sản phẩm"
+    },
+    "invalidProduct": {
+      "title": "ID sản phẩm không hợp lệ",
+      "description": "Vui lòng chọn sản phẩm hợp lệ để quản lý hình ảnh."
+    },
+    "header": {
+      "eyebrow": "Quản trị Electroshop",
+      "title": "Quản lý hình ảnh sản phẩm",
+      "description": "Quản lý hình ảnh cho sản phẩm #{id}.",
+      "productId": "ID sản phẩm: {id}"
+    },
+    "buttons": {
+      "backToProducts": "Quay lại danh sách sản phẩm"
+    }
+  },
+  "ProductSpecificationsPage": {
+    "loading": {
+      "label": "Đang tải thông số sản phẩm"
+    },
+    "header": {
+      "eyebrow": "Quản trị Electroshop",
+      "title": "Thông số sản phẩm",
+      "description": "Quản lý thông tin kỹ thuật và thông số của sản phẩm này.",
+      "productId": "ID sản phẩm: {id}"
+    },
+    "buttons": {
+      "backToProducts": "Quay lại danh sách sản phẩm"
+    },
+    "invalidProduct": {
+      "description": "ID sản phẩm không hợp lệ. Vui lòng quay lại danh sách sản phẩm và chọn một sản phẩm hợp lệ."
+    }
+  },
+  "ProductVariantsPage": {
+    "loading": {
+      "label": "Đang tải biến thể sản phẩm"
+    },
+    "header": {
+      "eyebrow": "Quản trị Electroshop",
+      "title": "Biến thể sản phẩm",
+      "productId": "ID sản phẩm: {id}"
+    },
+    "buttons": {
+      "backToProducts": "Quay lại danh sách sản phẩm"
+    },
+    "invalidProduct": {
+      "description": "ID sản phẩm không hợp lệ. Vui lòng quay lại danh sách sản phẩm và chọn một sản phẩm hợp lệ."
+    }
+  },
+  "ProductVideoPage": {
+    "loading": {
+      "label": "Đang tải sản phẩm"
+    },
+    "header": {
+      "eyebrow": "Quản trị Electroshop",
+      "title": "Quản lý video sản phẩm",
+      "description": "Quản lý video quảng bá cho sản phẩm {name}."
+    },
+    "buttons": {
+      "backToProducts": "Quay lại danh sách sản phẩm"
+    },
+    "errors": {
+      "loadFailedTitle": "Không thể tải sản phẩm",
+      "invalidProductId": "ID sản phẩm không hợp lệ.",
+      "productNotFound": "Không tìm thấy sản phẩm."
+    }
+  }
+}

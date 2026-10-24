@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 
 import { useCategories } from "../../category/hooks/useCategories";
 import useBrands from "../../brand/hooks/useBrands";
@@ -19,9 +21,8 @@ type ProductFormErrors = {
 };
 
 type ProductFormProps = {
+  mode: "create" | "update";
   initialValues?: Partial<ProductFormValues>;
-  submitLabel?: string;
-  submittingLabel?: string;
   submitting?: boolean;
   submitError?: string;
   onSubmit: (values: ProductFormValues) => Promise<void>;
@@ -51,14 +52,15 @@ const inputClassName = (hasError = false) =>
 const errorClassName = "mt-1.5 text-xs leading-5 text-red-600";
 
 export default function ProductForm({
+  mode,
   initialValues,
-  submitLabel = "Create Product",
-  submittingLabel = "Creating...",
   submitting = false,
   submitError = "",
   onSubmit,
   onCancel,
 }: ProductFormProps) {
+  const t = useTranslations("ProductForm");
+
   const { categories } = useCategories();
   const { brands } = useBrands();
 
@@ -84,6 +86,16 @@ export default function ProductForm({
     categoryId: "",
   });
 
+  const submitLabel =
+    mode === "create"
+      ? t("createProduct")
+      : t("updateProduct");
+
+  const submittingLabel =
+    mode === "create"
+      ? t("creatingProduct")
+      : t("updatingProduct");
+
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -96,15 +108,15 @@ export default function ProductForm({
     };
 
     if (!name.trim()) {
-      newErrors.name = "Product name is required.";
+      newErrors.name = t("nameRequired");
     }
 
     if (!brandId) {
-      newErrors.brandId = "Please select a brand.";
+      newErrors.brandId = t("brandRequired");
     }
 
     if (!categoryId) {
-      newErrors.categoryId = "Please select a category.";
+      newErrors.categoryId = t("categoryRequired");
     }
 
     setErrors(newErrors);
@@ -113,9 +125,7 @@ export default function ProductForm({
       (error) => error !== ""
     );
 
-    if (hasErrors) {
-      return;
-    }
+    if (hasErrors) return;
 
     const values: ProductFormValues = {
       name: name.trim(),
@@ -141,11 +151,11 @@ export default function ProductForm({
 
           <div>
             <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-              Product Information
+              {t("title")}
             </h2>
 
             <p className="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">
-              Enter the basic details of your product.
+              {t("subtitle")}
             </p>
           </div>
         </div>
@@ -156,7 +166,7 @@ export default function ProductForm({
               htmlFor="product-name"
               className={labelClassName}
             >
-              Product Name
+              {t("productName")}
               <span className="ml-1 text-red-500">*</span>
             </label>
 
@@ -167,13 +177,12 @@ export default function ProductForm({
               value={name}
               onChange={(event) => {
                 setName(event.target.value);
-
                 setErrors((previous) => ({
                   ...previous,
                   name: "",
                 }));
               }}
-              placeholder="Enter product name"
+              placeholder={t("productNamePlaceholder")}
               aria-invalid={Boolean(errors.name)}
               aria-describedby={
                 errors.name ? "product-name-error" : undefined
@@ -193,13 +202,12 @@ export default function ProductForm({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Brand */}
             <div>
               <label
                 htmlFor="product-brand"
                 className={labelClassName}
               >
-                Brand
+                {t("brand")}
                 <span className="ml-1 text-red-500">*</span>
               </label>
 
@@ -209,7 +217,6 @@ export default function ProductForm({
                 value={brandId}
                 onChange={(event) => {
                   setBrandId(event.target.value);
-
                   setErrors((previous) => ({
                     ...previous,
                     brandId: "",
@@ -226,7 +233,7 @@ export default function ProductForm({
                 )}
               >
                 <option value="" disabled>
-                  Select brand
+                  {t("selectBrand")}
                 </option>
 
                 {brands.map((brand) => (
@@ -252,7 +259,7 @@ export default function ProductForm({
                 htmlFor="product-category"
                 className={labelClassName}
               >
-                Category
+                {t("category")}
                 <span className="ml-1 text-red-500">*</span>
               </label>
 
@@ -262,7 +269,6 @@ export default function ProductForm({
                 value={categoryId}
                 onChange={(event) => {
                   setCategoryId(event.target.value);
-
                   setErrors((previous) => ({
                     ...previous,
                     categoryId: "",
@@ -279,7 +285,7 @@ export default function ProductForm({
                 )}
               >
                 <option value="" disabled>
-                  Select category
+                  {t("selectCategory")}
                 </option>
 
                 {categories.map((category) => (
@@ -306,9 +312,9 @@ export default function ProductForm({
               htmlFor="product-description"
               className={labelClassName}
             >
-              Description
+              {t("description")}
               <span className="ml-1 font-normal text-slate-400">
-                (Optional)
+                {t("optional")}
               </span>
             </label>
 
@@ -318,7 +324,7 @@ export default function ProductForm({
               onChange={(event) =>
                 setDescription(event.target.value)
               }
-              placeholder="Describe the product's features and benefits"
+              placeholder={t("descriptionPlaceholder")}
               rows={4}
               className="w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
@@ -339,7 +345,7 @@ export default function ProductForm({
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-slate-500">
             <span className="text-red-500">*</span>{" "}
-            Required fields
+            {t("requiredFields")}
           </p>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
@@ -349,7 +355,7 @@ export default function ProductForm({
               disabled={submitting}
               className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Cancel
+              {t("cancel")}
             </button>
 
             <button

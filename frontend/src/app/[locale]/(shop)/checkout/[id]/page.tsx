@@ -1,5 +1,5 @@
 
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import { getOrderById } from "@/src/features/order/services/order.service.server";
 
 type OrderDetailPageProps = {

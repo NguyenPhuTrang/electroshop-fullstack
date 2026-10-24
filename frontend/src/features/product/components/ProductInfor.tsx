@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { addCartItem } from "@/src/features/cart/services/cart.service";
@@ -25,29 +27,21 @@ const getStorageSize = (storage: string): number => {
   const normalized = storage.trim().toUpperCase();
   const match = normalized.match(/^([\d.]+)\s*(TB|GB)$/);
 
-  if (!match) {
-    return Number.MAX_SAFE_INTEGER;
-  }
+  if (!match) return Number.MAX_SAFE_INTEGER;
 
   const size = Number(match[1]);
 
-  if (!Number.isFinite(size)) {
-    return Number.MAX_SAFE_INTEGER;
-  }
+  if (!Number.isFinite(size)) return Number.MAX_SAFE_INTEGER;
 
   return match[2] === "TB" ? size * 1024 : size;
 };
 
 const parsePrice = (value: string | null): number | null => {
-  if (value === null || value.trim() === "") {
-    return null;
-  }
+  if (value === null || value.trim() === "") return null;
 
   const price = Number(value);
 
-  if (!Number.isFinite(price) || price <= 0) {
-    return null;
-  }
+  if (!Number.isFinite(price) || price <= 0) return null;
 
   return price;
 };
@@ -57,9 +51,7 @@ const getEffectivePrice = (
 ): number | null => {
   const regularPrice = parsePrice(variant.price);
 
-  if (regularPrice === null) {
-    return null;
-  }
+  if (regularPrice === null) return null;
 
   const salePrice = parsePrice(variant.salePrice);
 
@@ -68,8 +60,13 @@ const getEffectivePrice = (
     : regularPrice;
 };
 
-const formatPrice = (price: number): string =>
-  price.toLocaleString("vi-VN");
+const formatPrice = (price: number, locale: string): string =>
+  new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+    currencyDisplay: "code",
+    maximumFractionDigits: 0,
+  }).format(price);
 
 export default function ProductInfor({
   productId,
@@ -80,21 +77,21 @@ export default function ProductInfor({
   reviews,
   onSelectedColorChange,
 }: ProductInforProps) {
+  const t = useTranslations("ProductInfo");
+  const locale = useLocale();
+
   const {
     variants,
     loading: variantsLoading,
     error: variantsError,
   } = useProductVariants(productId);
 
-  // Do not preselect a storage or color when the page loads.
   const [selectedStorage, setSelectedStorage] = useState<string | null>(
     null
   );
-
   const [selectedColorId, setSelectedColorId] = useState<number | null>(
     null
   );
-
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
 
@@ -104,11 +101,9 @@ export default function ProductInfor({
     setQuantity(1);
   }, [productId]);
 
-
   useEffect(() => {
     onSelectedColorChange?.(selectedColorId);
   }, [selectedColorId, onSelectedColorChange]);
-
 
   const visibleVariants = variants.filter(
     (variant) => variant.status !== "INACTIVE"
@@ -169,17 +164,11 @@ export default function ProductInfor({
         );
 
   const selectedVariant: ProductVariant | null = (() => {
-    if (visibleVariants.length === 0) {
-      return null;
-    }
+    if (visibleVariants.length === 0) return null;
 
-    if (hasStorageOptions && selectedStorage === null) {
-      return null;
-    }
+    if (hasStorageOptions && selectedStorage === null) return null;
 
-    if (hasColorOptions && selectedColorId === null) {
-      return null;
-    }
+    if (hasColorOptions && selectedColorId === null) return null;
 
     return (
       visibleVariants.find(
@@ -195,20 +184,15 @@ export default function ProductInfor({
   const requiresVariantSelection =
     visibleVariants.length > 0 && selectedVariant === null;
 
-
   const lowestPriceVariant = purchasableVariants.reduce<
     ProductVariant | null
   >((lowest, variant) => {
-    if (!lowest) {
-      return variant;
-    }
+    if (!lowest) return variant;
 
     const currentPrice = getEffectivePrice(variant);
     const lowestPrice = getEffectivePrice(lowest);
 
-    if (currentPrice === null) {
-      return lowest;
-    }
+    if (currentPrice === null) return lowest;
 
     if (lowestPrice === null || currentPrice < lowestPrice) {
       return variant;
@@ -217,8 +201,6 @@ export default function ProductInfor({
     return lowest;
   }, null);
 
-  // If a configuration is selected, show its own price even when
-  // it is out of stock. Otherwise, show the lowest purchasable price.
   const priceVariant = selectedVariant ?? lowestPriceVariant;
 
   const displayedPrice = priceVariant
@@ -250,17 +232,17 @@ export default function ProductInfor({
 
   const formattedPrice =
     displayedPrice !== null
-      ? formatPrice(displayedPrice)
+      ? formatPrice(displayedPrice, locale)
       : null;
 
   const formattedEffectivePrice =
     displayedEffectivePrice !== null
-      ? formatPrice(displayedEffectivePrice)
+      ? formatPrice(displayedEffectivePrice, locale)
       : null;
 
   const formattedSalePrice =
     hasDiscount && numericSalePrice !== null
-      ? formatPrice(numericSalePrice)
+      ? formatPrice(numericSalePrice, locale)
       : null;
 
   const displayedStock = selectedVariant?.stock ?? null;
@@ -300,21 +282,17 @@ export default function ProductInfor({
 
   const handleAddToCart = async () => {
     if (variantsLoading || variantsError) {
-      toast.error(
-        "Unable to verify product configurations. Please try again."
-      );
+      toast.error(t("toast.verifyError"));
       return;
     }
 
     if (!selectedVariant) {
-      toast.error(
-        "Please select the required product options first."
-      );
+      toast.error(t("toast.selectRequired"));
       return;
     }
 
     if (!selectedVariantAvailable) {
-      toast.error("This product configuration is out of stock.");
+      toast.error(t("toast.configurationOutOfStock"));
       return;
     }
 
@@ -328,7 +306,7 @@ export default function ProductInfor({
 
     setAddingToCart(true);
 
-    const toastId = toast.loading("Adding to your cart...");
+    const toastId = toast.loading(t("addingToCart"));
 
     try {
       await addCartItem(
@@ -347,19 +325,18 @@ export default function ProductInfor({
         .filter(Boolean)
         .join(" / ");
 
-      toast.success("Product added to your cart.", {
+      toast.success(t("toast.addedToCart"), {
         id: toastId,
         description: configuration
-          ? `${name} — ${configuration}`
+          ? t("toast.addedDescription", { name, configuration })
           : name,
       });
     } catch (error) {
       console.error("Failed to add product to cart", error);
 
-      toast.error(
-        "Unable to add this product to your cart. Please try again.",
-        { id: toastId }
-      );
+      toast.error(t("toast.addError"), {
+        id: toastId,
+      });
     } finally {
       setAddingToCart(false);
     }
@@ -391,8 +368,10 @@ export default function ProductInfor({
           role="img"
           aria-label={
             reviews.length > 0
-              ? `Rated ${averageRating.toFixed(1)} out of 5`
-              : "No ratings yet"
+              ? t("ratedOutOfFive", {
+                  rating: averageRating.toFixed(1),
+                })
+              : t("noRatings")
           }
         >
           {Array.from({ length: 5 }, (_, index) => (
@@ -413,26 +392,25 @@ export default function ProductInfor({
             </span>
 
             <span className="text-sm text-slate-500">
-              {reviews.length}{" "}
-              {reviews.length === 1 ? "review" : "reviews"}
+              {t("reviewCount", { count: reviews.length })}
             </span>
           </>
         ) : (
           <span className="text-sm text-slate-500">
-            No reviews yet
+            {t("noReviews")}
           </span>
         )}
       </div>
 
       {variantsLoading && (
         <p className="mt-5 text-sm text-slate-500">
-          Loading configurations...
+          {t("loadingConfigurations")}
         </p>
       )}
 
       {variantsError && (
         <p className="mt-5 rounded-lg bg-rose-50 p-3 text-sm text-rose-600">
-          Unable to load product configurations. Please refresh the page.
+          {t("configurationLoadError")}
         </p>
       )}
 
@@ -440,7 +418,7 @@ export default function ProductInfor({
         !variantsError &&
         visibleVariants.length === 0 && (
           <p className="mt-5 rounded-lg bg-rose-50 p-3 text-sm text-rose-600">
-            This product is currently unavailable.
+            {t("unavailable")}
           </p>
         )}
 
@@ -451,7 +429,7 @@ export default function ProductInfor({
             {storageOptions.length > 0 && (
               <div>
                 <p className="mb-2 text-sm font-semibold text-slate-800">
-                  Storage
+                  {t("storage")}
                 </p>
 
                 <div className="flex flex-wrap gap-2">
@@ -481,7 +459,7 @@ export default function ProductInfor({
             {colorOptions.length > 0 && (
               <div>
                 <p className="mb-2 text-sm font-semibold text-slate-800">
-                  Color
+                  {t("color")}
                 </p>
 
                 <div className="flex flex-wrap gap-2">
@@ -510,14 +488,13 @@ export default function ProductInfor({
 
             {selectedVariant && (
               <p className="text-xs text-slate-500">
-                SKU: {selectedVariant.sku}
+                {t("sku")}: {selectedVariant.sku}
               </p>
             )}
 
             {requiresVariantSelection && (
               <p className="text-sm text-slate-500">
-                Select your preferred options to check the exact price
-                and availability.
+                {t("selectOptionsHint")}
               </p>
             )}
           </div>
@@ -529,12 +506,12 @@ export default function ProductInfor({
             <div className="flex flex-wrap items-center gap-3">
               {!selectedVariant && (
                 <span className="text-sm font-medium text-slate-500">
-                  From
+                  {t("from")}
                 </span>
               )}
 
               <p className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
-                {formattedEffectivePrice} VND
+                {formattedEffectivePrice}
               </p>
 
               {hasDiscount && (
@@ -547,16 +524,19 @@ export default function ProductInfor({
             {formattedSalePrice !== null && formattedPrice !== null && (
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <p className="text-sm text-slate-400 line-through">
-                  {formattedPrice} VND
+                  {formattedPrice}
                 </p>
 
                 {hasDiscount &&
                   displayedPrice !== null &&
                   numericSalePrice !== null && (
                     <p className="text-xs font-medium text-emerald-600">
-                      You save{" "}
-                      {formatPrice(displayedPrice - numericSalePrice)}{" "}
-                      VND
+                      {t("youSave", {
+                        amount: formatPrice(
+                          displayedPrice - numericSalePrice,
+                          locale
+                        ),
+                      })}
                     </p>
                   )}
               </div>
@@ -564,29 +544,29 @@ export default function ProductInfor({
           </>
         ) : (
           <p className="text-sm text-slate-500">
-            Price unavailable
+            {t("priceUnavailable")}
           </p>
         )}
 
         <div className="mt-4">
           {!selectedVariant ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
-              Select options to check stock
+              {t("selectOptionsForStock")}
             </span>
           ) : !selectedVariantAvailable || displayedStock === 0 ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600">
               <span className="size-1.5 rounded-full bg-red-500" />
-              Out of Stock
+              {t("outOfStock")}
             </span>
           ) : displayedStock !== null && displayedStock <= 5 ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
               <span className="size-1.5 rounded-full bg-amber-500" />
-              Only {displayedStock} left in stock
+              {t("onlyLeftInStock", { count: displayedStock })}
             </span>
           ) : (
             <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
               <span className="size-1.5 rounded-full bg-emerald-500" />
-              In Stock
+              {t("inStock")}
             </span>
           )}
         </div>
@@ -594,11 +574,11 @@ export default function ProductInfor({
 
       <div className="mt-5">
         <h2 className="text-sm font-semibold text-slate-900">
-          Product Description
+          {t("description")}
         </h2>
 
         <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">
-          {description?.trim() || "No description available."}
+          {description?.trim() || t("noDescription")}
         </p>
       </div>
 
@@ -607,7 +587,7 @@ export default function ProductInfor({
           htmlFor="product-quantity"
           className="mb-2 block text-sm font-semibold text-slate-800"
         >
-          Quantity
+          {t("quantity")}
         </label>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -622,7 +602,7 @@ export default function ProductInfor({
               onClick={() =>
                 setQuantity((current) => Math.max(1, current - 1))
               }
-              aria-label="Decrease quantity"
+              aria-label={t("decreaseQuantity")}
               className="flex h-full w-10 items-center justify-center text-lg text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-30"
             >
               −
@@ -635,7 +615,7 @@ export default function ProductInfor({
               max={selectedVariant?.stock ?? undefined}
               value={quantity}
               readOnly
-              aria-label="Selected quantity"
+              aria-label={t("selectedQuantity")}
               className="h-full w-12 border-x border-slate-200 bg-white text-center text-sm font-semibold text-slate-900 outline-none"
             />
 
@@ -654,7 +634,7 @@ export default function ProductInfor({
                     : current
                 )
               }
-              aria-label="Increase quantity"
+              aria-label={t("increaseQuantity")}
               className="flex h-full w-10 items-center justify-center text-lg text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-30"
             >
               +
@@ -663,17 +643,16 @@ export default function ProductInfor({
 
           <p className="text-xs text-slate-500">
             {!selectedVariant
-              ? "Select options first"
+              ? t("selectOptionsFirst")
               : selectedVariantAvailable
-                ? `${selectedVariant.stock} ${
-                    selectedVariant.stock === 1 ? "unit" : "units"
-                  } available`
-                : "Currently unavailable"}
+                ? t("unitsAvailable", {
+                    count: selectedVariant.stock,
+                  })
+                : t("currentlyUnavailable")}
           </p>
         </div>
       </div>
 
-      {/* Add to Cart */}
       <button
         onClick={handleAddToCart}
         type="button"
@@ -692,12 +671,12 @@ export default function ProductInfor({
               aria-hidden="true"
               className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
             />
-            Adding to Cart...
+            {t("addingToCart")}
           </>
         ) : !selectedVariant ? (
-          "Select Options"
+          t("selectOptions")
         ) : !selectedVariantAvailable ? (
-          "Out of Stock"
+          t("outOfStock")
         ) : (
           <>
             <svg
@@ -717,13 +696,13 @@ export default function ProductInfor({
               <circle cx="18" cy="20" r="1" />
             </svg>
 
-            Add to Cart
+            {t("addToCart")}
           </>
         )}
       </button>
 
       <p className="mt-4 text-center text-xs leading-5 text-slate-500">
-        Secure checkout · Quality products · Customer support
+        {t("trustLine")}
       </p>
     </div>
   );

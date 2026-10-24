@@ -1,7 +1,7 @@
 "use client";
 
 import { useAdminUsers } from "@/src/hooks/useAdminUser";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";

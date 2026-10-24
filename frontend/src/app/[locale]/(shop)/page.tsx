@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "motion/react";
 import {
   useCallback,
@@ -51,6 +52,8 @@ const getPrimaryProductImage = (product: Product) =>
   ) ?? null;
 
 export default function Home() {
+  const t = useTranslations("HomePage");
+
   const { products, loading, error } = useProducts({
     page: 1,
     limit: 10,
@@ -183,7 +186,7 @@ export default function Home() {
       <main
         className="min-h-screen bg-[#f7f8fa]"
         aria-busy="true"
-        aria-label="Loading products"
+        aria-label={t("loadingAria")}
       >
         <div className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           <motion.div
@@ -283,7 +286,7 @@ export default function Home() {
           </div>
 
           <h2 className="mt-4 text-lg font-semibold text-slate-900">
-            Unable to load products
+            {t("errorTitle")}
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-red-500">
@@ -348,21 +351,20 @@ export default function Home() {
                 <span className="h-px w-7 bg-cyan-400" />
 
                 <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300 sm:text-xs">
-                  The modern tech destination
+                  {t("heroEyebrow")}
                 </span>
               </div>
 
               <h1 className="max-w-xl text-[2rem] font-semibold leading-[1.05] tracking-[-0.055em] text-white sm:text-4xl xl:text-[2.4rem]">
-                Better tech.
+                {t("heroTitleLine1")}
                 <br />
                 <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-400 bg-clip-text text-transparent">
-                  Better everyday.
+                  {t("heroTitleLine2")}
                 </span>
               </h1>
 
               <p className="mt-2 max-w-lg text-xs leading-5 text-slate-300 sm:text-sm sm:leading-5">
-                Discover thoughtfully selected electronics that bring
-                together performance, design, and the way you live.
+                {t("heroDescription")}
               </p>
 
               <div className="mt-3 flex flex-wrap items-center gap-4">
@@ -373,7 +375,7 @@ export default function Home() {
                   transition={{ duration: 0.2 }}
                   className="group inline-flex items-center gap-3 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-black/10 transition-colors hover:bg-cyan-200"
                 >
-                  Explore collection
+                  {t("exploreCollection")}
 
                   <motion.span
                     aria-hidden="true"
@@ -389,7 +391,7 @@ export default function Home() {
                   whileHover={{ x: 3 }}
                   className="inline-flex items-center gap-2 text-sm font-medium text-slate-300 transition-colors hover:text-white"
                 >
-                  Discover what&apos;s here
+                  {t("discover")}
                   <span aria-hidden="true">↘</span>
                 </motion.a>
               </div>
@@ -401,7 +403,7 @@ export default function Home() {
                   </p>
 
                   <p className="mt-1 text-xs text-slate-400">
-                    Latest products
+                    {t("latestProducts")}
                   </p>
                 </div>
 
@@ -409,11 +411,11 @@ export default function Home() {
 
                 <div>
                   <p className="text-sm font-medium text-white">
-                    Made for everyday
+                    {t("madeForEveryday")}
                   </p>
 
                   <p className="mt-1 text-xs text-slate-400">
-                    Technology that fits your life
+                    {t("techFitsLife")}
                   </p>
                 </div>
               </div>
@@ -484,7 +486,9 @@ export default function Home() {
                     >
                       <Link
                         href={`/products/${activeFeaturedProduct.slug}`}
-                        aria-label={`View ${activeFeaturedProduct.name}`}
+                        aria-label={t("viewProduct", {
+                          name: activeFeaturedProduct.name,
+                        })}
                         className="absolute inset-0 block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
                       >
                         <motion.div
@@ -504,7 +508,7 @@ export default function Home() {
 
                         <div className="absolute bottom-3 left-1/2 z-10 w-max max-w-[75%] -translate-x-1/2 rounded-xl border border-white/10 bg-slate-950/75 px-4 py-2.5 text-center shadow-lg backdrop-blur-xl transition-colors hover:border-cyan-300/40 sm:bottom-4 sm:px-5">
                           <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-cyan-300">
-                            Featured product
+                            {t("featuredProduct")}
                           </p>
 
                           <p className="mt-1 truncate text-xs font-semibold text-white sm:text-sm">
@@ -539,7 +543,7 @@ export default function Home() {
 
                     <div className="absolute bottom-6 left-5 right-5">
                       <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/70">
-                        Explore possibilities
+                        {t("explorePossibilities")}
                       </p>
 
                       <div className="mt-3 h-1 w-16 rounded-full bg-white/80" />
@@ -556,7 +560,10 @@ export default function Home() {
                     <button
                       key={product.id}
                       type="button"
-                      aria-label={`Show product ${index + 1}: ${product.name}`}
+                      aria-label={t("showProduct", {
+                        index: index + 1,
+                        name: product.name,
+                      })}
                       aria-pressed={index === safeFeaturedIndex}
                       onClick={() => setActiveFeaturedIndex(index)}
                       className={`h-2 rounded-full transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
@@ -595,11 +602,11 @@ export default function Home() {
 
                   <div>
                     <p className="text-xs font-semibold text-white sm:text-sm">
-                      Welcome ~~~
+                      {t("welcome")}
                     </p>
 
                     <p className="mt-1 text-[9px] text-slate-300 sm:text-[10px]">
-                      Find tech for everyday life
+                      {t("findTech")}
                     </p>
                   </div>
                 </div>
@@ -624,17 +631,16 @@ export default function Home() {
                 <span className="size-1.5 rounded-full bg-cyan-500" />
 
                 <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-[10px]">
-                  Carefully selected
+                  {t("carefullySelected")}
                 </p>
               </div>
 
               <h2 className="text-xl font-semibold tracking-[-0.045em] text-slate-950 sm:text-2xl lg:text-3xl">
-                Find your next favorite.
+                {t("collectionTitle")}
               </h2>
 
               <p className="mt-1 max-w-xl text-xs leading-5 text-slate-500 sm:text-sm">
-                Explore our latest products for work, entertainment, and
-                everyday life.
+                {t("collectionDescription")}
               </p>
             </div>
 
@@ -644,7 +650,7 @@ export default function Home() {
                 href="/products"
                 className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3.5 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
-                View All Products
+                {t("viewAll")}
 
                 <svg
                   viewBox="0 0 24 24"
@@ -667,7 +673,7 @@ export default function Home() {
                     type="button"
                     onClick={() => scrollProducts(-1)}
                     disabled={!canScrollProductsLeft}
-                    aria-label="Previous products"
+                    aria-label={t("previousProducts")}
                     className="flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <svg
@@ -689,7 +695,7 @@ export default function Home() {
                     type="button"
                     onClick={() => scrollProducts(1)}
                     disabled={!canScrollProductsRight}
-                    aria-label="Next products"
+                    aria-label={t("nextProducts")}
                     className="flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <svg
@@ -715,7 +721,7 @@ export default function Home() {
             <div
               ref={productsScrollerRef}
               onScroll={updateProductScrollButtons}
-              aria-label="Latest products"
+              aria-label={t("latestProducts")}
               className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {products.map((product, index) => {
@@ -761,12 +767,11 @@ export default function Home() {
               </div>
 
               <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-900">
-                Something great is on the way.
+                {t("emptyTitle")}
               </h3>
 
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                Our collection is getting ready. Check back soon to explore
-                the products available in Electroshop.
+                {t("emptyDescription")}
               </p>
             </motion.div>
           )}

@@ -1,11 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { logout } from "../services/auth.service";
 import { clearAccessToken } from "../services/auth-token";
 import { useUser } from "@/src/hooks/useUser";
 
 export default function LogoutButton() {
+    const t = useTranslations("LogoutButton");
     const router = useRouter();
     const { setUser } = useUser(); // lấy hàm setUser ra khỏi UserProvider để LogoutButton có thể thay đổi state user.
 
@@ -45,7 +47,7 @@ export default function LogoutButton() {
                 </svg>
             </span>
 
-            Logout
+            {t("logout")}
         </button>
     );
 }

@@ -1,11 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import {
-  useParams,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
 
 import { useAdminOrderDetail } from "@/src/features/order/hooks/useAdminOrderDetail";
 

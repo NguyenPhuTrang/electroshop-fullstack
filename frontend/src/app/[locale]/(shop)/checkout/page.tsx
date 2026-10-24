@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "@/src/i18n/navigation";
+import { Link } from "@/src/i18n/navigation";
 import { toast } from "sonner";
 
 import { getAddresses } from "@/src/features/address/services/address.service";

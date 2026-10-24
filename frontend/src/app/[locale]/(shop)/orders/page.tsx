@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
 import { useEffect, useState } from "react";
 
 import OrderStatusBadge from "@/src/features/order/components/OrderStatusBadge";

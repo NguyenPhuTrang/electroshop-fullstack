@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link } from "@/src/i18n/navigation";
+import { useRouter } from "@/src/i18n/navigation";
 import { useState, type FormEvent } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";

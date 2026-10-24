@@ -1,8 +1,11 @@
+
 "use client";
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import ProductForm, {
@@ -39,11 +42,13 @@ function LoadingPlaceholder({
 }
 
 function EditProductLoading() {
+  const t = useTranslations("EditProductPage");
+
   return (
     <main
       className="min-h-full bg-[#f7f8fa] p-4 sm:p-6 lg:p-8"
       aria-busy="true"
-      aria-label="Loading product"
+      aria-label={t("loading.label")}
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -96,7 +101,10 @@ function EditProductLoading() {
   );
 }
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(
+  error: unknown,
+  fallbackMessage: string
+): string {
   if (typeof error === "object" && error !== null) {
     const response = (
       error as {
@@ -115,7 +123,7 @@ function getErrorMessage(error: unknown): string {
     }
   }
 
-  return "Unable to update product. Please try again.";
+  return fallbackMessage;
 }
 
 function generateSlug(value: string): string {
@@ -131,14 +139,11 @@ function generateSlug(value: string): string {
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const t = useTranslations("EditProductPage");
 
   const id = Number(params.id);
 
-  const {
-    product,
-    loading,
-    error,
-  } = useAdminProduct(id);
+  const { product, loading, error } = useAdminProduct(id);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -147,14 +152,14 @@ export default function EditProductPage() {
     values: ProductFormValues
   ): Promise<void> => {
     if (!Number.isInteger(id) || id <= 0) {
-      setSubmitError("Invalid product ID.");
+      setSubmitError(t("errors.invalidProductId"));
       return;
     }
 
     setSubmitting(true);
     setSubmitError("");
 
-    const toastId = toast.loading("Updating product...");
+    const toastId = toast.loading(t("toast.updating"));
 
     try {
       const data: UpdateProductInput = {
@@ -167,17 +172,20 @@ export default function EditProductPage() {
 
       await updateProduct(id, data);
 
-      toast.success("Product information updated successfully.", {
+      toast.success(t("toast.updated"), {
         id: toastId,
       });
     } catch (error) {
       console.error("Failed to update product:", error);
 
-      const message = getErrorMessage(error);
+      const message = getErrorMessage(
+        error,
+        t("errors.updateFallback")
+      );
 
       setSubmitError(message);
 
-      toast.error("Unable to update product.", {
+      toast.error(t("toast.updateFailed"), {
         id: toastId,
         description: message,
       });
@@ -217,14 +225,14 @@ export default function EditProductPage() {
             </div>
 
             <h1 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
-              Unable to Load Product
+              {t("errorState.title")}
             </h1>
 
             <p
               role="alert"
               className="mt-2 text-sm leading-6 text-rose-600"
             >
-              {error || "Product not found."}
+              {error || t("errorState.productNotFound")}
             </p>
 
             <button
@@ -245,7 +253,7 @@ export default function EditProductPage() {
                 <path d="m15 18-6-6 6-6" />
               </svg>
 
-              Back to Products
+              {t("buttons.backToProducts")}
             </button>
           </div>
         </motion.div>
@@ -275,16 +283,16 @@ export default function EditProductPage() {
               <span className="size-2 rounded-full bg-cyan-500" />
 
               <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                Electroshop Administration
+                {t("header.eyebrow")}
               </p>
             </div>
 
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Edit Product
+              {t("header.title")}
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Update general product information.
+              {t("header.description")}
             </p>
           </div>
 
@@ -307,7 +315,7 @@ export default function EditProductPage() {
               <path d="m15 18-6-6 6-6" />
             </svg>
 
-            Back to Products
+            {t("buttons.backToProducts")}
           </button>
         </header>
 
@@ -319,9 +327,8 @@ export default function EditProductPage() {
           className="mt-6"
         >
           <ProductForm
+            mode="update"
             initialValues={initialValues}
-            submitLabel="Update Product"
-            submittingLabel="Updating..."
             submitting={submitting}
             submitError={submitError}
             onSubmit={handleSubmit}

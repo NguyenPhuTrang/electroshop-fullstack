@@ -1,9 +1,11 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import ProductSpecificationManager from "@/src/features/product/components/ProductSpecificationManager";
 
@@ -29,11 +31,13 @@ function LoadingBar({
 }
 
 function ProductSpecificationsLoadingSkeleton() {
+  const t = useTranslations("ProductSpecificationsPage");
+
   return (
     <div
       className="space-y-6"
       aria-busy="true"
-      aria-label="Loading product specifications"
+      aria-label={t("loading.label")}
     >
       {/* Product Specification Manager Header Skeleton */}
       <motion.header
@@ -163,6 +167,7 @@ function ProductSpecificationsLoadingSkeleton() {
 
 export default function ProductSpecificationsPage() {
   const params = useParams<{ id: string }>();
+  const t = useTranslations("ProductSpecificationsPage");
   const productId = Number(params.id);
 
   const isValidProductId =
@@ -196,20 +201,20 @@ export default function ProductSpecificationsPage() {
         >
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-              Electroshop Administration
+              {t("header.eyebrow")}
             </p>
 
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Product Specifications
+              {t("header.title")}
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Manage technical details and specifications for this product.
+              {t("header.description")}
             </p>
 
             {isValidProductId && (
               <p className="mt-2 text-xs text-slate-400">
-                Product ID: {productId}
+                {t("header.productId", { id: productId })}
               </p>
             )}
           </div>
@@ -232,7 +237,7 @@ export default function ProductSpecificationsPage() {
                 <path d="m15 18-6-6 6-6" />
               </svg>
 
-              Back to Products
+              {t("buttons.backToProducts")}
             </Link>
           </div>
         </motion.header>
@@ -264,8 +269,7 @@ export default function ProductSpecificationsPage() {
             role="alert"
             className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700"
           >
-            Invalid product ID. Please return to the products list and
-            select a valid product.
+            {t("invalidProduct.description")}
           </div>
         )}
       </div>

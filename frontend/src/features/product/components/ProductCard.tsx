@@ -1,6 +1,8 @@
+
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import { motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 
 type ProductCardProps = {
   name: string;
@@ -25,8 +27,13 @@ function parsePrice(value?: string | null): number | null {
   return parsed;
 }
 
-function formatPrice(value: number): string {
-  return value.toLocaleString("vi-VN");
+function formatPrice(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+    currencyDisplay: "code",
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 export default function ProductCard({
@@ -37,6 +44,9 @@ export default function ProductCard({
   slug,
   priority = false,
 }: ProductCardProps) {
+  const t = useTranslations("ProductCard");
+  const locale = useLocale();
+
   const regularPrice = parsePrice(price);
   const discountedPrice = parsePrice(salePrice);
 
@@ -47,12 +57,13 @@ export default function ProductCard({
 
   const formattedPrice =
     regularPrice !== null
-      ? formatPrice(regularPrice)
+      ? formatPrice(regularPrice, locale)
       : null;
 
-  const formattedSalePrice = hasSale
-    ? formatPrice(discountedPrice)
-    : null;
+  const formattedSalePrice =
+    hasSale && discountedPrice !== null
+      ? formatPrice(discountedPrice, locale)
+      : null;
 
   return (
     <Link
@@ -89,15 +100,14 @@ export default function ProductCard({
               </span>
 
               <span className="text-xs font-medium">
-                Image unavailable
+                {t("imageUnavailable")}
               </span>
             </div>
           )}
 
-          {/* Sale Badge */}
           {hasSale && (
             <span className="absolute left-3 top-3 rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
-              Sale
+              {t("sale")}
             </span>
           )}
 
@@ -116,27 +126,27 @@ export default function ProductCard({
             {hasSale && formattedSalePrice && formattedPrice ? (
               <>
                 <p className="text-sm font-bold tracking-tight text-blue-600 sm:text-base">
-                  {formattedSalePrice} VND
+                  {formattedSalePrice}
                 </p>
 
                 <p className="mt-0.5 text-xs text-slate-400 line-through">
-                  {formattedPrice} VND
+                  {formattedPrice}
                 </p>
               </>
             ) : formattedPrice ? (
               <p className="text-sm font-bold tracking-tight text-blue-600 sm:text-base">
-                {formattedPrice} VND
+                {formattedPrice}
               </p>
             ) : (
               <p className="text-sm font-medium text-slate-400">
-                Price unavailable
+                {t("priceUnavailable")}
               </p>
             )}
           </div>
 
           <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
             <span className="text-xs font-medium text-slate-500">
-              View product
+              {t("viewProduct")}
             </span>
 
             <motion.span

@@ -1,13 +1,9 @@
+
 "use client";
 
 import Image from "next/image";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type MouseEvent,
-} from "react";
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type {
@@ -72,37 +68,20 @@ function sortImages(images: ProductImage[]): ProductImage[] {
   );
 }
 
-/**
- * null and undefined both represent the general-image group.
- */
 function normalizeColorId(
   colorId: number | null | undefined
 ): number | null {
   return colorId ?? null;
 }
 
-/**
- * Keep exactly one primary image in each color group.
- *
- * General images (colorId = null) form one group.
- * Images assigned to each numeric colorId form separate groups.
- *
- * preferredPrimaryId takes priority in its own group.
- * excludedPrimaryId avoids selecting an image that was just unset.
- */
 function normalizePrimaryImages(
   images: ProductImage[],
   preferredPrimaryId?: number
 ): ProductImage[] {
   const sortedImages = sortImages(images);
 
-  // Keep the explicitly selected image as the only primary.
-  // Otherwise preserve an existing primary, if one exists.
-  // Do not automatically promote another image when none is primary.
   const primaryImage =
-    sortedImages.find(
-      (image) => image.id === preferredPrimaryId
-    ) ??
+    sortedImages.find((image) => image.id === preferredPrimaryId) ??
     sortedImages.find((image) => image.isPrimary);
 
   return sortedImages.map((image) => ({
@@ -129,6 +108,8 @@ export default function ProductImageManager({
   productId,
   onLoadingChange,
 }: ProductImageManagerProps) {
+  const t = useTranslations("ProductImageManager");
+
   const {
     images: fetchedImages,
     loading,
@@ -146,7 +127,6 @@ export default function ProductImageManager({
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
 
-  // Create new color state.
   const [colorFormOpen, setColorFormOpen] = useState(false);
   const [newColorName, setNewColorName] = useState("");
   const [newColorHexCode, setNewColorHexCode] = useState("#000000");
@@ -183,7 +163,7 @@ export default function ProductImageManager({
         if (!cancelled) {
           setColors([]);
           setColorsError(
-            getErrorMessage(err, "Unable to load product colors.")
+            getErrorMessage(err, t("fallbackErrors.loadColors"))
           );
         }
 
@@ -200,7 +180,7 @@ export default function ProductImageManager({
     return () => {
       cancelled = true;
     };
-  }, [productId]);
+  }, [productId, t]);
 
   useEffect(() => {
     onLoadingChange?.(loading);
@@ -218,13 +198,11 @@ export default function ProductImageManager({
 
   const selectedColorLabel =
     form.colorId === ""
-      ? "General product image (no color)"
-      : selectedColor?.name ?? "Selected color unavailable";
+      ? t("generalImageNoColor")
+      : selectedColor?.name ?? t("selectedColorUnavailable");
 
   useEffect(() => {
-    if (!isColorDropdownOpen) {
-      return;
-    }
+    if (!isColorDropdownOpen) return;
 
     const handleOutsidePointerDown = (event: PointerEvent) => {
       if (
@@ -235,10 +213,7 @@ export default function ProductImageManager({
       }
     };
 
-    document.addEventListener(
-      "pointerdown",
-      handleOutsidePointerDown
-    );
+    document.addEventListener("pointerdown", handleOutsidePointerDown);
 
     return () => {
       document.removeEventListener(
@@ -249,14 +224,10 @@ export default function ProductImageManager({
   }, [isColorDropdownOpen]);
 
   useEffect(() => {
-    if (!imageModalOpen) {
-      return;
-    }
+    if (!imageModalOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape" || busy) {
-        return;
-      }
+      if (event.key !== "Escape" || busy) return;
 
       if (isColorDropdownOpen) {
         setIsColorDropdownOpen(false);
@@ -303,9 +274,7 @@ export default function ProductImageManager({
   };
 
   const handleAddImage = () => {
-    if (busy || loading) {
-      return;
-    }
+    if (busy || loading) return;
 
     setForm(initialFormValues);
     setEditingId(null);
@@ -316,17 +285,14 @@ export default function ProductImageManager({
   };
 
   const handleEdit = (image: ProductImage) => {
-    if (busy) {
-      return;
-    }
+    if (busy) return;
 
     setEditingId(image.id);
 
     setForm({
       url: image.url,
       alt: image.alt ?? "",
-      colorId:
-        image.colorId == null ? "" : String(image.colorId),
+      colorId: image.colorId == null ? "" : String(image.colorId),
       sortOrder: String(image.sortOrder),
       isPrimary: image.isPrimary,
     });
@@ -347,36 +313,31 @@ export default function ProductImageManager({
   };
 
   const handleCreateColor = async () => {
-    if (busy || loading || colorsLoading) {
-      return;
-    }
+    if (busy || loading || colorsLoading) return;
 
     const name = newColorName.trim();
     const hexCode = newColorHexCode.trim();
 
     if (!name) {
-      setColorFormError("Color name is required.");
+      setColorFormError(t("validation.colorNameRequired"));
       return;
     }
 
     if (!/^#[0-9a-fA-F]{6}$/.test(hexCode)) {
-      setColorFormError("Please select a valid color.");
+      setColorFormError(t("validation.invalidColor"));
       return;
     }
 
     const duplicateColor = colors.some(
-      (color) =>
-        color.name.trim().toLowerCase() === name.toLowerCase()
+      (color) => color.name.trim().toLowerCase() === name.toLowerCase()
     );
 
     if (duplicateColor) {
-      setColorFormError(
-        "This color name already exists for this product."
-      );
+      setColorFormError(t("validation.duplicateColorName"));
       return;
     }
 
-    const toastId = toast.loading("Creating product color...");
+    const toastId = toast.loading(t("toast.creatingColor"));
 
     setColorFormError("");
     setCreatingColor(true);
@@ -397,7 +358,6 @@ export default function ProductImageManager({
 
       setColorsError("");
 
-      // Automatically select the newly created color.
       setForm((previous) => ({
         ...previous,
         colorId: String(createdColor.id),
@@ -406,17 +366,17 @@ export default function ProductImageManager({
       resetColorForm();
       setIsColorDropdownOpen(false);
 
-      toast.success("Product color created successfully.", {
+      toast.success(t("toast.colorCreated"), {
         id: toastId,
       });
     } catch (err) {
       console.error("Failed to create product color:", err);
 
       setColorFormError(
-        getErrorMessage(err, "Unable to create product color.")
+        getErrorMessage(err, t("fallbackErrors.createColor"))
       );
 
-      toast.error("Unable to create product color.", {
+      toast.error(t("toast.createColorError"), {
         id: toastId,
       });
     } finally {
@@ -424,26 +384,22 @@ export default function ProductImageManager({
     }
   };
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (busy) {
-      return;
-    }
+    if (busy) return;
 
     setFormError("");
 
     const url = form.url.trim();
 
     if (!url) {
-      setFormError("Image URL is required.");
+      setFormError(t("validation.imageUrlRequired"));
       return;
     }
 
     if (!isValidImageUrl(url)) {
-      setFormError("Please enter a valid HTTP or HTTPS image URL.");
+      setFormError(t("validation.invalidImageUrl"));
       return;
     }
 
@@ -453,18 +409,14 @@ export default function ProductImageManager({
       colorId = Number(form.colorId);
 
       if (!Number.isInteger(colorId) || colorId <= 0) {
-        setFormError("Please select a valid product color.");
+        setFormError(t("validation.validColorRequired"));
         return;
       }
 
-      const colorExists = colors.some(
-        (color) => color.id === colorId
-      );
+      const colorExists = colors.some((color) => color.id === colorId);
 
       if (colorsLoading || !colorExists) {
-        setFormError(
-          "The selected color is unavailable. Please select an existing color."
-        );
+        setFormError(t("validation.colorUnavailable"));
         return;
       }
     }
@@ -476,7 +428,7 @@ export default function ProductImageManager({
       !Number.isInteger(sortOrder) ||
       sortOrder < 0
     ) {
-      setFormError("Sort order must be a non-negative integer.");
+      setFormError(t("validation.invalidSortOrder"));
       return;
     }
 
@@ -490,8 +442,8 @@ export default function ProductImageManager({
 
     const toastId = toast.loading(
       editingId === null
-        ? "Adding product image..."
-        : "Updating product image..."
+        ? t("toast.addingImage")
+        : t("toast.updatingImage")
     );
 
     setSubmitting(true);
@@ -510,9 +462,7 @@ export default function ProductImageManager({
           )
         );
 
-        toast.success("Product image added successfully.", {
-          id: toastId,
-        });
+        toast.success(t("toast.imageAdded"), { id: toastId });
       } else {
         const updatedImage = await updateProductImage(
           editingId,
@@ -523,9 +473,7 @@ export default function ProductImageManager({
           applyImageUpdate(previous, updatedImage)
         );
 
-        toast.success("Product image updated successfully.", {
-          id: toastId,
-        });
+        toast.success(t("toast.imageUpdated"), { id: toastId });
       }
 
       resetForm();
@@ -533,24 +481,19 @@ export default function ProductImageManager({
       console.error("Failed to save product image:", err);
 
       setFormError(
-        getErrorMessage(err, "Unable to save product image.")
+        getErrorMessage(err, t("fallbackErrors.saveImage"))
       );
 
-      toast.error("Unable to save product image. Please try again.", {
-        id: toastId,
-      });
+      toast.error(t("toast.saveImageError"), { id: toastId });
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleSetPrimary = async (image: ProductImage) => {
-    if (busy || image.isPrimary) {
-      return;
-    }
+    if (busy || image.isPrimary) return;
 
-    const toastId = toast.loading("Updating primary image...");
-
+    const toastId = toast.loading(t("toast.updatingPrimary"));
     setSettingPrimaryId(image.id);
 
     try {
@@ -562,13 +505,11 @@ export default function ProductImageManager({
         applyImageUpdate(previous, updatedImage)
       );
 
-      toast.success("Primary image updated successfully.", {
-        id: toastId,
-      });
+      toast.success(t("toast.primaryUpdated"), { id: toastId });
     } catch (err) {
       console.error("Failed to update primary image:", err);
 
-      toast.error("Unable to update primary image. Please try again.", {
+      toast.error(t("toast.primaryUpdateError"), {
         id: toastId,
       });
     } finally {
@@ -577,20 +518,13 @@ export default function ProductImageManager({
   };
 
   const handleDelete = async (image: ProductImage) => {
-    if (busy) {
-      return;
-    }
+    if (busy) return;
 
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this image?"
-    );
+    const confirmed = window.confirm(t("confirmDeleteImage"));
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
-    const toastId = toast.loading("Deleting product image...");
-
+    const toastId = toast.loading(t("toast.deletingImage"));
     setDeletingId(image.id);
 
     try {
@@ -608,13 +542,11 @@ export default function ProductImageManager({
         resetForm();
       }
 
-      toast.success("Product image deleted successfully.", {
-        id: toastId,
-      });
+      toast.success(t("toast.imageDeleted"), { id: toastId });
     } catch (err) {
       console.error("Failed to delete product image:", err);
 
-      toast.error("Unable to delete product image. Please try again.", {
+      toast.error(t("toast.deleteImageError"), {
         id: toastId,
       });
     } finally {
@@ -631,42 +563,37 @@ export default function ProductImageManager({
   };
 
   const getColorLabel = (colorId: number | null) => {
-    if (colorId == null) {
-      return "General";
-    }
+    if (colorId == null) return t("general");
 
     const color = colors.find((item) => item.id === colorId);
 
-    return color?.name ?? `Color #${colorId}`;
+    return color?.name ?? t("colorNumber", { id: colorId });
   };
 
   return (
     <section
-      aria-label="Product image management"
+      aria-label={t("aria.productImageManagement")}
       className="space-y-6"
     >
-      {/* Header */}
       <header className="flex flex-col justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-            Product Management
+            {t("productManagement")}
           </p>
 
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
-            Product Images
+            {t("title")}
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Manage product images, alternative text, display order, and
-            the primary image for each color.
+            {t("subtitle")}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
             <span className="size-1.5 rounded-full bg-cyan-500" />
-
-            {images.length} {images.length === 1 ? "image" : "images"}
+            {t("imageCount", { count: images.length })}
           </span>
 
           <button
@@ -687,21 +614,19 @@ export default function ProductImageManager({
             >
               <path d="M12 5v14M5 12h14" />
             </svg>
-
-            Add Image
+            {t("addImage")}
           </button>
         </div>
       </header>
 
-      {/* Image Library */}
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
           <h3 className="text-base font-semibold text-slate-900">
-            Image Library
+            {t("imageLibrary")}
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            Review and manage all images associated with this product.
+            {t("imageLibrarySubtitle")}
           </p>
         </div>
 
@@ -709,6 +634,7 @@ export default function ProductImageManager({
           <div
             className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4"
             aria-busy="true"
+            aria-label={t("loadingImages")}
           >
             {Array.from({ length: 4 }, (_, index) => (
               <div
@@ -716,7 +642,6 @@ export default function ProductImageManager({
                 className="animate-pulse overflow-hidden rounded-xl border border-slate-200"
               >
                 <div className="aspect-[4/3] bg-slate-100" />
-
                 <div className="space-y-3 p-4">
                   <div className="h-4 w-3/4 rounded bg-slate-200" />
                   <div className="h-3 w-1/2 rounded bg-slate-100" />
@@ -728,7 +653,7 @@ export default function ProductImageManager({
         ) : error ? (
           <div role="alert" className="px-5 py-12 text-center">
             <p className="text-sm font-semibold text-slate-900">
-              Unable to load product images
+              {t("loadImagesErrorTitle")}
             </p>
             <p className="mt-2 text-sm text-rose-600">{error}</p>
           </div>
@@ -750,11 +675,11 @@ export default function ProductImageManager({
             </div>
 
             <p className="mt-4 text-sm font-semibold text-slate-900">
-              No product images
+              {t("noProductImages")}
             </p>
 
             <p className="mt-1 text-sm text-slate-500">
-              Add your first image to get started.
+              {t("addFirstImageSubtitle")}
             </p>
 
             <button
@@ -763,7 +688,7 @@ export default function ProductImageManager({
               disabled={busy || loading}
               className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Add First Image
+              {t("addFirstImage")}
             </button>
           </div>
         ) : (
@@ -778,11 +703,10 @@ export default function ProductImageManager({
                   key={image.id}
                   className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-sm"
                 >
-                  {/* Image Preview */}
                   <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
                     <Image
                       src={image.url}
-                      alt={image.alt || "Product image"}
+                      alt={image.alt || t("productImageAlt")}
                       fill
                       unoptimized
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -799,19 +723,18 @@ export default function ProductImageManager({
                         >
                           <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
                         </svg>
-                        Primary
+                        {t("primary")}
                       </span>
                     )}
                   </div>
 
-                  {/* Image Information */}
                   <div className="space-y-3 p-4">
                     <div>
                       <p
                         className="truncate text-sm font-medium text-slate-900"
                         title={image.alt || image.url}
                       >
-                        {image.alt || "Untitled image"}
+                        {image.alt || t("untitledImage")}
                       </p>
 
                       <p className="mt-1 truncate text-xs text-slate-500">
@@ -821,7 +744,7 @@ export default function ProductImageManager({
 
                     <div className="flex flex-wrap gap-2 text-xs">
                       <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-600">
-                        Order: {image.sortOrder}
+                        {t("orderLabel", { order: image.sortOrder })}
                       </span>
 
                       <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 text-slate-600">
@@ -834,12 +757,12 @@ export default function ProductImageManager({
                             }}
                           />
                         )}
-
-                        Color: {getColorLabel(image.colorId)}
+                        {t("colorLabel", {
+                          color: getColorLabel(normalizeColorId(image.colorId)),
+                        })}
                       </span>
                     </div>
 
-                    {/* Actions */}
                     <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
                       <button
                         type="button"
@@ -847,7 +770,7 @@ export default function ProductImageManager({
                         disabled={busy}
                         className="inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        Edit
+                        {t("edit")}
                       </button>
 
                       <button
@@ -856,7 +779,9 @@ export default function ProductImageManager({
                         disabled={busy}
                         className="inline-flex min-h-9 items-center justify-center rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {deletingId === image.id ? "Deleting..." : "Delete"}
+                        {deletingId === image.id
+                          ? t("deleting")
+                          : t("delete")}
                       </button>
 
                       {!image.isPrimary && (
@@ -867,8 +792,8 @@ export default function ProductImageManager({
                           className="col-span-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {settingPrimaryId === image.id
-                            ? "Updating..."
-                            : "Set as Primary"}
+                            ? t("updating")
+                            : t("setAsPrimary")}
                         </button>
                       )}
                     </div>
@@ -880,7 +805,6 @@ export default function ProductImageManager({
         )}
       </section>
 
-      {/* Add / Edit Image Modal */}
       {imageModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/50 p-4 sm:p-6"
@@ -893,20 +817,21 @@ export default function ProductImageManager({
             className="my-auto w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl"
             style={{ maxHeight: "calc(100dvh - 2rem)" }}
           >
-            {/* Modal Header */}
             <header className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
               <div>
                 <h3
                   id="product-image-modal-title"
                   className="text-lg font-semibold tracking-tight text-slate-900"
                 >
-                  {editingId === null ? "Add Image" : "Edit Image"}
+                  {editingId === null
+                    ? t("addImage")
+                    : t("editImage")}
                 </h3>
 
                 <p className="mt-1 text-sm leading-5 text-slate-500">
                   {editingId === null
-                    ? "Add a new image to this product."
-                    : "Update the image information and display settings."}
+                    ? t("addImageDescription")
+                    : t("editImageDescription")}
                 </p>
               </div>
 
@@ -914,7 +839,7 @@ export default function ProductImageManager({
                 type="button"
                 onClick={resetForm}
                 disabled={busy}
-                aria-label="Close image editor"
+                aria-label={t("aria.closeImageEditor")}
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <svg
@@ -932,19 +857,17 @@ export default function ProductImageManager({
               </button>
             </header>
 
-            {/* Modal Form */}
             <form
               onSubmit={handleSubmit}
               noValidate
               className="space-y-5 p-5 sm:p-6"
             >
-              {/* Image URL */}
               <div>
                 <label
                   htmlFor="product-image-url"
                   className="mb-2 block text-sm font-medium text-slate-700"
                 >
-                  Image URL <span className="text-rose-500">*</span>
+                  {t("imageUrl")} <span className="text-rose-500">*</span>
                 </label>
 
                 <input
@@ -964,13 +887,12 @@ export default function ProductImageManager({
                 />
               </div>
 
-              {/* Alternative Text */}
               <div>
                 <label
                   htmlFor="product-image-alt"
                   className="mb-2 block text-sm font-medium text-slate-700"
                 >
-                  Alternative Text
+                  {t("alternativeText")}
                 </label>
 
                 <input
@@ -983,18 +905,17 @@ export default function ProductImageManager({
                       alt: event.target.value,
                     }))
                   }
-                  placeholder="Describe the product image"
+                  placeholder={t("alternativeTextPlaceholder")}
                   disabled={busy || loading}
                   className={inputClassName}
                 />
 
                 <p className="mt-1.5 text-xs text-slate-400">
-                  Helps screen readers describe the image.
+                  {t("alternativeTextHelp")}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {/* Product Color */}
                 <div
                   ref={colorDropdownRef}
                   className="relative"
@@ -1004,7 +925,7 @@ export default function ProductImageManager({
                       id="product-image-color-label"
                       className="block text-sm font-medium text-slate-700"
                     >
-                      Apply to Color
+                      {t("applyToColor")}
                     </label>
 
                     <button
@@ -1021,11 +942,10 @@ export default function ProductImageManager({
                       }}
                       className="shrink-0 text-xs font-semibold text-blue-600 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {colorFormOpen ? "Cancel" : "+ Add New Color"}
+                      {colorFormOpen ? t("cancel") : t("addNewColor")}
                     </button>
                   </div>
 
-                  {/* Selected Color */}
                   <button
                     id="product-image-color"
                     type="button"
@@ -1057,7 +977,7 @@ export default function ProductImageManager({
 
                       <span className="truncate">
                         {colorsLoading
-                          ? "Loading product colors..."
+                          ? t("loadingProductColors")
                           : selectedColorLabel}
                       </span>
                     </span>
@@ -1078,7 +998,6 @@ export default function ProductImageManager({
                     </svg>
                   </button>
 
-                  {/* Existing Colors */}
                   {isColorDropdownOpen && !colorsLoading && (
                     <div
                       id="product-image-color-options"
@@ -1100,7 +1019,7 @@ export default function ProductImageManager({
                         <span className="size-4 shrink-0 rounded-sm border border-slate-300 bg-white" />
 
                         <span className="min-w-0 flex-1 truncate">
-                          General product image (no color)
+                          {t("generalImageNoColor")}
                         </span>
 
                         {form.colorId === "" && (
@@ -1171,23 +1090,21 @@ export default function ProductImageManager({
 
                       {colors.length === 0 && (
                         <p className="px-3 py-3 text-sm text-slate-500">
-                          No existing colors are available.
+                          {t("noExistingColors")}
                         </p>
                       )}
                     </div>
                   )}
 
-                  {/* Create New Color */}
                   {colorFormOpen && (
                     <div className="mt-3 space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
                       <div>
                         <h4 className="text-sm font-semibold text-slate-900">
-                          Create New Color
+                          {t("createNewColor")}
                         </h4>
 
                         <p className="mt-1 text-xs text-slate-500">
-                          Create a color for this product and use it for
-                          the image.
+                          {t("createColorDescription")}
                         </p>
                       </div>
 
@@ -1196,7 +1113,7 @@ export default function ProductImageManager({
                           htmlFor="new-product-color-name"
                           className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                          Color Name{" "}
+                          {t("colorName")}{" "}
                           <span className="text-rose-500">*</span>
                         </label>
 
@@ -1208,7 +1125,7 @@ export default function ProductImageManager({
                             setNewColorName(event.target.value);
                             setColorFormError("");
                           }}
-                          placeholder="e.g. Midnight Blue"
+                          placeholder={t("colorNamePlaceholder")}
                           maxLength={100}
                           disabled={busy || loading}
                           className={inputClassName}
@@ -1220,7 +1137,7 @@ export default function ProductImageManager({
                           htmlFor="new-product-color-hex"
                           className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                          Color
+                          {t("color")}
                         </label>
 
                         <div className="flex h-11 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3">
@@ -1232,7 +1149,7 @@ export default function ProductImageManager({
                               setNewColorHexCode(event.target.value)
                             }
                             disabled={busy || loading}
-                            aria-label="Choose new product color"
+                            aria-label={t("aria.chooseNewProductColor")}
                             className="h-8 w-10 cursor-pointer rounded border-0 bg-transparent p-0 disabled:cursor-not-allowed"
                           />
 
@@ -1258,7 +1175,7 @@ export default function ProductImageManager({
                           onClick={resetColorForm}
                           className="min-h-9 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          Cancel
+                          {t("cancel")}
                         </button>
 
                         <button
@@ -1267,7 +1184,9 @@ export default function ProductImageManager({
                           onClick={() => void handleCreateColor()}
                           className="min-h-9 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {creatingColor ? "Creating..." : "Create Color"}
+                          {creatingColor
+                            ? t("creatingColor")
+                            : t("createColor")}
                         </button>
                       </div>
                     </div>
@@ -1275,31 +1194,28 @@ export default function ProductImageManager({
 
                   {colorsLoading ? (
                     <p className="mt-1.5 text-xs text-slate-400">
-                      Loading product colors...
+                      {t("loadingProductColors")}
                     </p>
                   ) : colorsError ? (
                     <p
                       role="alert"
                       className="mt-1.5 text-xs leading-5 text-rose-600"
                     >
-                      Unable to load existing colors. You can still try
-                      creating a new color.
+                      {t("colorsLoadWarning")}
                     </p>
                   ) : (
                     <p className="mt-1.5 text-xs leading-5 text-slate-400">
-                      Choose an existing color, create a new one, or
-                      select a general image.
+                      {t("chooseColorHelp")}
                     </p>
                   )}
                 </div>
 
-                {/* Sort Order */}
                 <div>
                   <label
                     htmlFor="product-image-sort"
                     className="mb-2 block text-sm font-medium text-slate-700"
                   >
-                    Display Order
+                    {t("displayOrder")}
                   </label>
 
                   <input
@@ -1320,7 +1236,6 @@ export default function ProductImageManager({
                 </div>
               </div>
 
-              {/* Primary Image */}
               <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-4 transition-colors hover:bg-slate-50">
                 <input
                   type="checkbox"
@@ -1337,17 +1252,15 @@ export default function ProductImageManager({
 
                 <span>
                   <span className="block text-sm font-medium text-slate-800">
-                    Set as primary image
+                    {t("setAsPrimaryImage")}
                   </span>
 
                   <span className="mt-1 block text-xs leading-5 text-slate-500">
-                    Each color group has its own primary image. General
-                    product images form a separate group.
+                    {t("primaryImageHelp")}
                   </span>
                 </span>
               </label>
 
-              {/* Form Error */}
               {formError && (
                 <p
                   role="alert"
@@ -1357,7 +1270,6 @@ export default function ProductImageManager({
                 </p>
               )}
 
-              {/* Modal Actions */}
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button
                   type="button"
@@ -1365,7 +1277,7 @@ export default function ProductImageManager({
                   disabled={busy}
                   className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
 
                 <button
@@ -1387,10 +1299,10 @@ export default function ProductImageManager({
                   )}
 
                   {submitting
-                    ? "Saving..."
+                    ? t("saving")
                     : editingId === null
-                      ? "Add Image"
-                      : "Save Changes"}
+                      ? t("addImage")
+                      : t("saveChanges")}
                 </button>
               </div>
             </form>

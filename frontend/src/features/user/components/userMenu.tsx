@@ -1,14 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import LogoutButton from "../../auth/components/LogoutButton";
 import { useUser } from "@/src/hooks/useUser";
 
 export default function UserMenu() {
+    const t = useTranslations("UserMenu");
     const { user, loading } = useUser();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -27,14 +29,14 @@ export default function UserMenu() {
                         href="/login"
                         className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:px-4"
                     >
-                        Login
+                        {t("login")}
                     </Link>
 
                     <Link
                         href="/register"
                         className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:px-5"
                     >
-                        Register
+                        {t("register")}
                     </Link>
                 </div>
             ) : (
@@ -180,7 +182,7 @@ export default function UserMenu() {
                                                     </svg>
                                                 </span>
 
-                                                Admin Dashboard
+                                                {t("adminDashboard")}
                                             </Link>
                                         )}
 
@@ -213,7 +215,7 @@ export default function UserMenu() {
                                                 </svg>
                                             </span>
 
-                                            My Account
+                                            {t("myAccount")}
                                         </Link>
 
                                         {/* Orders */}
@@ -239,7 +241,7 @@ export default function UserMenu() {
                                                 </svg>
                                             </span>
 
-                                            Orders
+                                            {t("orders")}
                                         </Link>
                                     </div>
 

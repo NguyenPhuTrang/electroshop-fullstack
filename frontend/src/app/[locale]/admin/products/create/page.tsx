@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link, useRouter } from "@/src/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import ProductForm, {
@@ -22,7 +23,10 @@ function generateSlug(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(
+  error: unknown,
+  fallbackMessage: string
+): string {
   if (typeof error === "object" && error !== null) {
     const response = (
       error as {
@@ -41,11 +45,12 @@ function getErrorMessage(error: unknown): string {
     }
   }
 
-  return "Failed to create product. Please try again.";
+  return fallbackMessage;
 }
 
 export default function CreateProductPage() {
   const router = useRouter();
+  const t = useTranslations("CreateProductPage");
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -56,7 +61,7 @@ export default function CreateProductPage() {
     setSubmitting(true);
     setSubmitError("");
 
-    const toastId = toast.loading("Creating product...");
+    const toastId = toast.loading(t("toast.creating"));
 
     try {
       const product = await createProduct({
@@ -67,21 +72,23 @@ export default function CreateProductPage() {
         brandId: Number(values.brandId),
       });
 
-      toast.success("Product created successfully.", {
+      toast.success(t("toast.created"), {
         id: toastId,
-        description:
-          "Continue by configuring product variants and images.",
+        description: t("toast.createdDescription"),
       });
 
       router.push(`/admin/products/${product.id}/edit`);
     } catch (error) {
       console.error("Failed to create product:", error);
 
-      const message = getErrorMessage(error);
+      const message = getErrorMessage(
+        error,
+        t("errors.createFallback")
+      );
 
       setSubmitError(message);
 
-      toast.error("Failed to create product.", {
+      toast.error(t("toast.createFailed"), {
         id: toastId,
         description: message,
       });
@@ -105,16 +112,16 @@ export default function CreateProductPage() {
               <span className="size-2 rounded-full bg-cyan-500" />
 
               <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                Electroshop Administration
+                {t("header.eyebrow")}
               </p>
             </div>
 
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Add Product
+              {t("header.title")}
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Create a product, then configure its variants and images.
+              {t("header.description")}
             </p>
           </div>
 
@@ -135,7 +142,7 @@ export default function CreateProductPage() {
               <path d="m15 18-6-6 6-6" />
             </svg>
 
-            Back to Products
+            {t("buttons.backToProducts")}
           </Link>
         </header>
 
@@ -147,8 +154,7 @@ export default function CreateProductPage() {
           className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
         >
           <ProductForm
-            submitLabel="Create Product"
-            submittingLabel="Creating Product..."
+            mode="create"
             submitting={submitting}
             submitError={submitError}
             onSubmit={handleCreateProduct}

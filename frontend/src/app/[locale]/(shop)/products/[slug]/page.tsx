@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 
 import ProductDetailsInteractive from "@/src/features/product/components/ProductDetailsInteractive";
 import ProductPromotionalVideo from "@/src/features/product/components/ProductPromotionalVideo";

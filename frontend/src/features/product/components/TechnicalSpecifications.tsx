@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useProductSpecifications } from "../hooks/useProductSpecifications";
 
 type TechnicalSpecificationsProps = {
@@ -10,6 +12,8 @@ type TechnicalSpecificationsProps = {
 export default function TechnicalSpecifications({
   productId,
 }: TechnicalSpecificationsProps) {
+  const t = useTranslations("TechnicalSpecifications");
+
   const {
     specifications,
     loading,
@@ -17,7 +21,6 @@ export default function TechnicalSpecifications({
     refetch,
   } = useProductSpecifications(productId);
 
-  // Group specifications by groupName
   const groups = useMemo(() => {
     const grouped = new Map<
       string,
@@ -26,7 +29,7 @@ export default function TechnicalSpecifications({
 
     for (const specification of specifications) {
       const groupName =
-        specification.groupName?.trim() || "General";
+        specification.groupName?.trim() || t("generalGroup");
 
       const currentGroup = grouped.get(groupName) ?? [];
 
@@ -35,11 +38,11 @@ export default function TechnicalSpecifications({
     }
 
     return Array.from(grouped.entries());
-  }, [specifications]);
+  }, [specifications, t]);
 
   return (
     <section
-      aria-label="Technical specifications"
+      aria-label={t("sectionLabel")}
       className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:mt-6"
     >
       {/* Header */}
@@ -48,12 +51,12 @@ export default function TechnicalSpecifications({
           <span className="size-1.5 rounded-full bg-cyan-500" />
 
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Product Details
+            {t("eyebrow")}
           </p>
         </div>
 
         <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-slate-950 sm:text-xl">
-          Technical Specifications
+          {t("title")}
         </h2>
       </div>
 
@@ -62,7 +65,8 @@ export default function TechnicalSpecifications({
         {loading && (
           <div
             className="animate-pulse space-y-3"
-            aria-label="Loading technical specifications"
+            aria-label={t("loadingLabel")}
+            aria-busy="true"
           >
             {Array.from({ length: 4 }).map((_, index) => (
               <div
@@ -79,14 +83,16 @@ export default function TechnicalSpecifications({
         {/* Error */}
         {!loading && error && (
           <div className="py-8 text-center">
-            <p className="text-sm text-rose-600">{error}</p>
+            <p role="alert" className="text-sm text-rose-600">
+              {error}
+            </p>
 
             <button
               type="button"
               onClick={() => void refetch()}
               className="mt-3 rounded-lg border border-blue-200 px-4 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-50"
             >
-              Try Again
+              {t("tryAgain")}
             </button>
           </div>
         )}
@@ -94,7 +100,7 @@ export default function TechnicalSpecifications({
         {/* Empty state */}
         {!loading && !error && specifications.length === 0 && (
           <p className="py-8 text-center text-sm text-slate-500">
-            No technical specifications available for this product yet.
+            {t("emptyMessage")}
           </p>
         )}
 

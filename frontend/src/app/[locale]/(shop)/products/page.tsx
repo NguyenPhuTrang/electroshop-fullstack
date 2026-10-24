@@ -1,7 +1,9 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import ProductCard from "@/src/features/product/components/ProductCard";
 import type { ProductSort } from "@/src/features/product/services/product.service";
@@ -111,6 +113,8 @@ function LoadingBar({
 }
 
 function ProductsPageLoadingSkeleton() {
+  const t = useTranslations("ProductsPage");
+
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
       <div className="mx-auto w-full max-w-[1440px] px-3 py-5 sm:px-5 sm:py-7 lg:px-8 lg:py-8">
@@ -119,7 +123,7 @@ function ProductsPageLoadingSkeleton() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
           aria-busy="true"
-          aria-label="Loading products"
+          aria-label={t("loading.page")}
         >
           {/* Heading Skeleton */}
           <div className="mb-6">
@@ -227,6 +231,8 @@ function ProductsPageLoadingSkeleton() {
 }
 
 export default function ProductsPage() {
+  const t = useTranslations("ProductsPage");
+
   // Search and Filter States
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -281,21 +287,18 @@ export default function ProductsPage() {
     minPriceValue !== undefined &&
     (!Number.isFinite(minPriceValue) || minPriceValue < 0)
   ) {
-    priceRangeError =
-      "Minimum price must be a valid non-negative number.";
+    priceRangeError = t("errors.invalidMinimumPrice");
   } else if (
     maxPriceValue !== undefined &&
     (!Number.isFinite(maxPriceValue) || maxPriceValue < 0)
   ) {
-    priceRangeError =
-      "Maximum price must be a valid non-negative number.";
+    priceRangeError = t("errors.invalidMaximumPrice");
   } else if (
     minPriceValue !== undefined &&
     maxPriceValue !== undefined &&
     minPriceValue > maxPriceValue
   ) {
-    priceRangeError =
-      "Minimum price cannot be greater than maximum price.";
+    priceRangeError = t("errors.minimumGreaterThanMaximum");
   }
 
   // Fetch Products
@@ -397,19 +400,18 @@ export default function ProductsPage() {
             <span className="size-2 rounded-full bg-cyan-500" />
 
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500 sm:text-xs">
-              Explore our collection
+              {t("heading.eyebrow")}
             </p>
           </div>
 
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl lg:text-4xl">
-                All Products
+                {t("heading.title")}
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                Discover electronics for work, entertainment, and
-                everyday life.
+                {t("heading.description")}
               </p>
             </div>
           </div>
@@ -420,7 +422,7 @@ export default function ProductsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
-          aria-label="Search and sort products"
+          aria-label={t("searchSort.ariaLabel")}
           className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_240px] sm:items-end sm:p-5"
         >
           {/* Search */}
@@ -429,7 +431,7 @@ export default function ProductsPage() {
               htmlFor="product-search"
               className="mb-2 block text-sm font-semibold text-slate-800"
             >
-              Search products
+              {t("searchSort.searchLabel")}
             </label>
 
             <div className="relative">
@@ -453,7 +455,7 @@ export default function ProductsPage() {
                   setSearch(event.target.value);
                   setPage(1);
                 }}
-                placeholder="Search by product name..."
+                placeholder={t("searchSort.searchPlaceholder")}
                 className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-800 focus:bg-white focus:ring-4 focus:ring-slate-900/5"
               />
             </div>
@@ -465,7 +467,7 @@ export default function ProductsPage() {
               htmlFor="product-sort"
               className="mb-2 block text-sm font-semibold text-slate-800"
             >
-              Sort by
+              {t("searchSort.sortLabel")}
             </label>
 
             <select
@@ -477,10 +479,10 @@ export default function ProductsPage() {
               }}
               className={inputClassName}
             >
-              <option value="">Default order</option>
-              <option value="newest">Newest</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
+              <option value="">{t("sort.default")}</option>
+              <option value="newest">{t("sort.newest")}</option>
+              <option value="price_asc">{t("sort.priceAscending")}</option>
+              <option value="price_desc">{t("sort.priceDescending")}</option>
             </select>
           </div>
         </motion.section>
@@ -515,7 +517,7 @@ export default function ProductsPage() {
                 </span>
 
                 <h2 className="text-base font-semibold text-slate-900">
-                  Filters
+                  {t("filters.title")}
                 </h2>
 
                 {hasActiveFilters && (
@@ -538,7 +540,7 @@ export default function ProductsPage() {
                   onClick={clearFilters}
                   className="rounded-lg px-2 py-1 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-950"
                 >
-                  Clear all
+                  {t("filters.clearAll")}
                 </button>
               )}
             </div>
@@ -550,7 +552,7 @@ export default function ProductsPage() {
                   htmlFor="product-category-filter"
                   className="mb-1.5 block text-xs font-medium text-slate-600"
                 >
-                  Category
+                  {t("filters.category")}
                 </label>
 
                 <div className="relative">
@@ -563,7 +565,7 @@ export default function ProductsPage() {
                     }}
                     className={`${inputClassName} appearance-none pr-9`}
                   >
-                    <option value="">All categories</option>
+                    <option value="">{t("filters.allCategories")}</option>
 
                     {categories.map((category) => (
                       <option
@@ -598,7 +600,7 @@ export default function ProductsPage() {
                   htmlFor="product-brand-filter"
                   className="mb-1.5 block text-xs font-medium text-slate-600"
                 >
-                  Brand
+                  {t("filters.brand")}
                 </label>
 
                 <div className="relative">
@@ -611,7 +613,7 @@ export default function ProductsPage() {
                     }}
                     className={`${inputClassName} appearance-none pr-9`}
                   >
-                    <option value="">All brands</option>
+                    <option value="">{t("filters.allBrands")}</option>
 
                     {brands.map((brand) => (
                       <option key={brand.id} value={brand.id}>
@@ -640,7 +642,7 @@ export default function ProductsPage() {
               {/* Price Range */}
               <div className="border-t border-slate-100 pt-4">
                 <p className="mb-1.5 text-xs font-medium text-slate-600">
-                  Price range
+                  {t("filters.priceRange")}
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -649,7 +651,7 @@ export default function ProductsPage() {
                       htmlFor="product-min-price"
                       className="sr-only"
                     >
-                      Minimum price
+                      {t("filters.minimumPrice")}
                     </label>
 
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
@@ -666,7 +668,7 @@ export default function ProductsPage() {
                         setMinPrice(event.target.value);
                         setPage(1);
                       }}
-                      placeholder="Min"
+                      placeholder={t("filters.minimumPlaceholder")}
                       className={`${inputClassName} pl-12 ${
                         priceRangeError && minPrice
                           ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/10"
@@ -687,7 +689,7 @@ export default function ProductsPage() {
                       htmlFor="product-max-price"
                       className="sr-only"
                     >
-                      Maximum price
+                      {t("filters.maximumPrice")}
                     </label>
 
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
@@ -704,7 +706,7 @@ export default function ProductsPage() {
                         setMaxPrice(event.target.value);
                         setPage(1);
                       }}
-                      placeholder="Max"
+                      placeholder={t("filters.maximumPlaceholder")}
                       className={`${inputClassName} pl-12 ${
                         priceRangeError && maxPrice
                           ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/10"
@@ -752,15 +754,15 @@ export default function ProductsPage() {
             viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="min-w-0"
-            aria-label="Product results"
+            aria-label={t("results.ariaLabel")}
             aria-busy={isLoading}
           >
             {/* Results Heading */}
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">
                 {debouncedSearch
-                  ? "Search Results"
-                  : "Explore Products"}
+                  ? t("results.searchTitle")
+                  : t("results.exploreTitle")}
               </h2>
 
               {!isLoading &&
@@ -768,10 +770,11 @@ export default function ProductsPage() {
                 !priceRangeError &&
                 products.length > 0 && (
                   <p className="text-xs text-slate-500">
-                    {products.length}{" "}
-                    {products.length === 1 ? "product" : "products"}
-                    {" · "}
-                    Page {page} of {pagination.totalPages}
+                    {t("results.summary", {
+                      count: products.length,
+                      page,
+                      totalPages: pagination.totalPages,
+                    })}
                   </p>
                 )}
             </div>
@@ -785,11 +788,11 @@ export default function ProductsPage() {
                 className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-10 text-center"
               >
                 <h3 className="text-base font-semibold text-slate-900">
-                  Check your price range
+                  {t("priceError.title")}
                 </h3>
 
                 <p className="mt-2 text-sm text-slate-600">
-                  Correct the price filters above to see matching products.
+                  {t("priceError.description")}
                 </p>
               </motion.div>
             ) : isLoading ? (
@@ -832,7 +835,7 @@ export default function ProductsPage() {
                 </div>
 
                 <h3 className="mt-4 text-base font-semibold text-slate-900">
-                  Unable to load products
+                  {t("errorState.title")}
                 </h3>
 
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
@@ -862,12 +865,11 @@ export default function ProductsPage() {
                 </div>
 
                 <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-900">
-                  No products found
+                  {t("empty.title")}
                 </h3>
 
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                  Try a different keyword or adjust your filters to find
-                  what you are looking for.
+                  {t("empty.description")}
                 </p>
 
                 {hasActiveFilters && (
@@ -876,12 +878,12 @@ export default function ProductsPage() {
                     onClick={clearFilters}
                     className="mt-5 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
                   >
-                    Clear all filters
+                    {t("filters.clearAll")}
                   </button>
                 )}
               </motion.div>
             ) : (
-              /* Product Grid — same animation pattern as Home */
+              /* Product Grid */
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-5">
                 {products.map((product, index) => {
                   const priceVariant = getLowestPriceVariant(product);
@@ -900,14 +902,14 @@ export default function ProductsPage() {
                       whileHover={{ y: -5 }}
                       className="min-w-0"
                     >
-                     <ProductCard
-                      name={product.name}
-                      price={priceVariant?.price ?? "0"}
-                      salePrice={priceVariant?.salePrice ?? null}
-                      image={getPrimaryProductImage(product)}
-                      slug={product.slug}
-                      priority={page === 1 && index < 3}
-                    />
+                      <ProductCard
+                        name={product.name}
+                        price={priceVariant?.price ?? "0"}
+                        salePrice={priceVariant?.salePrice ?? null}
+                        image={getPrimaryProductImage(product)}
+                        slug={product.slug}
+                        priority={page === 1 && index < 3}
+                      />
                     </motion.div>
                   );
                 })}
@@ -926,7 +928,7 @@ export default function ProductsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.12, ease: "easeOut" }}
-              aria-label="Product pagination"
+              aria-label={t("pagination.ariaLabel")}
               className="mt-7 flex flex-wrap items-center justify-center gap-1.5 border-t border-slate-200 pt-5"
             >
               <button
@@ -935,11 +937,11 @@ export default function ProductsPage() {
                 onClick={() =>
                   setPage((current) => Math.max(1, current - 1))
                 }
-                aria-label="Previous page"
+                aria-label={t("pagination.previousAriaLabel")}
                 className="flex h-9 items-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span aria-hidden="true">←</span>
-                <span className="ml-1.5">Previous</span>
+                <span className="ml-1.5">{t("pagination.previous")}</span>
               </button>
 
               {visiblePages.map((pageNumber, index) =>
@@ -956,7 +958,9 @@ export default function ProductsPage() {
                     key={pageNumber}
                     type="button"
                     onClick={() => setPage(pageNumber)}
-                    aria-label={`Go to page ${pageNumber}`}
+                    aria-label={t("pagination.goToPage", {
+                      page: pageNumber,
+                    })}
                     aria-current={
                       page === pageNumber ? "page" : undefined
                     }
@@ -979,10 +983,10 @@ export default function ProductsPage() {
                     Math.min(pagination.totalPages, current + 1)
                   )
                 }
-                aria-label="Next page"
+                aria-label={t("pagination.nextAriaLabel")}
                 className="flex h-9 items-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <span className="mr-1.5">Next</span>
+                <span className="mr-1.5">{t("pagination.next")}</span>
                 <span aria-hidden="true">→</span>
               </button>
             </motion.nav>

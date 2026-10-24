@@ -1,10 +1,11 @@
 
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/src/i18n/navigation";
 import { useParams } from "next/navigation";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import ProductImageManager from "@/src/features/product/components/ProductImageManager";
 
@@ -30,13 +31,15 @@ function LoadingBar({
 }
 
 function ProductImagesLoadingSkeleton() {
+  const t = useTranslations("ProductImagesPage");
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       aria-busy="true"
-      aria-label="Loading product images"
+      aria-label={t("loading.label")}
       className="space-y-6"
     >
       {/* Product Image Manager Header Skeleton */}
@@ -60,7 +63,10 @@ function ProductImagesLoadingSkeleton() {
 
           <div className="flex items-center gap-3">
             <LoadingBar className="h-7 w-20 rounded-full bg-slate-100" />
-            <LoadingBar className="h-10 w-32 rounded-lg bg-slate-200" delay={0.1} />
+            <LoadingBar
+              className="h-10 w-32 rounded-lg bg-slate-200"
+              delay={0.1}
+            />
           </div>
         </div>
       </motion.div>
@@ -113,6 +119,7 @@ function ProductImagesLoadingSkeleton() {
 
 export default function ProductImagesPage() {
   const params = useParams<{ id: string }>();
+  const t = useTranslations("ProductImagesPage");
   const productId = Number(params.id);
 
   const [imageManagerLoading, setImageManagerLoading] = useState(true);
@@ -144,18 +151,18 @@ export default function ProductImagesPage() {
           className="mx-auto max-w-7xl rounded-xl border border-slate-200 bg-white p-6"
         >
           <h1 className="text-lg font-semibold text-slate-900">
-            Invalid Product ID
+            {t("invalidProduct.title")}
           </h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Please select a valid product to manage its images.
+            {t("invalidProduct.description")}
           </p>
 
           <Link
             href="/admin/products"
             className="mt-5 inline-flex min-h-10 items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
-            Back to Products
+            {t("buttons.backToProducts")}
           </Link>
         </motion.div>
       </main>
@@ -183,19 +190,19 @@ export default function ProductImagesPage() {
         >
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-              Electroshop Administration
+              {t("header.eyebrow")}
             </p>
 
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Manage Product Images
+              {t("header.title")}
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Manage images for product #{productId}.
+              {t("header.description", { id: productId })}
             </p>
 
             <p className="mt-2 text-xs text-slate-400">
-              Product ID: {productId}
+              {t("header.productId", { id: productId })}
             </p>
           </div>
 
@@ -218,7 +225,7 @@ export default function ProductImagesPage() {
                 <path d="m15 18-6-6 6-6" />
               </svg>
 
-              Back to Products
+              {t("buttons.backToProducts")}
             </Link>
           </div>
         </motion.header>
