@@ -66,9 +66,7 @@ function getProductVariantSummary(product: Product) {
     0
   );
 
-  const hasLowStockVariant = activeVariants.some(
-    (variant) => variant.stock <= 10
-  );
+ const hasLowStockVariant = activeVariants.length > 0 && stock <= 10;
 
   const lowestSellingPrice =
     lowestPriceVariant !== null
