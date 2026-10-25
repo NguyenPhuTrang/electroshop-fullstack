@@ -1,11 +1,11 @@
 "use client";
 
-import { Link } from "@/src/i18n/navigation";
-import { useRouter } from "@/src/i18n/navigation";
 import { useState, type FormEvent } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
+import { Link, useRouter } from "@/src/i18n/navigation";
 import { createCategory } from "@/src/features/category/services/category.service";
 
 type CategoryFormErrors = {
@@ -14,6 +14,7 @@ type CategoryFormErrors = {
 };
 
 export default function CreateCategoryPage() {
+    const t = useTranslations("CreateCategoryPage");
     const router = useRouter();
 
     const [name, setName] = useState("");
@@ -40,15 +41,14 @@ export default function CreateCategoryPage() {
 
         // Validate category name.
         if (!trimmedName) {
-            nextErrors.name = "Category name is required.";
+            nextErrors.name = t("validation.nameRequired");
         }
 
         // Validate category slug.
         if (!trimmedSlug) {
-            nextErrors.slug = "Category slug is required.";
+            nextErrors.slug = t("validation.slugRequired");
         } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(trimmedSlug)) {
-            nextErrors.slug =
-                "Use lowercase letters, numbers, and hyphens only.";
+            nextErrors.slug = t("validation.slugFormat");
         }
 
         setErrors(nextErrors);
@@ -57,7 +57,7 @@ export default function CreateCategoryPage() {
             return;
         }
 
-        const toastId = toast.loading("Creating category...");
+        const toastId = toast.loading(t("toasts.creating"));
         setSubmitting(true);
 
         try {
@@ -67,7 +67,7 @@ export default function CreateCategoryPage() {
                 description: trimmedDescription || undefined,
             });
 
-            toast.success("Category created successfully.", {
+            toast.success(t("toasts.created"), {
                 id: toastId,
             });
 
@@ -75,10 +75,9 @@ export default function CreateCategoryPage() {
         } catch (error) {
             console.error("Failed to create category:", error);
 
-            toast.error(
-                "Unable to create category. Check that the name and slug are unique.",
-                { id: toastId }
-            );
+            toast.error(t("toasts.createFailed"), {
+                id: toastId,
+            });
         } finally {
             setSubmitting(false);
         }
@@ -102,16 +101,16 @@ export default function CreateCategoryPage() {
                     <span className="size-2 rounded-full bg-cyan-500" />
 
                     <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                        Electroshop Administration
+                        {t("header.brand")}
                     </p>
                 </div>
 
                 <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                    Create Category
+                    {t("header.title")}
                 </h1>
 
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Add a new category to organize your products.
+                    {t("header.description")}
                 </p>
             </motion.header>
 
@@ -128,7 +127,7 @@ export default function CreateCategoryPage() {
                             htmlFor="category-name"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Category Name
+                            {t("fields.name")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -144,7 +143,7 @@ export default function CreateCategoryPage() {
                                     name: undefined,
                                 }));
                             }}
-                            placeholder="e.g. Smartphones"
+                            placeholder={t("fields.namePlaceholder")}
                             required
                             aria-invalid={Boolean(errors.name)}
                             aria-describedby={
@@ -174,7 +173,7 @@ export default function CreateCategoryPage() {
                             htmlFor="category-slug"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Slug
+                            {t("fields.slug")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -190,7 +189,7 @@ export default function CreateCategoryPage() {
                                     slug: undefined,
                                 }));
                             }}
-                            placeholder="e.g. smartphones"
+                            placeholder={t("fields.slugPlaceholder")}
                             required
                             aria-invalid={Boolean(errors.slug)}
                             aria-describedby="category-slug-hint"
@@ -205,8 +204,7 @@ export default function CreateCategoryPage() {
                             id="category-slug-hint"
                             className="mt-2 text-xs text-slate-500"
                         >
-                            Use lowercase letters, numbers, and hyphens.
-                            For example: computer-accessories.
+                            {t("fields.slugHint")}
                         </p>
 
                         {errors.slug && (
@@ -225,9 +223,10 @@ export default function CreateCategoryPage() {
                             htmlFor="category-description"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Description
+                            {t("fields.description")}
+
                             <span className="ml-2 text-xs font-normal text-slate-400">
-                                Optional
+                                {t("common.optional")}
                             </span>
                         </label>
 
@@ -237,7 +236,7 @@ export default function CreateCategoryPage() {
                             onChange={(event) =>
                                 setDescription(event.target.value)
                             }
-                            placeholder="Describe the products in this category..."
+                            placeholder={t("fields.descriptionPlaceholder")}
                             rows={4}
                             className="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                         />
@@ -250,7 +249,7 @@ export default function CreateCategoryPage() {
                         href="/admin/categories"
                         className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     >
-                        Cancel
+                        {t("buttons.cancel")}
                     </Link>
 
                     <button
@@ -261,7 +260,7 @@ export default function CreateCategoryPage() {
                         {submitting ? (
                             <>
                                 <span className="size-4 animate-spin rounded-full border-2 border-blue-200 border-t-white" />
-                                Creating...
+                                {t("buttons.creating")}
                             </>
                         ) : (
                             <>
@@ -277,7 +276,7 @@ export default function CreateCategoryPage() {
                                     <path d="M12 5v14M5 12h14" />
                                 </svg>
 
-                                Create Category
+                                {t("buttons.create")}
                             </>
                         )}
                     </button>

@@ -1,7 +1,11 @@
+import { useTranslations } from "next-intl";
+
 export default function Footer() {
+    const t = useTranslations("Footer");
+
     return (
         <footer className="border-t border-slate-200 bg-white">
-             <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between gap-4 px-3 sm:px-4 lg:px-6">
+            <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between gap-4 px-3 sm:px-4 lg:px-6">
                 {/* Brand */}
                 <div className="flex items-center gap-2">
                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -26,7 +30,7 @@ export default function Footer() {
 
                 {/* Copyright */}
                 <p className="text-center text-xs text-slate-500 sm:text-sm">
-                    © 2026 Electroshop. All rights reserved.
+                    {t("copyright")}
                 </p>
             </div>
         </footer>

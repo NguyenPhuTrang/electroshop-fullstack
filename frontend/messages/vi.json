@@ -1145,33 +1145,46 @@
     "header": {
       "badge": "Quản lý đơn hàng",
       "title": "Chi tiết đơn hàng",
-      "description": "Xem thông tin đơn hàng, giao hàng, thanh toán và tổng tiền."
+      "description": "Xem thông tin đơn hàng, giao hàng, thanh toán và tổng tiền.",
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "orderNumber": "Đơn hàng {orderNumber}",
+      "createdOn": "Ngày tạo: {date}"
     },
     "shipping": {
       "title": "Thông tin giao hàng",
-      "description": "Thông tin người nhận và giao hàng của đơn hàng này.",
+      "description": "Thông tin người nhận và địa chỉ giao hàng",
       "recipientName": "Tên người nhận",
       "phoneNumber": "Số điện thoại",
       "streetAddress": "Địa chỉ đường",
       "city": "Thành phố",
-      "district": "Quận / Huyện",
-      "orderNote": "Ghi chú đơn hàng"
+      "district": "Quận/Huyện",
+      "orderNote": "Ghi chú đơn hàng",
+      "recipient": "Người nhận",
+      "phone": "Số điện thoại",
+      "address": "Địa chỉ",
+      "note": "Ghi chú"
     },
     "items": {
-      "title": "Sản phẩm",
-      "description": "Các sản phẩm có trong đơn hàng này.",
+      "title": "Sản phẩm trong đơn hàng",
+      "description": "{count} sản phẩm trong đơn hàng này",
       "count": "{count} sản phẩm",
-      "quantity": "Số lượng: {count}",
-      "sku": "Mã SKU",
-      "subtotal": "Thành tiền"
+      "quantity": "Số lượng: {quantity}",
+      "sku": "SKU: {sku}",
+      "subtotal": "Thành tiền",
+      "empty": "Không có sản phẩm nào trong đơn hàng này."
     },
     "payment": {
       "title": "Thông tin thanh toán",
-      "description": "Phương thức thanh toán và chi tiết giao dịch.",
-      "method": "Phương thức thanh toán",
-      "status": "Trạng thái thanh toán",
-      "amount": "Số tiền thanh toán",
-      "unavailable": "Không có thông tin thanh toán cho đơn hàng này."
+      "description": "Chi tiết thanh toán và trạng thái giao dịch",
+      "method": "Phương thức",
+      "status": "Trạng thái",
+      "amount": "Số tiền",
+      "unavailable": "Không có thông tin thanh toán cho đơn hàng này.",
+      "transactionId": "Mã giao dịch",
+      "paidAt": "Thời gian thanh toán",
+      "notPaid": "Chưa thanh toán",
+      "noInformation": "Không có thông tin thanh toán",
+      "noInformationDescription": "Đơn hàng này chưa có thông tin thanh toán được ghi nhận."
     },
     "bankTransfer": {
       "title": "Thông tin chuyển khoản ngân hàng",
@@ -1187,7 +1200,11 @@
       "subtotal": "Tạm tính",
       "shippingFee": "Phí vận chuyển",
       "discount": "Giảm giá",
-      "total": "Tổng cộng"
+      "total": "Tổng cộng",
+      "description": "Chi tiết các khoản thanh toán",
+      "orderStatus": "Trạng thái đơn hàng",
+      "created": "Ngày tạo",
+      "updated": "Cập nhật lần cuối"
     },
     "methods": {
       "cod": "Thanh toán khi nhận hàng (COD)",
@@ -1196,7 +1213,7 @@
       "vnpay": "VNPay"
     },
     "statuses": {
-      "pending": "Đang chờ xử lý",
+      "pending": "Chờ xử lý",
       "processing": "Đang xử lý",
       "confirmed": "Đã xác nhận",
       "shipped": "Đã gửi hàng",
@@ -1209,6 +1226,29 @@
       "failed": "Thất bại",
       "refunded": "Đã hoàn tiền",
       "partiallyRefunded": "Đã hoàn tiền một phần"
+    },
+    "loading": {
+      "ariaLabel": "Đang tải chi tiết đơn hàng"
+    },
+    "errors": {
+      "title": "Không thể tải đơn hàng",
+      "orderNotFound": "Không tìm thấy đơn hàng."
+    },
+    "buttons": {
+      "backToUser": "Quay lại người dùng",
+      "backToOrders": "Quay lại danh sách đơn hàng"
+    },
+    "customer": {
+      "title": "Thông tin khách hàng",
+      "description": "Thông tin tài khoản khách hàng",
+      "name": "Họ tên",
+      "email": "Email"
+    },
+    "paymentMethods": {
+      "cod": "Thanh toán khi nhận hàng",
+      "bankTransfer": "Chuyển khoản ngân hàng",
+      "creditCard": "Thẻ tín dụng",
+      "vnpay": "VNPay"
     }
   },
   "CancelOrderButton": {
@@ -1405,7 +1445,7 @@
   },
   "AdminDashboardPage": {
     "header": {
-      "brand": "Trang quản trị Electroshop",
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
       "title": "Tổng quan",
       "description": "Theo dõi hiệu suất cửa hàng, đơn hàng, sản phẩm và hoạt động của khách hàng."
     },
@@ -1548,5 +1588,626 @@
       "revenue": "Doanh thu",
       "dateLabel": "Ngày: {date}"
     }
+  },
+  "AdminBrandsPage": {
+    "header": {
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "title": "Quản lý thương hiệu",
+      "description": "Quản lý thương hiệu, logo và thông tin thương hiệu."
+    },
+    "buttons": {
+      "addBrand": "Thêm thương hiệu",
+      "tryAgain": "Thử lại",
+      "edit": "Sửa",
+      "delete": "Xóa",
+      "deleting": "Đang xóa...",
+      "cancel": "Hủy",
+      "createBrand": "Tạo thương hiệu",
+      "creating": "Đang tạo...",
+      "saveChanges": "Lưu thay đổi",
+      "saving": "Đang lưu..."
+    },
+    "search": {
+      "sectionLabel": "Tìm kiếm thương hiệu",
+      "title": "Tìm kiếm thương hiệu",
+      "placeholder": "Tìm theo tên thương hiệu, slug hoặc mô tả...",
+      "ariaLabel": "Tìm kiếm thương hiệu"
+    },
+    "table": {
+      "sectionLabel": "Danh sách thương hiệu",
+      "title": "Thương hiệu",
+      "description": "Xem và quản lý thương hiệu của cửa hàng."
+    },
+    "counts": {
+      "single": "{count} thương hiệu",
+      "multiple": "{count} thương hiệu"
+    },
+    "loading": {
+      "ariaLabel": "Đang tải thương hiệu"
+    },
+    "errors": {
+      "title": "Không thể tải thương hiệu"
+    },
+    "empty": {
+      "matchingTitle": "Không tìm thấy thương hiệu phù hợp",
+      "matchingDescription": "Hãy thử một từ khóa tìm kiếm khác.",
+      "noBrandsTitle": "Chưa có thương hiệu",
+      "noBrandsDescription": "Thêm thương hiệu đầu tiên để bắt đầu."
+    },
+    "columns": {
+      "brand": "Thương hiệu",
+      "slug": "Slug",
+      "description": "Mô tả",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác"
+    },
+    "brandLogoAlt": "Logo {name}",
+    "deleteConfirmation": "Bạn có chắc chắn muốn xóa thương hiệu này không? Hành động này không thể hoàn tác.",
+    "toasts": {
+      "deleting": "Đang xóa thương hiệu...",
+      "deleted": "Đã xóa thương hiệu thành công.",
+      "deleteFailed": "Không thể xóa thương hiệu. Thương hiệu có thể đang được sử dụng bởi sản phẩm hiện có.",
+      "creating": "Đang tạo thương hiệu...",
+      "created": "Tạo thương hiệu thành công.",
+      "createFailed": "Không thể tạo thương hiệu. Hãy kiểm tra tên và slug chưa bị trùng, đồng thời đảm bảo URL logo hợp lệ.",
+      "updating": "Đang cập nhật thương hiệu...",
+      "updated": "Cập nhật thương hiệu thành công.",
+      "updateFailed": "Không thể cập nhật thương hiệu. Hãy kiểm tra tên và slug chưa bị trùng, đồng thời đảm bảo URL logo hợp lệ."
+    },
+    "modal": {
+      "createTitle": "Thêm thương hiệu",
+      "createDescription": "Nhập thông tin cho thương hiệu mới.",
+      "editTitle": "Chỉnh sửa thương hiệu",
+      "editDescription": "Cập nhật thông tin thương hiệu bên dưới.",
+      "currentLogo": "Logo hiện tại",
+      "close": "Đóng biểu mẫu thương hiệu"
+    },
+    "fields": {
+      "name": "Tên thương hiệu",
+      "namePlaceholder": "Ví dụ: Apple",
+      "slug": "Slug",
+      "slugPlaceholder": "Ví dụ: apple",
+      "slugHint": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang. Ví dụ: samsung-galaxy.",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Nhập thông tin về thương hiệu này...",
+      "logoUrl": "URL logo",
+      "newLogoUrl": "URL logo mới",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "createLogoHint": "Nhập URL hình ảnh có thể truy cập công khai. Backend sẽ tải hình ảnh lên Cloudinary.",
+      "editLogoHint": "Nhập URL công khai mới để thay logo hiện tại. Để trống nếu muốn giữ logo hiện tại."
+    },
+    "common": {
+      "optional": "Không bắt buộc"
+    },
+    "validation": {
+      "nameRequired": "Tên thương hiệu là bắt buộc.",
+      "slugRequired": "Slug thương hiệu là bắt buộc.",
+      "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang.",
+      "logoProtocol": "URL logo phải bắt đầu bằng http:// hoặc https://.",
+      "logoInvalid": "Vui lòng nhập URL logo hợp lệ."
+    }
+  },
+  "EditBrandPage": {
+    "header": {
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "title": "Chỉnh sửa thương hiệu",
+      "description": "Cập nhật thông tin cho thương hiệu {name}."
+    },
+    "fields": {
+      "name": "Tên thương hiệu",
+      "slug": "Slug",
+      "slugHint": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang.",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Nhập thông tin về thương hiệu này..."
+    },
+    "common": {
+      "optional": "Không bắt buộc"
+    },
+    "logo": {
+      "current": "Logo hiện tại",
+      "newUrl": "URL logo mới",
+      "placeholder": "https://example.com/new-logo.png",
+      "alt": "Logo {name}",
+      "hint": "Nhập URL công khai để thay thế logo hiện tại. Để trống nếu muốn giữ logo hiện tại. Backend sẽ tải ảnh thay thế lên Cloudinary."
+    },
+    "loading": {
+      "ariaLabel": "Đang tải thương hiệu",
+      "message": "Đang tải thương hiệu..."
+    },
+    "errors": {
+      "invalidBrandId": "ID thương hiệu không hợp lệ.",
+      "loadFailed": "Không thể tải thương hiệu. Vui lòng thử lại.",
+      "title": "Không thể tải thương hiệu",
+      "brandNotFound": "Không tìm thấy thương hiệu."
+    },
+    "validation": {
+      "nameRequired": "Tên thương hiệu là bắt buộc.",
+      "slugRequired": "Slug thương hiệu là bắt buộc.",
+      "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang.",
+      "logoProtocol": "URL logo phải bắt đầu bằng http:// hoặc https://.",
+      "logoInvalid": "Vui lòng nhập URL logo hợp lệ."
+    },
+    "buttons": {
+      "tryAgain": "Thử lại",
+      "backToBrands": "Quay lại danh sách thương hiệu",
+      "cancel": "Hủy",
+      "saving": "Đang lưu...",
+      "saveChanges": "Lưu thay đổi"
+    },
+    "toasts": {
+      "updating": "Đang cập nhật thương hiệu...",
+      "updated": "Cập nhật thương hiệu thành công.",
+      "updateFailed": "Không thể cập nhật thương hiệu. Hãy kiểm tra tên, slug chưa bị trùng và URL logo hợp lệ."
+    }
+  },
+  "CreateBrandPage": {
+    "header": {
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "title": "Tạo thương hiệu",
+      "description": "Thêm thương hiệu mới vào cửa hàng."
+    },
+    "fields": {
+      "name": "Tên thương hiệu",
+      "namePlaceholder": "Ví dụ: Apple",
+      "slug": "Slug",
+      "slugPlaceholder": "Ví dụ: apple",
+      "slugHint": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang. Ví dụ: samsung-galaxy.",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Nhập thông tin về thương hiệu này...",
+      "logoUrl": "URL logo",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "logoHint": "Nhập URL hình ảnh có thể truy cập công khai. Backend sẽ tải hình ảnh lên Cloudinary."
+    },
+    "common": {
+      "optional": "Không bắt buộc"
+    },
+    "buttons": {
+      "cancel": "Hủy",
+      "creating": "Đang tạo...",
+      "create": "Tạo thương hiệu"
+    },
+    "validation": {
+      "nameRequired": "Tên thương hiệu là bắt buộc.",
+      "slugRequired": "Slug thương hiệu là bắt buộc.",
+      "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang.",
+      "logoProtocol": "URL logo phải bắt đầu bằng http:// hoặc https://.",
+      "logoInvalid": "Vui lòng nhập URL logo hợp lệ."
+    },
+    "toasts": {
+      "creating": "Đang tạo thương hiệu...",
+      "created": "Tạo thương hiệu thành công.",
+      "createFailed": "Không thể tạo thương hiệu. Hãy kiểm tra tên và slug chưa bị trùng, đồng thời đảm bảo URL logo hợp lệ."
+    }
+  },
+  "AdminCategoriesPage": {
+    "header": {
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "title": "Quản lý danh mục",
+      "description": "Quản lý danh mục sản phẩm và thông tin danh mục."
+    },
+    "buttons": {
+      "addCategory": "Thêm danh mục",
+      "tryAgain": "Thử lại",
+      "edit": "Sửa",
+      "delete": "Xóa",
+      "deleting": "Đang xóa...",
+      "cancel": "Hủy",
+      "createCategory": "Tạo danh mục",
+      "creating": "Đang tạo...",
+      "saveChanges": "Lưu thay đổi",
+      "saving": "Đang lưu..."
+    },
+    "search": {
+      "sectionLabel": "Tìm kiếm danh mục",
+      "title": "Tìm kiếm danh mục",
+      "placeholder": "Tìm theo tên danh mục, slug hoặc mô tả...",
+      "ariaLabel": "Tìm kiếm danh mục"
+    },
+    "table": {
+      "sectionLabel": "Danh sách danh mục",
+      "title": "Danh mục",
+      "description": "Xem và quản lý danh mục của cửa hàng."
+    },
+    "counts": {
+      "single": "{count} danh mục",
+      "multiple": "{count} danh mục"
+    },
+    "loading": {
+      "ariaLabel": "Đang tải danh mục"
+    },
+    "errors": {
+      "title": "Không thể tải danh mục"
+    },
+    "empty": {
+      "matchingTitle": "Không tìm thấy danh mục phù hợp",
+      "matchingDescription": "Hãy thử một từ khóa tìm kiếm khác.",
+      "noCategoriesTitle": "Chưa có danh mục",
+      "noCategoriesDescription": "Thêm danh mục đầu tiên để bắt đầu."
+    },
+    "columns": {
+      "category": "Danh mục",
+      "slug": "Slug",
+      "description": "Mô tả",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác"
+    },
+    "deleteConfirmation": "Bạn có chắc chắn muốn xóa danh mục này không? Hành động này không thể hoàn tác.",
+    "toasts": {
+      "deleting": "Đang xóa danh mục...",
+      "deleted": "Đã xóa danh mục thành công.",
+      "deleteFailed": "Không thể xóa danh mục. Danh mục có thể đang được sử dụng bởi sản phẩm hiện có.",
+      "creating": "Đang tạo danh mục...",
+      "created": "Tạo danh mục thành công.",
+      "createFailed": "Không thể tạo danh mục. Hãy kiểm tra tên và slug chưa bị trùng.",
+      "updating": "Đang cập nhật danh mục...",
+      "updated": "Cập nhật danh mục thành công.",
+      "updateFailed": "Không thể cập nhật danh mục. Hãy kiểm tra tên và slug chưa bị trùng."
+    },
+    "modal": {
+      "createTitle": "Thêm danh mục",
+      "createDescription": "Nhập thông tin cho danh mục mới.",
+      "editTitle": "Chỉnh sửa danh mục",
+      "editDescription": "Cập nhật thông tin danh mục bên dưới.",
+      "close": "Đóng biểu mẫu danh mục"
+    },
+    "fields": {
+      "name": "Tên danh mục",
+      "namePlaceholder": "Ví dụ: Điện thoại thông minh",
+      "slug": "Slug",
+      "slugPlaceholder": "Ví dụ: smartphones",
+      "slugHint": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang. Ví dụ: computer-accessories.",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả các sản phẩm thuộc danh mục này..."
+    },
+    "common": {
+      "optional": "Không bắt buộc"
+    },
+    "validation": {
+      "nameRequired": "Tên danh mục là bắt buộc.",
+      "slugRequired": "Slug danh mục là bắt buộc.",
+      "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang."
+    }
+  },
+  "EditCategoryPage": {
+    "header": {
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "title": "Chỉnh sửa danh mục",
+      "description": "Cập nhật thông tin cho danh mục {name}."
+    },
+    "fields": {
+      "name": "Tên danh mục",
+      "slug": "Slug",
+      "slugHint": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang.",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả các sản phẩm thuộc danh mục này..."
+    },
+    "common": {
+      "optional": "Không bắt buộc"
+    },
+    "loading": {
+      "ariaLabel": "Đang tải danh mục",
+      "message": "Đang tải danh mục..."
+    },
+    "errors": {
+      "invalidCategoryId": "ID danh mục không hợp lệ.",
+      "loadFailed": "Không thể tải danh mục. Vui lòng thử lại.",
+      "title": "Không thể tải danh mục",
+      "categoryNotFound": "Không tìm thấy danh mục."
+    },
+    "validation": {
+      "nameRequired": "Tên danh mục là bắt buộc.",
+      "slugRequired": "Slug danh mục là bắt buộc.",
+      "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang."
+    },
+    "buttons": {
+      "tryAgain": "Thử lại",
+      "backToCategories": "Quay lại danh sách danh mục",
+      "cancel": "Hủy",
+      "saving": "Đang lưu...",
+      "saveChanges": "Lưu thay đổi"
+    },
+    "toasts": {
+      "updating": "Đang cập nhật danh mục...",
+      "updated": "Cập nhật danh mục thành công.",
+      "updateFailed": "Không thể cập nhật danh mục. Hãy kiểm tra tên và slug chưa bị trùng."
+    }
+  },
+  "CreateCategoryPage": {
+    "header": {
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "title": "Tạo danh mục",
+      "description": "Thêm danh mục mới để sắp xếp sản phẩm."
+    },
+    "fields": {
+      "name": "Tên danh mục",
+      "namePlaceholder": "Ví dụ: Điện thoại thông minh",
+      "slug": "Slug",
+      "slugPlaceholder": "Ví dụ: smartphones",
+      "slugHint": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang. Ví dụ: computer-accessories.",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả các sản phẩm thuộc danh mục này..."
+    },
+    "common": {
+      "optional": "Không bắt buộc"
+    },
+    "buttons": {
+      "cancel": "Hủy",
+      "creating": "Đang tạo...",
+      "create": "Tạo danh mục"
+    },
+    "validation": {
+      "nameRequired": "Tên danh mục là bắt buộc.",
+      "slugRequired": "Slug danh mục là bắt buộc.",
+      "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang."
+    },
+    "toasts": {
+      "creating": "Đang tạo danh mục...",
+      "created": "Tạo danh mục thành công.",
+      "createFailed": "Không thể tạo danh mục. Hãy kiểm tra tên và slug chưa bị trùng."
+    }
+  },
+  "AdminOrdersPage": {
+    "header": {
+      "brand": "TRANG QUẢN TRỊ ELECTROSHOP",
+      "title": "Quản lý đơn hàng",
+      "description": "Quản lý đơn hàng, thông tin thanh toán và trạng thái giao hàng."
+    },
+    "filters": {
+      "title": "Tìm kiếm và bộ lọc",
+      "searchLabel": "Tìm kiếm đơn hàng",
+      "searchPlaceholder": "Tìm theo mã đơn hàng...",
+      "statusLabel": "Trạng thái đơn hàng",
+      "allStatuses": "Tất cả trạng thái",
+      "allOrders": "Tất cả đơn hàng"
+    },
+    "table": {
+      "title": "Đơn hàng",
+      "description": "Xem đơn hàng và mở trang chi tiết.",
+      "countSingle": "{count} đơn hàng trên trang này",
+      "countMultiple": "{count} đơn hàng trên trang này",
+      "idLabel": "ID: {id}"
+    },
+    "columns": {
+      "order": "Đơn hàng",
+      "customer": "Khách hàng",
+      "total": "Tổng tiền",
+      "payment": "Thanh toán",
+      "status": "Trạng thái",
+      "created": "Ngày tạo",
+      "action": "Thao tác"
+    },
+    "empty": {
+      "title": "Không tìm thấy đơn hàng",
+      "description": "Hãy thay đổi từ khóa tìm kiếm hoặc bộ lọc trạng thái."
+    },
+    "buttons": {
+      "view": "Xem"
+    },
+    "pagination": {
+      "pageInfo": "Trang {page}/{totalPages}",
+      "previous": "Trước",
+      "next": "Tiếp"
+    },
+    "loading": {
+      "ariaLabel": "Đang tải đơn hàng",
+      "message": "Đang tải đơn hàng..."
+    },
+    "statuses": {
+      "pending": "Đang chờ",
+      "confirmed": "Đã xác nhận",
+      "processing": "Đang xử lý",
+      "shipped": "Đã gửi hàng",
+      "outForDelivery": "Đang giao hàng",
+      "delivered": "Đã giao hàng",
+      "cancelled": "Đã hủy",
+      "canceled": "Đã hủy"
+    },
+    "paymentMethods": {
+      "cod": "Thanh toán khi nhận hàng",
+      "bankTransfer": "Chuyển khoản ngân hàng",
+      "creditCard": "Thẻ tín dụng",
+      "vnpay": "VNPay"
+    },
+    "paymentStatuses": {
+      "pending": "Đang chờ",
+      "processing": "Đang xử lý",
+      "paid": "Đã thanh toán",
+      "unpaid": "Chưa thanh toán",
+      "failed": "Thất bại",
+      "refunded": "Đã hoàn tiền",
+      "partiallyRefunded": "Đã hoàn tiền một phần",
+      "cancelled": "Đã hủy",
+      "canceled": "Đã hủy"
+    }
+  },
+  "AdminUsersPage": {
+    "adminWorkspace": "TRANG QUẢN TRỊ ELECTROSHOP",
+    "title": "Quản lý người dùng",
+    "subtitle": "Quản lý tài khoản, vai trò và trạng thái của người dùng đã đăng ký.",
+    "currentPage": "Trang hiện tại",
+    "currentPageValue": "{page} trên {total}",
+    "searchAndFilters": "Tìm kiếm và bộ lọc",
+    "searchAndFiltersDesc": "Tìm người dùng theo tên, email, vai trò hoặc trạng thái.",
+    "clearFilters": "Xóa bộ lọc",
+    "searchUsers": "Tìm người dùng",
+    "searchPlaceholder": "Tìm theo tên hoặc email...",
+    "role": "Vai trò",
+    "allRoles": "Tất cả vai trò",
+    "status": "Trạng thái",
+    "allStatuses": "Tất cả trạng thái",
+    "errorTitle": "Không thể tải danh sách người dùng",
+    "registeredUsers": "Người dùng đã đăng ký",
+    "registeredUsersDesc": "Xem thông tin tài khoản và quyền hạn.",
+    "usersPerPage": "{limit} người dùng mỗi trang",
+    "colUser": "Người dùng",
+    "colEmail": "Email",
+    "colRole": "Vai trò",
+    "colStatus": "Trạng thái",
+    "colCreated": "Ngày tạo",
+    "colAction": "Thao tác",
+    "noUsers": "Không tìm thấy người dùng",
+    "noUsersHint": "Hãy thử thay đổi tìm kiếm hoặc bộ lọc.",
+    "userId": "ID: {id}",
+    "view": "Xem",
+    "pageOf": "Trang <b>{page}</b> trên <b>{total}</b>",
+    "previous": "Trước",
+    "next": "Sau",
+    "roles": {
+      "USER": "Người dùng",
+      "ADMIN": "Quản trị viên"
+    },
+    "statuses": {
+      "ACTIVE": "Hoạt động",
+      "INACTIVE": "Không hoạt động",
+      "BANNED": "Bị cấm"
+    }
+  },
+  "AdminUserDetailPage": {
+    "unableToLoadUser": "Không thể tải thông tin người dùng",
+    "userNotFound": "Không tìm thấy người dùng.",
+    "backToUsers": "Quay lại danh sách người dùng",
+    "updatingStatusToast": "Đang cập nhật trạng thái người dùng...",
+    "statusUpdated": "Đã cập nhật trạng thái người dùng thành công.",
+    "statusUpdatedDesc": "Trạng thái tài khoản: {status}",
+    "statusUpdateFailed": "Không thể cập nhật trạng thái người dùng. Vui lòng thử lại.",
+    "userProfile": "Hồ sơ người dùng",
+    "userIdLabel": "ID người dùng: #{id}",
+    "accountInfo": "Thông tin tài khoản",
+    "accountInfoDesc": "Xem và quản lý chi tiết tài khoản.",
+    "fieldUserId": "ID người dùng",
+    "fieldFullName": "Họ và tên",
+    "fieldEmail": "Địa chỉ email",
+    "fieldRole": "Vai trò",
+    "updateAccountStatus": "Cập nhật trạng thái tài khoản",
+    "saving": "Đang lưu...",
+    "saveChanges": "Lưu thay đổi",
+    "statusWarning": "Việc thay đổi trạng thái có thể ảnh hưởng đến khả năng truy cập cửa hàng của người dùng này.",
+    "accountDetails": "Chi tiết tài khoản",
+    "accountDetailsDesc": "Lịch sử tạo và cập nhật tài khoản.",
+    "createdAt": "Ngày tạo",
+    "lastUpdated": "Cập nhật lần cuối",
+    "addresses": "Địa chỉ",
+    "addressesDesc": "Các địa chỉ giao hàng đã lưu của người dùng này.",
+    "noAddresses": "Không tìm thấy địa chỉ",
+    "noAddressesDesc": "Người dùng này chưa lưu địa chỉ nào.",
+    "defaultLabel": "Mặc định",
+    "postalCode": "Mã bưu chính: {code}",
+    "orders": "Đơn hàng",
+    "ordersDesc": "Xem các đơn hàng do người dùng này đặt.",
+    "noOrders": "Không tìm thấy đơn hàng",
+    "noOrdersDesc": "Người dùng này chưa đặt đơn hàng nào.",
+    "colOrder": "Đơn hàng",
+    "colTotal": "Tổng tiền",
+    "colStatus": "Trạng thái",
+    "colCreated": "Ngày tạo",
+    "colAction": "Thao tác",
+    "orderId": "ID: {id}",
+    "view": "Xem",
+    "pageOf": "Trang <b>{page}</b> trên <b>{total}</b>",
+    "previous": "Trước",
+    "next": "Sau",
+    "roles": {
+      "USER": "Người dùng",
+      "ADMIN": "Quản trị viên"
+    },
+    "statuses": {
+      "ACTIVE": "Hoạt động",
+      "INACTIVE": "Không hoạt động",
+      "BANNED": "Bị cấm",
+      "PENDING": "Chờ xử lý",
+      "PROCESSING": "Đang xử lý",
+      "CONFIRMED": "Đã xác nhận",
+      "SHIPPED": "Đã bàn giao vận chuyển",
+      "OUT_FOR_DELIVERY": "Đang giao hàng",
+      "DELIVERED": "Đã giao",
+      "PAID": "Đã thanh toán",
+      "FAILED": "Thất bại",
+      "CANCELLED": "Đã hủy",
+      "CANCELED": "Đã hủy"
+    }
+  },
+  "AdminReviewsPage": {
+    "starsAria": "{rating} trên 5 sao",
+    "replied": "Đã phản hồi",
+    "awaitingReply": "Chờ phản hồi",
+    "noUnanswered": "Không có đánh giá chưa phản hồi",
+    "noReviews": "Không tìm thấy đánh giá",
+    "noUnansweredDesc": "Tất cả đánh giá đã được phản hồi, hoặc không có đánh giá nào khớp với bộ lọc hiện tại.",
+    "noReviewsDesc": "Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc số sao.",
+    "clearFilters": "Xóa bộ lọc",
+    "adminWorkspace": "TRANG QUẢN TRỊ ELECTROSHOP",
+    "title": "Quản lý đánh giá",
+    "subtitleUnanswered": "Xem các phản hồi của khách hàng đang chờ quản trị viên trả lời.",
+    "subtitleAll": "Quản lý phản hồi của khách hàng và trả lời các đánh giá sản phẩm.",
+    "awaitingResponse": "Chờ phản hồi",
+    "searchAndFilters": "Tìm kiếm và bộ lọc",
+    "searchAndFiltersDesc": "Tìm đánh giá theo khách hàng, sản phẩm, nội dung hoặc số sao.",
+    "searchReviews": "Tìm đánh giá",
+    "searchPlaceholder": "Tìm theo nội dung, khách hàng, email hoặc sản phẩm...",
+    "rating": "Số sao",
+    "allRatings": "Tất cả số sao",
+    "starsOption": "{count} sao",
+    "errorTitle": "Không thể tải đánh giá",
+    "customerReviews": "Đánh giá của khách hàng",
+    "customerReviewsDesc": "Xem phản hồi và quản lý câu trả lời của quản trị viên.",
+    "unansweredBadge": "Đánh giá chưa phản hồi",
+    "allReviewsBadge": "Tất cả đánh giá",
+    "colCustomer": "Khách hàng",
+    "colProduct": "Sản phẩm",
+    "colRating": "Đánh giá",
+    "colComment": "Nội dung",
+    "colCreated": "Ngày tạo",
+    "colReplyStatus": "Trạng thái phản hồi",
+    "colAction": "Thao tác",
+    "productId": "ID: {id}",
+    "noComment": "Không có nội dung",
+    "replyLine": "Phản hồi: {comment}",
+    "editReply": "Sửa phản hồi",
+    "reply": "Phản hồi",
+    "pageOf": "Trang <b>{page}</b> trên <b>{total}</b>",
+    "previous": "Trước",
+    "next": "Sau",
+    "replyToReview": "Trả lời đánh giá",
+    "closeDialog": "Đóng hộp thoại phản hồi",
+    "yourResponse": "Câu trả lời của bạn",
+    "replyPlaceholder": "Viết câu trả lời hữu ích cho khách hàng này...",
+    "replyHint": "Hãy trả lời hữu ích và chuyên nghiệp.",
+    "cancel": "Hủy",
+    "saving": "Đang lưu...",
+    "updateReply": "Cập nhật phản hồi",
+    "sendReply": "Gửi phản hồi",
+    "replyRequired": "Vui lòng nhập nội dung phản hồi",
+    "replyFailed": "Không thể lưu phản hồi"
+  },
+  "AdminHeader": {
+    "backToStore": "Quay lại cửa hàng",
+    "title": "Quản trị cửa hàng",
+    "description": "Quản lý cửa hàng Electroshop",
+    "selectLanguage": "Chọn ngôn ngữ",
+    "workspace": "Không gian quản trị",
+    "administrator": "Quản trị viên"
+  },
+  "AdminSidebar": {
+    "adminPanel": "Bảng quản trị",
+    "navigationLabel": "Điều hướng chính",
+    "workspace": "Không gian làm việc",
+    "dashboard": "Tổng quan",
+    "brands": "Thương hiệu",
+    "categories": "Danh mục",
+    "products": "Sản phẩm",
+    "orders": "Đơn hàng",
+    "users": "Người dùng",
+    "reviews": "Đánh giá",
+    "administration": "Quản trị",
+    "storeManagement": "Quản lý cửa hàng",
+    "footer": "Trang quản trị Electroshop"
+  },
+  "AdminFooter": {
+    "adminPanel": "Bảng quản trị",
+    "copyright": "© 2026 Electroshop. Bảo lưu mọi quyền.",
+    "systemName": "Hệ thống quản lý cửa hàng"
+  },
+  "Footer": {
+    "copyright": "© 2026 Electroshop. Bảo lưu mọi quyền."
   }
 }

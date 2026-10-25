@@ -5,6 +5,7 @@ import { useRouter } from "@/src/i18n/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 
 const USER_ROLES = ["USER", "ADMIN"];
 
@@ -87,6 +88,8 @@ function UserTableSkeleton() {
 }
 
 export default function AdminUsersPage() {
+    const t = useTranslations("AdminUsersPage");
+    const locale = useLocale();
     const router = useRouter();
 
     const [search, setSearch] = useState("");
@@ -125,12 +128,16 @@ export default function AdminUsersPage() {
     };
 
     const formatDate = (value: string) => {
-        return new Date(value).toLocaleDateString("en-US", {
+        return new Date(value).toLocaleDateString(locale, {
             year: "numeric",
             month: "short",
             day: "numeric",
         });
     };
+
+    // Show a translated label for a role/status code, or the raw code if unknown.
+    const getLabel = (group: "roles" | "statuses", value: string) =>
+        t.has(`${group}.${value}`) ? t(`${group}.${value}`) : value;
 
     const hasFilters = Boolean(search || role || status);
 
@@ -146,7 +153,7 @@ export default function AdminUsersPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="min-h-screen bg-slate-50/70 p-4 sm:p-6 lg:p-8"
+            className="min-h-screen bg-slate-50/70 px-4 py-8 sm:px-10 lg:px-40"
         >
             <div className="mx-auto max-w-[1600px] space-y-6">
                 {/* Header */}
@@ -159,15 +166,15 @@ export default function AdminUsersPage() {
                     <div>
                         <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-600">
                             <span className="h-2 w-2 rounded-full bg-cyan-500" />
-                            Admin Workspace
+                            {t("adminWorkspace")}
                         </div>
 
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                            User Management
+                            {t("title")}
                         </h1>
 
                         <p className="mt-2 text-sm text-slate-500 sm:text-base">
-                            Manage registered user accounts, roles, and statuses.
+                            {t("subtitle")}
                         </p>
                     </div>
 
@@ -197,10 +204,13 @@ export default function AdminUsersPage() {
 
                         <div>
                             <p className="text-xs font-medium text-slate-500">
-                                Current page
+                                {t("currentPage")}
                             </p>
                             <p className="text-sm font-semibold text-slate-800">
-                                {pagination.page} of {pagination.totalPages}
+                                {t("currentPageValue", {
+                                    page: pagination.page,
+                                    total: pagination.totalPages,
+                                })}
                             </p>
                         </div>
                     </div>
@@ -216,10 +226,10 @@ export default function AdminUsersPage() {
                     <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="text-base font-semibold text-slate-800">
-                                Search and Filters
+                                {t("searchAndFilters")}
                             </h2>
                             <p className="mt-1 text-sm text-slate-500">
-                                Find users by name, email, role, or status.
+                                {t("searchAndFiltersDesc")}
                             </p>
                         </div>
 
@@ -229,7 +239,7 @@ export default function AdminUsersPage() {
                                 onClick={clearFilters}
                                 className="mt-2 self-start text-sm font-medium text-blue-600 transition hover:text-blue-700 sm:mt-0"
                             >
-                                Clear filters
+                                {t("clearFilters")}
                             </button>
                         )}
                     </div>
@@ -241,7 +251,7 @@ export default function AdminUsersPage() {
                                 htmlFor="user-search"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
-                                Search users
+                                {t("searchUsers")}
                             </label>
 
                             <div className="relative">
@@ -267,7 +277,7 @@ export default function AdminUsersPage() {
                                     onChange={(event) =>
                                         handleSearchChange(event.target.value)
                                     }
-                                    placeholder="Search by name or email..."
+                                    placeholder={t("searchPlaceholder")}
                                     className={`${inputClassName} pl-10`}
                                 />
                             </div>
@@ -279,7 +289,7 @@ export default function AdminUsersPage() {
                                 htmlFor="user-role"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
-                                Role
+                                {t("role")}
                             </label>
 
                             <select
@@ -290,11 +300,11 @@ export default function AdminUsersPage() {
                                 }
                                 className={inputClassName}
                             >
-                                <option value="">All Roles</option>
+                                <option value="">{t("allRoles")}</option>
 
                                 {USER_ROLES.map((userRole) => (
                                     <option key={userRole} value={userRole}>
-                                        {userRole}
+                                        {getLabel("roles", userRole)}
                                     </option>
                                 ))}
                             </select>
@@ -306,7 +316,7 @@ export default function AdminUsersPage() {
                                 htmlFor="user-status"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
-                                Status
+                                {t("status")}
                             </label>
 
                             <select
@@ -317,14 +327,14 @@ export default function AdminUsersPage() {
                                 }
                                 className={inputClassName}
                             >
-                                <option value="">All Statuses</option>
+                                <option value="">{t("allStatuses")}</option>
 
                                 {USER_STATUSES.map((userStatus) => (
                                     <option
                                         key={userStatus}
                                         value={userStatus}
                                     >
-                                        {userStatus}
+                                        {getLabel("statuses", userStatus)}
                                     </option>
                                 ))}
                             </select>
@@ -357,7 +367,7 @@ export default function AdminUsersPage() {
 
                         <div>
                             <p className="font-semibold">
-                                Unable to load users
+                                {t("errorTitle")}
                             </p>
                             <p className="mt-1">{error}</p>
                         </div>
@@ -374,16 +384,16 @@ export default function AdminUsersPage() {
                     <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="font-semibold text-slate-800">
-                                Registered Users
+                                {t("registeredUsers")}
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Review account information and permissions.
+                                {t("registeredUsersDesc")}
                             </p>
                         </div>
 
                         <span className="inline-flex items-center self-start rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 sm:self-auto">
-                            {limit} users per page
+                            {t("usersPerPage", { limit })}
                         </span>
                     </div>
 
@@ -392,27 +402,27 @@ export default function AdminUsersPage() {
                             <thead>
                                 <tr className="border-b border-slate-200 bg-slate-50/80">
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        User
+                                        {t("colUser")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Email
+                                        {t("colEmail")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Role
+                                        {t("colRole")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Status
+                                        {t("colStatus")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Created
+                                        {t("colCreated")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Action
+                                        {t("colAction")}
                                     </th>
                                 </tr>
                             </thead>
@@ -448,11 +458,11 @@ export default function AdminUsersPage() {
                                             </div>
 
                                             <p className="mt-3 text-sm font-semibold text-slate-700">
-                                                No users found
+                                                {t("noUsers")}
                                             </p>
 
                                             <p className="mt-1 text-sm text-slate-500">
-                                                Try changing your search or filters.
+                                                {t("noUsersHint")}
                                             </p>
 
                                             {hasFilters && (
@@ -461,7 +471,7 @@ export default function AdminUsersPage() {
                                                     onClick={clearFilters}
                                                     className="mt-4 rounded-lg px-3 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"
                                                 >
-                                                    Clear filters
+                                                    {t("clearFilters")}
                                                 </button>
                                             )}
                                         </td>
@@ -509,7 +519,9 @@ export default function AdminUsersPage() {
                                                         </p>
 
                                                         <p className="mt-1 text-xs text-slate-400">
-                                                            ID: {user.id}
+                                                            {t("userId", {
+                                                                id: user.id,
+                                                            })}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -527,7 +539,7 @@ export default function AdminUsersPage() {
                                                         user.role
                                                     )}`}
                                                 >
-                                                    {user.role}
+                                                    {getLabel("roles", user.role)}
                                                 </span>
                                             </td>
 
@@ -537,7 +549,10 @@ export default function AdminUsersPage() {
                                                         user.status
                                                     )}`}
                                                 >
-                                                    {user.status}
+                                                    {getLabel(
+                                                        "statuses",
+                                                        user.status
+                                                    )}
                                                 </span>
                                             </td>
 
@@ -555,7 +570,7 @@ export default function AdminUsersPage() {
                                                     }
                                                     className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
                                                 >
-                                                    View
+                                                    {t("view")}
 
                                                     <svg
                                                         viewBox="0 0 24 24"
@@ -590,14 +605,15 @@ export default function AdminUsersPage() {
                         className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5"
                     >
                         <p className="text-sm text-slate-500">
-                            Page{" "}
-                            <span className="font-semibold text-slate-800">
-                                {pagination.page}
-                            </span>{" "}
-                            of{" "}
-                            <span className="font-semibold text-slate-800">
-                                {pagination.totalPages}
-                            </span>
+                            {t.rich("pageOf", {
+                                page: pagination.page,
+                                total: pagination.totalPages,
+                                b: (chunks) => (
+                                    <span className="font-semibold text-slate-800">
+                                        {chunks}
+                                    </span>
+                                ),
+                            })}
                         </p>
 
                         <div className="flex items-center gap-2">
@@ -624,7 +640,7 @@ export default function AdminUsersPage() {
                                     />
                                 </svg>
 
-                                Previous
+                                {t("previous")}
                             </button>
 
                             <button
@@ -635,7 +651,7 @@ export default function AdminUsersPage() {
                                 }
                                 className="inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
                             >
-                                Next
+                                {t("next")}
 
                                 <svg
                                     viewBox="0 0 24 24"

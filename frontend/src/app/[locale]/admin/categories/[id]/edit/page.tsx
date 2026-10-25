@@ -1,8 +1,7 @@
 "use client";
 
-import { Link } from "@/src/i18n/navigation";
+import { Link, useRouter } from "@/src/i18n/navigation";
 import { useParams } from "next/navigation";
-import { useRouter } from "@/src/i18n/navigation";
 import {
     useCallback,
     useEffect,
@@ -11,6 +10,7 @@ import {
 } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import type { Category } from "@/src/features/category/types/category";
 import {
@@ -24,6 +24,8 @@ type CategoryFormErrors = {
 };
 
 export default function EditCategoryPage() {
+    const t = useTranslations("EditCategoryPage");
+
     const params = useParams<{ id: string }>();
     const router = useRouter();
 
@@ -43,7 +45,7 @@ export default function EditCategoryPage() {
     // Load the existing category.
     const loadCategory = useCallback(async () => {
         if (!Number.isInteger(categoryId) || categoryId <= 0) {
-            setLoadError("Invalid category ID.");
+            setLoadError(t("errors.invalidCategoryId"));
             setLoading(false);
             return;
         }
@@ -61,11 +63,11 @@ export default function EditCategoryPage() {
             setErrors({});
         } catch (error) {
             console.error("Failed to load category:", error);
-            setLoadError("Unable to load category. Please try again.");
+            setLoadError(t("errors.loadFailed"));
         } finally {
             setLoading(false);
         }
-    }, [categoryId]);
+    }, [categoryId, t]);
 
     useEffect(() => {
         void loadCategory();
@@ -88,14 +90,13 @@ export default function EditCategoryPage() {
         const nextErrors: CategoryFormErrors = {};
 
         if (!trimmedName) {
-            nextErrors.name = "Category name is required.";
+            nextErrors.name = t("validation.nameRequired");
         }
 
         if (!trimmedSlug) {
-            nextErrors.slug = "Category slug is required.";
+            nextErrors.slug = t("validation.slugRequired");
         } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(trimmedSlug)) {
-            nextErrors.slug =
-                "Use lowercase letters, numbers, and hyphens only.";
+            nextErrors.slug = t("validation.slugFormat");
         }
 
         setErrors(nextErrors);
@@ -104,7 +105,7 @@ export default function EditCategoryPage() {
             return;
         }
 
-        const toastId = toast.loading("Updating category...");
+        const toastId = toast.loading(t("toasts.updating"));
         setSubmitting(true);
 
         try {
@@ -114,7 +115,7 @@ export default function EditCategoryPage() {
                 description: trimmedDescription,
             });
 
-            toast.success("Category updated successfully.", {
+            toast.success(t("toasts.updated"), {
                 id: toastId,
             });
 
@@ -122,10 +123,9 @@ export default function EditCategoryPage() {
         } catch (error) {
             console.error("Failed to update category:", error);
 
-            toast.error(
-                "Unable to update category. Check that the name and slug are unique.",
-                { id: toastId }
-            );
+            toast.error(t("toasts.updateFailed"), {
+                id: toastId,
+            });
         } finally {
             setSubmitting(false);
         }
@@ -137,9 +137,10 @@ export default function EditCategoryPage() {
             <div
                 className="flex min-h-60 items-center justify-center gap-3 text-sm text-slate-500"
                 aria-busy="true"
+                aria-label={t("loading.ariaLabel")}
             >
                 <span className="size-5 animate-spin rounded-full border-2 border-blue-100 border-t-blue-600" />
-                Loading category...
+                {t("loading.message")}
             </div>
         );
     }
@@ -166,11 +167,11 @@ export default function EditCategoryPage() {
                 </div>
 
                 <h2 className="mt-4 text-base font-semibold text-slate-900">
-                    Unable to load category
+                    {t("errors.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-rose-600">
-                    {loadError || "Category not found."}
+                    {loadError || t("errors.categoryNotFound")}
                 </p>
 
                 <div className="mt-5 flex gap-3">
@@ -179,14 +180,14 @@ export default function EditCategoryPage() {
                         onClick={() => void loadCategory()}
                         className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
                     >
-                        Try Again
+                        {t("buttons.tryAgain")}
                     </button>
 
                     <Link
                         href="/admin/categories"
                         className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
                     >
-                        Back to Categories
+                        {t("buttons.backToCategories")}
                     </Link>
                 </div>
             </div>
@@ -211,16 +212,18 @@ export default function EditCategoryPage() {
                     <span className="size-2 rounded-full bg-cyan-500" />
 
                     <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                        Electroshop Administration
+                        {t("header.brand")}
                     </p>
                 </div>
 
                 <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                    Edit Category
+                    {t("header.title")}
                 </h1>
 
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Update the information for {category.name}.
+                    {t("header.description", {
+                        name: category.name,
+                    })}
                 </p>
             </motion.header>
 
@@ -237,7 +240,7 @@ export default function EditCategoryPage() {
                             htmlFor="category-name"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Category Name
+                            {t("fields.name")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -278,7 +281,7 @@ export default function EditCategoryPage() {
                             htmlFor="category-slug"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Slug
+                            {t("fields.slug")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -308,7 +311,7 @@ export default function EditCategoryPage() {
                             id="category-slug-hint"
                             className="mt-2 text-xs text-slate-500"
                         >
-                            Use lowercase letters, numbers, and hyphens.
+                            {t("fields.slugHint")}
                         </p>
 
                         {errors.slug && (
@@ -327,9 +330,10 @@ export default function EditCategoryPage() {
                             htmlFor="category-description"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Description
+                            {t("fields.description")}
+
                             <span className="ml-2 text-xs font-normal text-slate-400">
-                                Optional
+                                {t("common.optional")}
                             </span>
                         </label>
 
@@ -340,7 +344,7 @@ export default function EditCategoryPage() {
                                 setDescription(event.target.value)
                             }
                             rows={4}
-                            placeholder="Describe the products in this category..."
+                            placeholder={t("fields.descriptionPlaceholder")}
                             className="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                         />
                     </div>
@@ -352,7 +356,7 @@ export default function EditCategoryPage() {
                         href="/admin/categories"
                         className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     >
-                        Cancel
+                        {t("buttons.cancel")}
                     </Link>
 
                     <button
@@ -363,10 +367,10 @@ export default function EditCategoryPage() {
                         {submitting ? (
                             <>
                                 <span className="size-4 animate-spin rounded-full border-2 border-blue-200 border-t-white" />
-                                Saving...
+                                {t("buttons.saving")}
                             </>
                         ) : (
-                            "Save Changes"
+                            t("buttons.saveChanges")
                         )}
                     </button>
                 </div>

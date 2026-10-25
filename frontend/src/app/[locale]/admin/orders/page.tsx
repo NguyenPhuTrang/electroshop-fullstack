@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/src/i18n/navigation";
 import { Suspense, useState } from "react";
 import { motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 
 const ORDER_STATUSES = [
     "PENDING",
@@ -16,13 +17,16 @@ const ORDER_STATUSES = [
 ];
 
 function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
-    const router = useRouter();
-    const searchParams = useSearchParams(); // // useSearchParams() là hook của Next.js, dùng để đọc các query parameters trên URL.
+    const t = useTranslations("AdminOrdersPage");
+    const locale = useLocale();
 
-    // Next.js có thể cần một Suspense boundary khi xử lý useSearchParams() trong quá trình render trang. Vì vậy, chúng ta bọc component con như bên dưới
+    const router = useRouter();
+    const searchParams = useSearchParams(); // useSearchParams() là hook của Next.js, dùng để đọc các query parameters trên URL.
+
+    // Next.js có thể cần một Suspense boundary khi xử lý useSearchParams() trong quá trình render trang. Vì vậy, chúng ta bọc component con như bên dưới.
 
     const [search, setSearch] = useState("");
-    const status = searchParams.get("status") ?? ""; // lấy trạng PENDING thái đơn hàng từ URL sau mỗi lần render và lưu vào state nếu không lấy được thì trả về " ";
+    const status = searchParams.get("status") ?? ""; // Lấy trạng thái đơn hàng từ URL sau mỗi lần render; nếu không có thì trả về chuỗi rỗng.
     const [page, setPage] = useState(1);
 
     const limit = 10;
@@ -39,17 +43,53 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
         limit,
     });
 
-    const handleSearchChange = (
-        value: string
-    ) => {
+    const statusLabels: Record<string, string> = {
+        PENDING: t("statuses.pending"),
+        CONFIRMED: t("statuses.confirmed"),
+        PROCESSING: t("statuses.processing"),
+        SHIPPED: t("statuses.shipped"),
+        OUT_FOR_DELIVERY: t("statuses.outForDelivery"),
+        DELIVERED: t("statuses.delivered"),
+        CANCELLED: t("statuses.cancelled"),
+        CANCELED: t("statuses.canceled"),
+    };
+
+    const paymentMethodLabels: Record<string, string> = {
+        COD: t("paymentMethods.cod"),
+        CASH_ON_DELIVERY: t("paymentMethods.cod"),
+        BANK_TRANSFER: t("paymentMethods.bankTransfer"),
+        CREDIT_CARD: t("paymentMethods.creditCard"),
+        VNPAY: t("paymentMethods.vnpay"),
+    };
+
+    const paymentStatusLabels: Record<string, string> = {
+        PENDING: t("paymentStatuses.pending"),
+        PROCESSING: t("paymentStatuses.processing"),
+        PAID: t("paymentStatuses.paid"),
+        UNPAID: t("paymentStatuses.unpaid"),
+        FAILED: t("paymentStatuses.failed"),
+        REFUNDED: t("paymentStatuses.refunded"),
+        PARTIALLY_REFUNDED: t("paymentStatuses.partiallyRefunded"),
+        CANCELLED: t("paymentStatuses.cancelled"),
+        CANCELED: t("paymentStatuses.canceled"),
+    };
+
+    const formatStatus = (value: string) =>
+        statusLabels[value] ?? value.replaceAll("_", " ");
+
+    const formatPaymentMethod = (value: string) =>
+        paymentMethodLabels[value] ?? value.replaceAll("_", " ");
+
+    const formatPaymentStatus = (value: string) =>
+        paymentStatusLabels[value] ?? value.replaceAll("_", " ");
+
+    const handleSearchChange = (value: string) => {
         setSearch(value);
         setPage(1);
     };
 
     const handleStatusChange = (value: string) => {
-        const params = new URLSearchParams(
-            searchParams.toString()
-        );
+        const params = new URLSearchParams(searchParams.toString());
 
         if (value) {
             params.set("status", value);
@@ -68,23 +108,19 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
         setPage(1);
     };
 
-    const formatPrice = (value: string) => {
-        return Number(value).toLocaleString("en-US", {
-            style: "currency",
-            currency: "USD",
-        });
-    };
+    const formatPrice = (value: string) =>
+    new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 0,
+    }).format(Number(value));
 
-    const formatDate = (value: string) => {
-        return new Date(value).toLocaleDateString(
-            "en-US",
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-            }
-        );
-    };
+    const formatDate = (value: string) =>
+        new Date(value).toLocaleDateString(locale, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
 
     const getStatusClassName = (status: string) => {
         switch (status) {
@@ -135,16 +171,16 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                             <span className="size-2 rounded-full bg-cyan-500" />
 
                             <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                                Electroshop Administration
+                                {t("header.brand")}
                             </p>
                         </div>
 
                         <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                            Order Management
+                            {t("header.title")}
                         </h1>
 
                         <p className="mt-2 text-sm leading-6 text-slate-500">
-                            Manage customer orders, payment details, and fulfillment status.
+                            {t("header.description")}
                         </p>
                     </div>
 
@@ -165,8 +201,8 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
 
                         <span className="text-sm font-medium text-slate-600">
                             {status
-                                ? status.replaceAll("_", " ")
-                                : "All Orders"}
+                                ? formatStatus(status)
+                                : t("filters.allOrders")}
                         </span>
                     </div>
                 </motion.header>
@@ -196,7 +232,7 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                         </svg>
 
                         <h2 className="text-sm font-semibold text-slate-800">
-                            Search and Filters
+                            {t("filters.title")}
                         </h2>
                     </div>
 
@@ -206,7 +242,7 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                 htmlFor="order-search"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
-                                Search Orders
+                                {t("filters.searchLabel")}
                             </label>
 
                             <div className="relative">
@@ -228,11 +264,9 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                     type="text"
                                     value={search}
                                     onChange={(event) =>
-                                        handleSearchChange(
-                                            event.target.value
-                                        )
+                                        handleSearchChange(event.target.value)
                                     }
-                                    placeholder="Search by order number..."
+                                    placeholder={t("filters.searchPlaceholder")}
                                     className="h-11 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                 />
                             </div>
@@ -243,33 +277,29 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                 htmlFor="order-status"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
-                                Order Status
+                                {t("filters.statusLabel")}
                             </label>
 
                             <select
                                 id="order-status"
                                 value={status}
                                 onChange={(event) =>
-                                    handleStatusChange(
-                                        event.target.value
-                                    )
+                                    handleStatusChange(event.target.value)
                                 }
                                 className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                             >
                                 <option value="">
-                                    All Statuses
+                                    {t("filters.allStatuses")}
                                 </option>
 
-                                {ORDER_STATUSES.map(
-                                    (orderStatus) => (
-                                        <option
-                                            key={orderStatus}
-                                            value={orderStatus}
-                                        >
-                                            {orderStatus.replaceAll("_", " ")}
-                                        </option>
-                                    )
-                                )}
+                                {ORDER_STATUSES.map((orderStatus) => (
+                                    <option
+                                        key={orderStatus}
+                                        value={orderStatus}
+                                    >
+                                        {formatStatus(orderStatus)}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -311,11 +341,11 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                     <div className="flex flex-col justify-between gap-2 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
                         <div>
                             <h2 className="text-base font-semibold text-slate-900">
-                                Orders
+                                {t("table.title")}
                             </h2>
 
                             <p className="mt-1 text-xs text-slate-500">
-                                Review orders and open their details.
+                                {t("table.description")}
                             </p>
                         </div>
 
@@ -323,8 +353,13 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
                                 <span className="size-1.5 rounded-full bg-cyan-500" />
 
-                                {orders.length}{" "}
-                                {orders.length === 1 ? "order" : "orders"} on this page
+                                {orders.length === 1
+                                    ? t("table.countSingle", {
+                                          count: new Intl.NumberFormat(locale).format(orders.length),
+                                      })
+                                    : t("table.countMultiple", {
+                                          count: new Intl.NumberFormat(locale).format(orders.length),
+                                      })}
                             </span>
                         )}
                     </div>
@@ -334,101 +369,80 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                             <thead className="border-b border-slate-200 bg-slate-50">
                                 <tr>
                                     <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        Order
+                                        {t("columns.order")}
                                     </th>
 
                                     <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        Customer
+                                        {t("columns.customer")}
                                     </th>
 
                                     <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        Total
+                                        {t("columns.total")}
                                     </th>
 
                                     <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        Payment
+                                        {t("columns.payment")}
                                     </th>
 
                                     <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        Status
+                                        {t("columns.status")}
                                     </th>
 
                                     <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        Created
+                                        {t("columns.created")}
                                     </th>
 
                                     <th className="whitespace-nowrap px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        Action
+                                        {t("columns.action")}
                                     </th>
                                 </tr>
                             </thead>
 
                             <tbody className="divide-y divide-slate-100">
                                 {loading ? (
-                                    Array.from(
-                                        { length: 5 },
-                                        (_, index) => (
-                                            <tr key={index}>
-                                                <td
-                                                    colSpan={7}
-                                                    className="px-5 py-4 sm:px-6"
+                                    Array.from({ length: 5 }, (_, index) => (
+                                        <tr key={index}>
+                                            <td
+                                                colSpan={7}
+                                                className="px-5 py-4 sm:px-6"
+                                            >
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 6 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{
+                                                        duration: 0.25,
+                                                        delay: index * 0.05,
+                                                    }}
+                                                    className="grid grid-cols-2 items-center gap-4 md:grid-cols-4"
                                                 >
                                                     <motion.div
-                                                        initial={{
-                                                            opacity: 0,
-                                                            y: 6,
-                                                        }}
-                                                        animate={{
-                                                            opacity: 1,
-                                                            y: 0,
-                                                        }}
+                                                        animate={{ opacity: [0.4, 0.8, 0.4] }}
                                                         transition={{
-                                                            duration: 0.25,
-                                                            delay: index * 0.05,
+                                                            duration: 1.4,
+                                                            repeat: Infinity,
+                                                            ease: "easeInOut",
                                                         }}
-                                                        className="grid grid-cols-2 items-center gap-4 md:grid-cols-4"
-                                                    >
-                                                        <motion.div
-                                                            animate={{
-                                                                opacity: [
-                                                                    0.4,
-                                                                    0.8,
-                                                                    0.4,
-                                                                ],
-                                                            }}
-                                                            transition={{
-                                                                duration: 1.4,
-                                                                repeat: Infinity,
-                                                                ease: "easeInOut",
-                                                            }}
-                                                            className="h-4 w-32 max-w-full rounded bg-slate-200"
-                                                        />
+                                                        className="h-4 w-32 max-w-full rounded bg-slate-200"
+                                                    />
 
-                                                        <motion.div
-                                                            animate={{
-                                                                opacity: [
-                                                                    0.4,
-                                                                    0.8,
-                                                                    0.4,
-                                                                ],
-                                                            }}
-                                                            transition={{
-                                                                duration: 1.4,
-                                                                repeat: Infinity,
-                                                                ease: "easeInOut",
-                                                                delay: 0.1,
-                                                            }}
-                                                            className="h-4 w-40 max-w-full rounded bg-slate-100"
-                                                        />
+                                                    <motion.div
+                                                        animate={{ opacity: [0.4, 0.8, 0.4] }}
+                                                        transition={{
+                                                            duration: 1.4,
+                                                            repeat: Infinity,
+                                                            ease: "easeInOut",
+                                                            delay: 0.1,
+                                                        }}
+                                                        className="h-4 w-40 max-w-full rounded bg-slate-100"
+                                                    />
 
-                                                        <div className="hidden h-4 w-24 rounded bg-slate-100 md:block" />
+                                                    <div className="hidden h-4 w-24 rounded bg-slate-100 md:block" />
 
-                                                        <div className="hidden h-6 w-28 rounded-full bg-slate-100 md:block" />
-                                                    </motion.div>
-                                                </td>
-                                            </tr>
-                                        )
-                                    )
+                                                    <div className="hidden h-6 w-28 rounded-full bg-slate-100 md:block" />
+                                                </motion.div>
+                                            </td>
+                                        </tr>
+                                    ))
                                 ) : orders.length === 0 ? (
                                     <tr>
                                         <td
@@ -458,11 +472,11 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                             </div>
 
                                             <p className="mt-4 text-sm font-semibold text-slate-900">
-                                                No orders found
+                                                {t("empty.title")}
                                             </p>
 
                                             <p className="mt-1 text-sm text-slate-500">
-                                                Try changing your search or status filter.
+                                                {t("empty.description")}
                                             </p>
                                         </td>
                                     </tr>
@@ -470,20 +484,11 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                     orders.map((order, index) => (
                                         <motion.tr
                                             key={order.id}
-                                            initial={{
-                                                opacity: 0,
-                                                y: 6,
-                                            }}
-                                            animate={{
-                                                opacity: 1,
-                                                y: 0,
-                                            }}
+                                            initial={{ opacity: 0, y: 6 }}
+                                            animate={{ opacity: 1, y: 0 }}
                                             transition={{
                                                 duration: 0.25,
-                                                delay: Math.min(
-                                                    index * 0.035,
-                                                    0.2
-                                                ),
+                                                delay: Math.min(index * 0.035, 0.2),
                                                 ease: "easeOut",
                                             }}
                                             className="transition-colors hover:bg-slate-50"
@@ -494,7 +499,9 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                                 </div>
 
                                                 <div className="mt-1 text-xs text-slate-400">
-                                                    ID: {order.id}
+                                                    {t("table.idLabel", {
+                                                        id: order.id,
+                                                    })}
                                                 </div>
                                             </td>
 
@@ -516,11 +523,15 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                                 {order.payment ? (
                                                     <div>
                                                         <div className="text-sm font-medium text-slate-700">
-                                                            {order.payment.method}
+                                                            {formatPaymentMethod(
+                                                                order.payment.method
+                                                            )}
                                                         </div>
 
                                                         <div className="mt-1 text-xs text-slate-500">
-                                                            {order.payment.status}
+                                                            {formatPaymentStatus(
+                                                                order.payment.status
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ) : (
@@ -537,11 +548,7 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                                     )}`}
                                                 >
                                                     <span className="size-1.5 rounded-full bg-current" />
-
-                                                    {order.status.replaceAll(
-                                                        "_",
-                                                        " "
-                                                    )}
+                                                    {formatStatus(order.status)}
                                                 </span>
                                             </td>
 
@@ -559,7 +566,7 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                                                     }
                                                     className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:border-blue-200 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
                                                 >
-                                                    View
+                                                    {t("buttons.view")}
 
                                                     <svg
                                                         viewBox="0 0 24 24"
@@ -584,77 +591,66 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
                 </motion.section>
 
                 {/* Pagination */}
-                {!loading &&
-                    pagination.totalPages > 0 && (
-                        <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4 sm:flex-row">
-                            <p className="text-sm text-slate-500">
-                                Page{" "}
-                                <span className="font-semibold text-slate-900">
-                                    {pagination.page}
-                                </span>{" "}
-                                of{" "}
-                                <span className="font-semibold text-slate-900">
-                                    {pagination.totalPages}
-                                </span>
-                            </p>
+                {!loading && pagination.totalPages > 0 && (
+                    <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4 sm:flex-row">
+                        <p className="text-sm text-slate-500">
+                            {t("pagination.pageInfo", {
+                                page: pagination.page,
+                                totalPages: pagination.totalPages,
+                            })}
+                        </p>
 
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    disabled={page <= 1}
-                                    onClick={() =>
-                                        setPage((current) =>
-                                            current - 1
-                                        )
-                                    }
-                                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                disabled={page <= 1}
+                                onClick={() =>
+                                    setPage((current) => current - 1)
+                                }
+                                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={1.8}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="size-4"
+                                    aria-hidden="true"
                                 >
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth={1.8}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        className="size-4"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="m15 18-6-6 6-6" />
-                                    </svg>
+                                    <path d="m15 18-6-6 6-6" />
+                                </svg>
 
-                                    Previous
-                                </button>
+                                {t("pagination.previous")}
+                            </button>
 
-                                <button
-                                    type="button"
-                                    disabled={
-                                        page >= pagination.totalPages
-                                    }
-                                    onClick={() =>
-                                        setPage((current) =>
-                                            current + 1
-                                        )
-                                    }
-                                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+                            <button
+                                type="button"
+                                disabled={page >= pagination.totalPages}
+                                onClick={() =>
+                                    setPage((current) => current + 1)
+                                }
+                                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                {t("pagination.next")}
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={1.8}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="size-4"
+                                    aria-hidden="true"
                                 >
-                                    Next
-
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth={1.8}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        className="size-4"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="m9 18 6-6-6-6" />
-                                    </svg>
-                                </button>
-                            </div>
+                                    <path d="m9 18 6-6-6-6" />
+                                </svg>
+                            </button>
                         </div>
-                    )}
+                    </div>
+                )}
 
                 <div className="h-2" />
             </div>
@@ -663,15 +659,18 @@ function AdminOrderContent() { // Chứa logic lọc và giao diện đơn hàng
 }
 
 export default function AdminOrderPage() { // Component chính của trang
+    const t = useTranslations("AdminOrdersPage");
+
     return (
-        <Suspense //Xử lý trạng thái chờ của component con
+        <Suspense // Xử lý trạng thái chờ của component con
             fallback={ // Giao diện tạm thời khi component con đang chờ
                 <div
                     className="flex min-h-40 items-center justify-center gap-3 text-sm text-slate-500"
                     aria-busy="true"
+                    aria-label={t("loading.ariaLabel")}
                 >
                     <span className="size-4 animate-spin rounded-full border-2 border-blue-100 border-t-blue-600" />
-                    Loading orders...
+                    {t("loading.message")}
                 </div>
             }
         >

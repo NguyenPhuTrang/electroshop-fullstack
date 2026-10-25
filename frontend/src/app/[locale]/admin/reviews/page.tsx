@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 import { useAdminReviews } from "@/src/features/review/hooks/useAdminReviews";
 import {
     createReviewReply,
@@ -19,10 +20,12 @@ const buttonClassName =
     "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50";
 
 function ReviewRating({ rating }: { rating: number }) {
+    const t = useTranslations("AdminReviewsPage");
+
     return (
         <div
             className="flex items-center gap-0.5"
-            aria-label={`${rating} out of 5 stars`}
+            aria-label={t("starsAria", { rating })}
         >
             {Array.from({ length: 5 }).map((_, index) => (
                 <svg
@@ -50,6 +53,8 @@ function ReviewRating({ rating }: { rating: number }) {
 }
 
 function ReplyStatusBadge({ hasReply }: { hasReply: boolean }) {
+    const t = useTranslations("AdminReviewsPage");
+
     return (
         <span
             className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${
@@ -59,7 +64,7 @@ function ReplyStatusBadge({ hasReply }: { hasReply: boolean }) {
             }`}
         >
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
-            {hasReply ? "Replied" : "Awaiting reply"}
+            {hasReply ? t("replied") : t("awaitingReply")}
         </span>
     );
 }
@@ -114,6 +119,8 @@ function EmptyReviews({
     hasFilters: boolean;
     onClearFilters: () => void;
 }) {
+    const t = useTranslations("AdminReviewsPage");
+
     return (
         <div className="px-5 py-16 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
@@ -134,15 +141,11 @@ function EmptyReviews({
             </div>
 
             <p className="mt-4 text-sm font-semibold text-slate-800">
-                {unanswered
-                    ? "No unanswered reviews"
-                    : "No reviews found"}
+                {unanswered ? t("noUnanswered") : t("noReviews")}
             </p>
 
             <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-500">
-                {unanswered
-                    ? "All reviews have been answered, or no reviews match the current filters."
-                    : "Try changing your search keywords or rating filter."}
+                {unanswered ? t("noUnansweredDesc") : t("noReviewsDesc")}
             </p>
 
             {hasFilters && (
@@ -151,7 +154,7 @@ function EmptyReviews({
                     onClick={onClearFilters}
                     className="mt-4 rounded-lg px-3 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"
                 >
-                    Clear filters
+                    {t("clearFilters")}
                 </button>
             )}
         </div>
@@ -159,6 +162,8 @@ function EmptyReviews({
 }
 
 function AdminReviewsContent() {
+    const t = useTranslations("AdminReviewsPage");
+    const locale = useLocale();
     const searchParams = useSearchParams();
 
     const unanswered = searchParams.get("unanswered") === "true";
@@ -201,7 +206,7 @@ function AdminReviewsContent() {
     };
 
     const formatDate = (value: string) => {
-        return new Date(value).toLocaleDateString("en-US", {
+        return new Date(value).toLocaleDateString(locale, {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -232,7 +237,7 @@ function AdminReviewsContent() {
         const comment = replyComment.trim();
 
         if (!comment) {
-            setReplyError("Reply is required");
+            setReplyError(t("replyRequired"));
             return;
         }
 
@@ -253,7 +258,7 @@ function AdminReviewsContent() {
             setReplyError("");
         } catch (error) {
             console.error("Failed to save review reply", error);
-            setReplyError("Failed to save reply");
+            setReplyError(t("replyFailed"));
         } finally {
             setSubmittingReply(false);
         }
@@ -272,7 +277,7 @@ function AdminReviewsContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="min-h-screen bg-slate-50/70 p-4 sm:p-6 lg:p-8"
+            className="min-h-screen bg-slate-50/70 px-4 py-8 sm:px-10 lg:px-40"
         >
             <div className="mx-auto max-w-[1600px] space-y-6">
                 {/* Header */}
@@ -285,17 +290,17 @@ function AdminReviewsContent() {
                     <div>
                         <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-600">
                             <span className="h-2 w-2 rounded-full bg-cyan-500" />
-                            Admin Workspace
+                            {t("adminWorkspace")}
                         </div>
 
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                            Review Management
+                            {t("title")}
                         </h1>
 
                         <p className="mt-2 text-sm text-slate-500 sm:text-base">
                             {unanswered
-                                ? "Review customer feedback that is awaiting an Admin response."
-                                : "Manage customer feedback and respond to product reviews."}
+                                ? t("subtitleUnanswered")
+                                : t("subtitleAll")}
                         </p>
                     </div>
 
@@ -315,7 +320,7 @@ function AdminReviewsContent() {
                                     d="M12 7v5l3 2"
                                 />
                             </svg>
-                            Awaiting Response
+                            {t("awaitingResponse")}
                         </div>
                     )}
                 </motion.div>
@@ -329,11 +334,11 @@ function AdminReviewsContent() {
                 >
                     <div className="mb-5">
                         <h2 className="text-base font-semibold text-slate-800">
-                            Search and Filters
+                            {t("searchAndFilters")}
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500">
-                            Find reviews by customer, product, comment, or rating.
+                            {t("searchAndFiltersDesc")}
                         </p>
                     </div>
 
@@ -344,7 +349,7 @@ function AdminReviewsContent() {
                                 htmlFor="review-search"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
-                                Search reviews
+                                {t("searchReviews")}
                             </label>
 
                             <div className="relative">
@@ -370,7 +375,7 @@ function AdminReviewsContent() {
                                     onChange={(event) =>
                                         handleSearchChange(event.target.value)
                                     }
-                                    placeholder="Search by comment, customer, email, or product..."
+                                    placeholder={t("searchPlaceholder")}
                                     className={`${inputClassName} pl-10`}
                                 />
                             </div>
@@ -382,7 +387,7 @@ function AdminReviewsContent() {
                                 htmlFor="review-rating"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
-                                Rating
+                                {t("rating")}
                             </label>
 
                             <select
@@ -393,14 +398,16 @@ function AdminReviewsContent() {
                                 }
                                 className={inputClassName}
                             >
-                                <option value="">All Ratings</option>
+                                <option value="">{t("allRatings")}</option>
 
                                 {REVIEW_RATINGS.map((reviewRating) => (
                                     <option
                                         key={reviewRating}
                                         value={reviewRating}
                                     >
-                                        {reviewRating} Stars
+                                        {t("starsOption", {
+                                            count: reviewRating,
+                                        })}
                                     </option>
                                 ))}
                             </select>
@@ -414,7 +421,7 @@ function AdminReviewsContent() {
                                 onClick={clearFilters}
                                 className="text-sm font-semibold text-blue-600 transition hover:text-blue-700"
                             >
-                                Clear filters
+                                {t("clearFilters")}
                             </button>
                         </div>
                     )}
@@ -445,7 +452,7 @@ function AdminReviewsContent() {
 
                         <div>
                             <p className="font-semibold">
-                                Unable to load reviews
+                                {t("errorTitle")}
                             </p>
                             <p className="mt-1">{error}</p>
                         </div>
@@ -462,11 +469,11 @@ function AdminReviewsContent() {
                     <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="font-semibold text-slate-800">
-                                Customer Reviews
+                                {t("customerReviews")}
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Review feedback and manage Admin responses.
+                                {t("customerReviewsDesc")}
                             </p>
                         </div>
 
@@ -477,7 +484,9 @@ function AdminReviewsContent() {
                                     : "border-slate-200 bg-slate-50 text-slate-600"
                             }`}
                         >
-                            {unanswered ? "Unanswered Reviews" : "All Reviews"}
+                            {unanswered
+                                ? t("unansweredBadge")
+                                : t("allReviewsBadge")}
                         </span>
                     </div>
 
@@ -486,31 +495,31 @@ function AdminReviewsContent() {
                             <thead>
                                 <tr className="border-b border-slate-200 bg-slate-50/80">
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Customer
+                                        {t("colCustomer")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Product
+                                        {t("colProduct")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Rating
+                                        {t("colRating")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Comment
+                                        {t("colComment")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Created
+                                        {t("colCreated")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Reply Status
+                                        {t("colReplyStatus")}
                                     </th>
 
                                     <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Action
+                                        {t("colAction")}
                                     </th>
                                 </tr>
                             </thead>
@@ -556,7 +565,9 @@ function AdminReviewsContent() {
                                                 </p>
 
                                                 <p className="mt-1 text-xs text-slate-400">
-                                                    ID: {review.product.id}
+                                                    {t("productId", {
+                                                        id: review.product.id,
+                                                    })}
                                                 </p>
                                             </td>
 
@@ -573,13 +584,16 @@ function AdminReviewsContent() {
                                             <td className="max-w-sm px-5 py-4">
                                                 <p className="line-clamp-2 text-sm leading-6 text-slate-600">
                                                     {review.comment ||
-                                                        "No comment"}
+                                                        t("noComment")}
                                                 </p>
 
                                                 {review.reply?.comment && (
                                                     <p className="mt-2 line-clamp-1 text-xs text-emerald-700">
-                                                        Reply:{" "}
-                                                        {review.reply.comment}
+                                                        {t("replyLine", {
+                                                            comment:
+                                                                review.reply
+                                                                    .comment,
+                                                        })}
                                                     </p>
                                                 )}
                                             </td>
@@ -605,8 +619,8 @@ function AdminReviewsContent() {
                                                     className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
                                                 >
                                                     {review.reply
-                                                        ? "Edit Reply"
-                                                        : "Reply"}
+                                                        ? t("editReply")
+                                                        : t("reply")}
 
                                                     <svg
                                                         viewBox="0 0 24 24"
@@ -640,14 +654,15 @@ function AdminReviewsContent() {
                         className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5"
                     >
                         <p className="text-sm text-slate-500">
-                            Page{" "}
-                            <span className="font-semibold text-slate-800">
-                                {pagination.page}
-                            </span>{" "}
-                            of{" "}
-                            <span className="font-semibold text-slate-800">
-                                {pagination.totalPages}
-                            </span>
+                            {t.rich("pageOf", {
+                                page: pagination.page,
+                                total: pagination.totalPages,
+                                b: (chunks) => (
+                                    <span className="font-semibold text-slate-800">
+                                        {chunks}
+                                    </span>
+                                ),
+                            })}
                         </p>
 
                         <div className="flex items-center gap-2">
@@ -673,7 +688,7 @@ function AdminReviewsContent() {
                                         d="m15 18-6-6 6-6"
                                     />
                                 </svg>
-                                Previous
+                                {t("previous")}
                             </button>
 
                             <button
@@ -684,7 +699,7 @@ function AdminReviewsContent() {
                                 }
                                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
                             >
-                                Next
+                                {t("next")}
                                 <svg
                                     viewBox="0 0 24 24"
                                     fill="none"
@@ -758,8 +773,8 @@ function AdminReviewsContent() {
                                         className="text-lg font-bold text-slate-900"
                                     >
                                         {selectedReview.reply
-                                            ? "Edit Reply"
-                                            : "Reply to Review"}
+                                            ? t("editReply")
+                                            : t("replyToReview")}
                                     </h2>
 
                                     <p className="mt-1 truncate text-sm text-slate-500">
@@ -771,7 +786,7 @@ function AdminReviewsContent() {
                                     type="button"
                                     onClick={handleCloseReply}
                                     disabled={submittingReply}
-                                    aria-label="Close reply dialog"
+                                    aria-label={t("closeDialog")}
                                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     ×
@@ -804,7 +819,7 @@ function AdminReviewsContent() {
 
                                     <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-slate-600">
                                         {selectedReview.comment ||
-                                            "No comment"}
+                                            t("noComment")}
                                     </p>
                                 </div>
 
@@ -814,7 +829,7 @@ function AdminReviewsContent() {
                                         htmlFor="review-reply"
                                         className="mb-2 block text-sm font-semibold text-slate-700"
                                     >
-                                        Your Response
+                                        {t("yourResponse")}
                                     </label>
 
                                     <textarea
@@ -828,13 +843,13 @@ function AdminReviewsContent() {
                                         rows={5}
                                         maxLength={2000}
                                         disabled={submittingReply}
-                                        placeholder="Write a helpful response to this customer..."
+                                        placeholder={t("replyPlaceholder")}
                                         className={`${inputClassName} resize-y leading-6 disabled:cursor-not-allowed disabled:bg-slate-50`}
                                     />
 
                                     <div className="mt-1.5 flex items-center justify-between gap-3">
                                         <p className="text-xs text-slate-400">
-                                            Keep your response helpful and professional.
+                                            {t("replyHint")}
                                         </p>
 
                                         <span className="shrink-0 text-xs tabular-nums text-slate-400">
@@ -862,7 +877,7 @@ function AdminReviewsContent() {
                                         disabled={submittingReply}
                                         className={buttonClassName}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </button>
 
                                     <button
@@ -897,13 +912,13 @@ function AdminReviewsContent() {
                                                         d="M12 3a9 9 0 0 1 9 9h-3a6 6 0 0 0-6-6V3Z"
                                                     />
                                                 </svg>
-                                                Saving...
+                                                {t("saving")}
                                             </>
                                         ) : (
                                             <>
                                                 {selectedReview.reply
-                                                    ? "Update Reply"
-                                                    : "Send Reply"}
+                                                    ? t("updateReply")
+                                                    : t("sendReply")}
                                                 <svg
                                                     viewBox="0 0 24 24"
                                                     fill="none"

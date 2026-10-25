@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useAdminUserAddresses } from "@/src/features/address/hooks/useAdminUserAddresses";
 import { useAdminOrders } from "@/src/features/order/hooks/useAdminOrders";
@@ -161,6 +162,13 @@ function InfoField({
 }
 
 function StatusBadge({ status }: { status: string }) {
+    const t = useTranslations("AdminUserDetailPage");
+
+    // Show the translated label, or the raw status code if unknown.
+    const label = t.has(`statuses.${status}`)
+        ? t(`statuses.${status}`)
+        : status;
+
     return (
         <span
             className={`inline-flex min-w-24 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold ${getStatusClassName(
@@ -168,7 +176,7 @@ function StatusBadge({ status }: { status: string }) {
             )}`}
         >
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
-            {status}
+            {label}
         </span>
     );
 }
@@ -243,6 +251,8 @@ function LoadingTableRows() {
 }
 
 export default function AdminUserDetailPage() {
+    const t = useTranslations("AdminUserDetailPage");
+    const locale = useLocale();
     const params = useParams();
     const router = useRouter();
 
@@ -277,7 +287,7 @@ export default function AdminUserDetailPage() {
     } = useAdminUserAddresses(id);
 
     const formatDateTime = (value: string) => {
-        return new Date(value).toLocaleString("en-US", {
+        return new Date(value).toLocaleString(locale, {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -287,11 +297,15 @@ export default function AdminUserDetailPage() {
     };
 
     const formatPrice = (value: string | number) => {
-        return Number(value).toLocaleString("en-US", {
+        return Number(value).toLocaleString(locale, {
             style: "currency",
             currency: "USD",
         });
     };
+
+    // Show a translated label for a role/status code, or the raw code if unknown.
+    const getLabel = (group: "roles" | "statuses", value: string) =>
+        t.has(`${group}.${value}`) ? t(`${group}.${value}`) : value;
 
     if (loading) {
         return <LoadingSkeleton />;
@@ -327,10 +341,10 @@ export default function AdminUserDetailPage() {
 
                             <div>
                                 <p className="font-semibold">
-                                    Unable to load user
+                                    {t("unableToLoadUser")}
                                 </p>
                                 <p className="mt-1">
-                                    {error || "User not found."}
+                                    {error || t("userNotFound")}
                                 </p>
                             </div>
                         </div>
@@ -354,7 +368,7 @@ export default function AdminUserDetailPage() {
                                     d="m15 18-6-6 6-6"
                                 />
                             </svg>
-                            Back to Users
+                            {t("backToUsers")}
                         </button>
                     </motion.div>
                 </div>
@@ -370,7 +384,7 @@ export default function AdminUserDetailPage() {
             return;
         }
 
-        const toastId = toast.loading("Updating user status...");
+        const toastId = toast.loading(t("updatingStatusToast"));
 
         setUpdatingStatus(true);
 
@@ -379,14 +393,16 @@ export default function AdminUserDetailPage() {
 
             setStatus("");
 
-            toast.success("User status updated successfully.", {
+            toast.success(t("statusUpdated"), {
                 id: toastId,
-                description: `Account status: ${nextStatus}`,
+                description: t("statusUpdatedDesc", {
+                    status: getLabel("statuses", nextStatus),
+                }),
             });
         } catch (error) {
             console.error("Failed to update user status:", error);
 
-            toast.error("Unable to update user status. Please try again.", {
+            toast.error(t("statusUpdateFailed"), {
                 id: toastId,
             });
         } finally {
@@ -429,7 +445,7 @@ export default function AdminUserDetailPage() {
                                     d="m15 18-6-6 6-6"
                                 />
                             </svg>
-                            Back to Users
+                            {t("backToUsers")}
                         </button>
                     </div>
 
@@ -451,7 +467,7 @@ export default function AdminUserDetailPage() {
 
                             <div className="min-w-0">
                                 <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-blue-600">
-                                    User Profile
+                                    {t("userProfile")}
                                 </p>
 
                                 <h1 className="break-words text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
@@ -463,7 +479,7 @@ export default function AdminUserDetailPage() {
                                 </p>
 
                                 <p className="mt-2 text-xs text-slate-400">
-                                    User ID: #{user.id}
+                                    {t("userIdLabel", { id: user.id })}
                                 </p>
                             </div>
                         </div>
@@ -474,7 +490,7 @@ export default function AdminUserDetailPage() {
                                     user.role
                                 )}`}
                             >
-                                {user.role}
+                                {getLabel("roles", user.role)}
                             </span>
 
                             <StatusBadge status={user.status} />
@@ -492,33 +508,33 @@ export default function AdminUserDetailPage() {
                         className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
                     >
                         <SectionHeading
-                            title="Account Information"
-                            description="Review and manage account details."
+                            title={t("accountInfo")}
+                            description={t("accountInfoDesc")}
                             icon="user"
                         />
 
                         <div className="space-y-6 p-5 sm:p-6">
                             <div className="grid gap-6 sm:grid-cols-2">
                                 <InfoField
-                                    label="User ID"
+                                    label={t("fieldUserId")}
                                     value={`#${user.id}`}
                                 />
 
                                 <InfoField
-                                    label="Full Name"
+                                    label={t("fieldFullName")}
                                     value={user.name}
                                 />
 
                                 <div className="sm:col-span-2">
                                     <InfoField
-                                        label="Email Address"
+                                        label={t("fieldEmail")}
                                         value={user.email}
                                     />
                                 </div>
 
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                        Role
+                                        {t("fieldRole")}
                                     </p>
 
                                     <div className="mt-2">
@@ -527,7 +543,7 @@ export default function AdminUserDetailPage() {
                                                 user.role
                                             )}`}
                                         >
-                                            {user.role}
+                                            {getLabel("roles", user.role)}
                                         </span>
                                     </div>
                                 </div>
@@ -538,7 +554,7 @@ export default function AdminUserDetailPage() {
                                     htmlFor="user-account-status"
                                     className="mb-2 block text-sm font-semibold text-slate-700"
                                 >
-                                    Update Account Status
+                                    {t("updateAccountStatus")}
                                 </label>
 
                                 <div className="flex flex-col gap-3 sm:flex-row">
@@ -552,15 +568,15 @@ export default function AdminUserDetailPage() {
                                         disabled={updatingStatus}
                                     >
                                         <option value="ACTIVE">
-                                            ACTIVE
+                                            {getLabel("statuses", "ACTIVE")}
                                         </option>
 
                                         <option value="INACTIVE">
-                                            INACTIVE
+                                            {getLabel("statuses", "INACTIVE")}
                                         </option>
 
                                         <option value="BANNED">
-                                            BANNED
+                                            {getLabel("statuses", "BANNED")}
                                         </option>
                                     </select>
 
@@ -598,17 +614,16 @@ export default function AdminUserDetailPage() {
                                                         d="M12 3a9 9 0 0 1 9 9h-3a6 6 0 0 0-6-6V3Z"
                                                     />
                                                 </svg>
-                                                Saving...
+                                                {t("saving")}
                                             </>
                                         ) : (
-                                            "Save Changes"
+                                            t("saveChanges")
                                         )}
                                     </button>
                                 </div>
 
                                 <p className="mt-2 text-xs leading-5 text-slate-400">
-                                    Changing the status may affect this user&apos;s
-                                    ability to access the store.
+                                    {t("statusWarning")}
                                 </p>
                             </div>
                         </div>
@@ -622,15 +637,15 @@ export default function AdminUserDetailPage() {
                         className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
                     >
                         <SectionHeading
-                            title="Account Details"
-                            description="Account creation and update history."
+                            title={t("accountDetails")}
+                            description={t("accountDetailsDesc")}
                             icon="calendar"
                         />
 
                         <div className="space-y-6 p-5 sm:p-6">
                             <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                    Created At
+                                    {t("createdAt")}
                                 </p>
 
                                 <p className="mt-2 text-sm font-semibold text-slate-800">
@@ -640,7 +655,7 @@ export default function AdminUserDetailPage() {
 
                             <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
                                 <p className="text-xs font-semibold uppercase tracking-wider text-blue-500">
-                                    Last Updated
+                                    {t("lastUpdated")}
                                 </p>
 
                                 <p className="mt-2 text-sm font-semibold text-slate-800">
@@ -659,8 +674,8 @@ export default function AdminUserDetailPage() {
                     className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
                 >
                     <SectionHeading
-                        title="Addresses"
-                        description="Saved shipping addresses for this user."
+                        title={t("addresses")}
+                        description={t("addressesDesc")}
                         icon="address"
                     />
 
@@ -707,11 +722,11 @@ export default function AdminUserDetailPage() {
                                 </div>
 
                                 <p className="mt-3 text-sm font-semibold text-slate-700">
-                                    No addresses found
+                                    {t("noAddresses")}
                                 </p>
 
                                 <p className="mt-1 text-sm text-slate-500">
-                                    This user has not saved any addresses.
+                                    {t("noAddressesDesc")}
                                 </p>
                             </div>
                         ) : (
@@ -764,7 +779,7 @@ export default function AdminUserDetailPage() {
 
                                             {address.isDefault && (
                                                 <span className="inline-flex shrink-0 items-center rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                                                    Default
+                                                    {t("defaultLabel")}
                                                 </span>
                                             )}
                                         </div>
@@ -779,8 +794,9 @@ export default function AdminUserDetailPage() {
 
                                             {address.postalCode && (
                                                 <p className="text-slate-400">
-                                                    Postal Code:{" "}
-                                                    {address.postalCode}
+                                                    {t("postalCode", {
+                                                        code: address.postalCode,
+                                                    })}
                                                 </p>
                                             )}
                                         </div>
@@ -799,8 +815,8 @@ export default function AdminUserDetailPage() {
                     className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
                 >
                     <SectionHeading
-                        title="Orders"
-                        description="Review orders placed by this user."
+                        title={t("orders")}
+                        description={t("ordersDesc")}
                         icon="orders"
                     />
 
@@ -811,11 +827,11 @@ export default function AdminUserDetailPage() {
                                     <thead>
                                         <tr className="border-b border-slate-200 bg-slate-50">
                                             {[
-                                                "Order",
-                                                "Total",
-                                                "Status",
-                                                "Created",
-                                                "Action",
+                                                t("colOrder"),
+                                                t("colTotal"),
+                                                t("colStatus"),
+                                                t("colCreated"),
+                                                t("colAction"),
                                             ].map((label) => (
                                                 <th
                                                     key={label}
@@ -865,11 +881,11 @@ export default function AdminUserDetailPage() {
                                 </div>
 
                                 <p className="mt-3 text-sm font-semibold text-slate-700">
-                                    No orders found
+                                    {t("noOrders")}
                                 </p>
 
                                 <p className="mt-1 text-sm text-slate-500">
-                                    This user has not placed any orders yet.
+                                    {t("noOrdersDesc")}
                                 </p>
                             </div>
                         ) : (
@@ -878,23 +894,23 @@ export default function AdminUserDetailPage() {
                                     <thead>
                                         <tr className="border-b border-slate-200 bg-slate-50">
                                             <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                                Order
+                                                {t("colOrder")}
                                             </th>
 
                                             <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                                Total
+                                                {t("colTotal")}
                                             </th>
 
                                             <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                                Status
+                                                {t("colStatus")}
                                             </th>
 
                                             <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                                Created
+                                                {t("colCreated")}
                                             </th>
 
                                             <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                                Action
+                                                {t("colAction")}
                                             </th>
                                         </tr>
                                     </thead>
@@ -923,7 +939,9 @@ export default function AdminUserDetailPage() {
                                                     </p>
 
                                                     <p className="mt-1 text-xs text-slate-400">
-                                                        ID: {order.id}
+                                                        {t("orderId", {
+                                                            id: order.id,
+                                                        })}
                                                     </p>
                                                 </td>
 
@@ -953,7 +971,7 @@ export default function AdminUserDetailPage() {
                                                         }
                                                         className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
                                                     >
-                                                        View
+                                                        {t("view")}
 
                                                         <svg
                                                             viewBox="0 0 24 24"
@@ -984,14 +1002,15 @@ export default function AdminUserDetailPage() {
                             ordersPagination.totalPages > 1 && (
                                 <div className="mt-5 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
                                     <p className="text-sm text-slate-500">
-                                        Page{" "}
-                                        <span className="font-semibold text-slate-800">
-                                            {ordersPagination.page}
-                                        </span>{" "}
-                                        of{" "}
-                                        <span className="font-semibold text-slate-800">
-                                            {ordersPagination.totalPages}
-                                        </span>
+                                        {t.rich("pageOf", {
+                                            page: ordersPagination.page,
+                                            total: ordersPagination.totalPages,
+                                            b: (chunks) => (
+                                                <span className="font-semibold text-slate-800">
+                                                    {chunks}
+                                                </span>
+                                            ),
+                                        })}
                                     </p>
 
                                     <div className="flex items-center gap-2">
@@ -1019,7 +1038,7 @@ export default function AdminUserDetailPage() {
                                                     d="m15 18-6-6 6-6"
                                                 />
                                             </svg>
-                                            Previous
+                                            {t("previous")}
                                         </button>
 
                                         <button
@@ -1035,7 +1054,7 @@ export default function AdminUserDetailPage() {
                                             }
                                             className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
                                         >
-                                            Next
+                                            {t("next")}
                                             <svg
                                                 viewBox="0 0 24 24"
                                                 fill="none"

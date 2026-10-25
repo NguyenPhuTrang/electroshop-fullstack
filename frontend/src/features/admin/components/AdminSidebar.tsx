@@ -1,7 +1,8 @@
+
 "use client";
 
-import { Link } from "@/src/i18n/navigation";
-import { usePathname } from "@/src/i18n/navigation";
+import { Link, usePathname } from "@/src/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
 
 type SidebarIconName =
@@ -14,42 +15,42 @@ type SidebarIconName =
     | "reviews";
 
 const NAV_ITEMS: {
-    label: string;
+    labelKey: string;
     href: string;
     icon: SidebarIconName;
 }[] = [
     {
-        label: "Dashboard",
+        labelKey: "dashboard",
         href: "/admin",
         icon: "dashboard",
     },
     {
-        label: "Brands",
+        labelKey: "brands",
         href: "/admin/brands",
         icon: "brands",
     },
     {
-        label: "Categories",
+        labelKey: "categories",
         href: "/admin/categories",
         icon: "categories",
     },
     {
-        label: "Products",
+        labelKey: "products",
         href: "/admin/products",
         icon: "products",
     },
     {
-        label: "Orders",
+        labelKey: "orders",
         href: "/admin/orders",
         icon: "orders",
     },
     {
-        label: "Users",
+        labelKey: "users",
         href: "/admin/users",
         icon: "users",
     },
     {
-        label: "Reviews",
+        labelKey: "reviews",
         href: "/admin/reviews",
         icon: "reviews",
     },
@@ -87,63 +88,30 @@ function SidebarIcon({
 
         products: (
             <>
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m12 3 9 5-9 5-9-5 9-5Z"
-                />
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m3 12 9 5 9-5M3 16l9 5 9-5"
-                />
+                <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                <path d="m3 12 9 5 9-5M3 16l9 5 9-5" />
             </>
         ),
 
-
         orders: (
             <>
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 3h12l3 5v13H3V8l3-5Z"
-                />
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 8h18M9 12h6M9 16h6"
-                />
+                <path d="M6 3h12l3 5v13H3V8l3-5Z" />
+                <path d="M3 8h18M9 12h6M9 16h6" />
             </>
         ),
 
         users: (
             <>
                 <circle cx="9" cy="8" r="4" />
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2 21v-2a7 7 0 0 1 14 0v2"
-                />
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16 4.5a4 4 0 0 1 0 7.5m2 3a6 6 0 0 1 4 5.5v.5"
-                />
+                <path d="M2 21v-2a7 7 0 0 1 14 0v2" />
+                <path d="M16 4.5a4 4 0 0 1 0 7.5m2 3a6 6 0 0 1 4 5.5v.5" />
             </>
         ),
 
         reviews: (
             <>
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"
-                />
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m9 12 2 2 4-4"
-                />
+                <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z" />
+                <path d="m9 12 2 2 4-4" />
             </>
         ),
     };
@@ -165,6 +133,7 @@ function SidebarIcon({
 }
 
 export default function AdminSidebar() {
+    const t = useTranslations("AdminSidebar");
     const pathname = usePathname();
 
     const isActive = (href: string) => {
@@ -179,7 +148,7 @@ export default function AdminSidebar() {
     };
 
     return (
-       <aside className="sticky top-0 z-40 flex h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white">
+        <aside className="sticky top-0 z-40 flex h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white">
             {/* Brand */}
             <div className="border-b border-slate-100 px-5 py-6">
                 <Link
@@ -207,7 +176,7 @@ export default function AdminSidebar() {
                         </h2>
 
                         <p className="mt-0.5 text-xs font-medium text-slate-500">
-                            Admin Panel
+                            {t("adminPanel")}
                         </p>
                     </div>
                 </Link>
@@ -215,11 +184,11 @@ export default function AdminSidebar() {
 
             {/* Navigation */}
             <nav
-                aria-label="Admin navigation"
+                aria-label={t("navigationLabel")}
                 className="flex-1 px-3 py-6"
             >
                 <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                    Workspace
+                    {t("workspace")}
                 </p>
 
                 <div className="space-y-1">
@@ -230,9 +199,7 @@ export default function AdminSidebar() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                aria-current={
-                                    active ? "page" : undefined
-                                }
+                                aria-current={active ? "page" : undefined}
                                 className={`group relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-colors duration-200 ${
                                     active
                                         ? "bg-blue-50 text-blue-700"
@@ -262,7 +229,7 @@ export default function AdminSidebar() {
                                 </span>
 
                                 <span className="flex-1">
-                                    {item.label}
+                                    {t(item.labelKey)}
                                 </span>
 
                                 {active && (
@@ -300,18 +267,18 @@ export default function AdminSidebar() {
 
                         <div className="min-w-0">
                             <p className="text-xs font-semibold text-slate-800">
-                                Administration
+                                {t("administration")}
                             </p>
 
                             <p className="mt-0.5 text-[11px] text-slate-500">
-                                Store management
+                                {t("storeManagement")}
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <p className="mt-4 text-center text-[11px] text-slate-400">
-                    Electroshop Admin
+                    {t("footer")}
                 </p>
             </div>
         </aside>

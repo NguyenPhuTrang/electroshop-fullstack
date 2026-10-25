@@ -1,11 +1,11 @@
 "use client";
 
-import { Link } from "@/src/i18n/navigation";
-import { useRouter } from "@/src/i18n/navigation";
 import { useState, type FormEvent } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
+import { Link, useRouter } from "@/src/i18n/navigation";
 import { createBrand } from "@/src/features/brand/services/brand.service";
 
 type BrandFormErrors = {
@@ -15,6 +15,7 @@ type BrandFormErrors = {
 };
 
 export default function CreateBrandPage() {
+    const t = useTranslations("CreateBrandPage");
     const router = useRouter();
 
     const [name, setName] = useState("");
@@ -42,15 +43,14 @@ export default function CreateBrandPage() {
 
         // Validate brand name.
         if (!trimmedName) {
-            nextErrors.name = "Brand name is required.";
+            nextErrors.name = t("validation.nameRequired");
         }
 
         // Validate brand slug.
         if (!trimmedSlug) {
-            nextErrors.slug = "Brand slug is required.";
+            nextErrors.slug = t("validation.slugRequired");
         } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(trimmedSlug)) {
-            nextErrors.slug =
-                "Use lowercase letters, numbers, and hyphens only.";
+            nextErrors.slug = t("validation.slugFormat");
         }
 
         // Validate logo URL when provided.
@@ -62,11 +62,10 @@ export default function CreateBrandPage() {
                     logoUrl.protocol !== "http:" &&
                     logoUrl.protocol !== "https:"
                 ) {
-                    nextErrors.logo =
-                        "Logo URL must start with http:// or https://.";
+                    nextErrors.logo = t("validation.logoProtocol");
                 }
             } catch {
-                nextErrors.logo = "Please enter a valid logo URL.";
+                nextErrors.logo = t("validation.logoInvalid");
             }
         }
 
@@ -76,7 +75,7 @@ export default function CreateBrandPage() {
             return;
         }
 
-        const toastId = toast.loading("Creating brand...");
+        const toastId = toast.loading(t("toasts.creating"));
 
         setSubmitting(true);
 
@@ -88,7 +87,7 @@ export default function CreateBrandPage() {
                 logo: trimmedLogo || undefined,
             });
 
-            toast.success("Brand created successfully.", {
+            toast.success(t("toasts.created"), {
                 id: toastId,
             });
 
@@ -96,10 +95,9 @@ export default function CreateBrandPage() {
         } catch (error) {
             console.error("Failed to create brand:", error);
 
-            toast.error(
-                "Unable to create brand. Check that the name and slug are unique and the logo URL is valid.",
-                { id: toastId }
-            );
+            toast.error(t("toasts.createFailed"), {
+                id: toastId,
+            });
         } finally {
             setSubmitting(false);
         }
@@ -118,16 +116,16 @@ export default function CreateBrandPage() {
                     <span className="size-2 rounded-full bg-cyan-500" />
 
                     <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                        Electroshop Administration
+                        {t("header.brand")}
                     </p>
                 </div>
 
                 <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                    Create Brand
+                    {t("header.title")}
                 </h1>
 
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Add a new brand to your store.
+                    {t("header.description")}
                 </p>
             </header>
 
@@ -144,7 +142,7 @@ export default function CreateBrandPage() {
                             htmlFor="brand-name"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Brand Name
+                            {t("fields.name")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -162,7 +160,7 @@ export default function CreateBrandPage() {
                                     }));
                                 }
                             }}
-                            placeholder="e.g. Apple"
+                            placeholder={t("fields.namePlaceholder")}
                             required
                             aria-invalid={Boolean(errors.name)}
                             aria-describedby={
@@ -192,7 +190,7 @@ export default function CreateBrandPage() {
                             htmlFor="brand-slug"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Slug
+                            {t("fields.slug")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -210,7 +208,7 @@ export default function CreateBrandPage() {
                                     }));
                                 }
                             }}
-                            placeholder="e.g. apple"
+                            placeholder={t("fields.slugPlaceholder")}
                             required
                             aria-invalid={Boolean(errors.slug)}
                             aria-describedby="brand-slug-hint"
@@ -225,8 +223,7 @@ export default function CreateBrandPage() {
                             id="brand-slug-hint"
                             className="mt-2 text-xs text-slate-500"
                         >
-                            Use lowercase letters, numbers, and hyphens.
-                            For example: samsung-galaxy.
+                            {t("fields.slugHint")}
                         </p>
 
                         {errors.slug && (
@@ -245,9 +242,10 @@ export default function CreateBrandPage() {
                             htmlFor="brand-description"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Description
+                            {t("fields.description")}
+
                             <span className="ml-2 text-xs font-normal text-slate-400">
-                                Optional
+                                {t("common.optional")}
                             </span>
                         </label>
 
@@ -257,7 +255,7 @@ export default function CreateBrandPage() {
                             onChange={(event) =>
                                 setDescription(event.target.value)
                             }
-                            placeholder="Enter information about this brand..."
+                            placeholder={t("fields.descriptionPlaceholder")}
                             rows={4}
                             className="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                         />
@@ -269,9 +267,10 @@ export default function CreateBrandPage() {
                             htmlFor="brand-logo"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Logo URL
+                            {t("fields.logoUrl")}
+
                             <span className="ml-2 text-xs font-normal text-slate-400">
-                                Optional
+                                {t("common.optional")}
                             </span>
                         </label>
 
@@ -289,7 +288,7 @@ export default function CreateBrandPage() {
                                     }));
                                 }
                             }}
-                            placeholder="https://example.com/logo.png"
+                            placeholder={t("fields.logoPlaceholder")}
                             aria-invalid={Boolean(errors.logo)}
                             aria-describedby={
                                 errors.logo ? "brand-logo-error" : undefined
@@ -302,8 +301,7 @@ export default function CreateBrandPage() {
                         />
 
                         <p className="mt-2 text-xs leading-5 text-slate-500">
-                            Provide a publicly accessible image URL. The
-                            backend will upload the image to Cloudinary.
+                            {t("fields.logoHint")}
                         </p>
 
                         {errors.logo && (
@@ -324,7 +322,7 @@ export default function CreateBrandPage() {
                         href="/admin/brands"
                         className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     >
-                        Cancel
+                        {t("buttons.cancel")}
                     </Link>
 
                     <button
@@ -335,7 +333,7 @@ export default function CreateBrandPage() {
                         {submitting ? (
                             <>
                                 <span className="size-4 animate-spin rounded-full border-2 border-blue-200 border-t-white" />
-                                Creating...
+                                {t("buttons.creating")}
                             </>
                         ) : (
                             <>
@@ -351,7 +349,7 @@ export default function CreateBrandPage() {
                                     <path d="M12 5v14M5 12h14" />
                                 </svg>
 
-                                Create Brand
+                                {t("buttons.create")}
                             </>
                         )}
                     </button>

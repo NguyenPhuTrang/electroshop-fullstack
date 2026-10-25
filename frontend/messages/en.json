@@ -1145,33 +1145,46 @@
     "header": {
       "badge": "Order Management",
       "title": "Order Details",
-      "description": "Review order information, shipping details, payment, and totals."
+      "description": "Review order information, shipping details, payment, and totals.",
+      "brand": "Electroshop Administration",
+      "orderNumber": "Order {orderNumber}",
+      "createdOn": "Created on {date}"
     },
     "shipping": {
       "title": "Shipping Information",
-      "description": "Recipient and delivery details for this order.",
+      "description": "Delivery recipient and address details",
       "recipientName": "Recipient Name",
       "phoneNumber": "Phone Number",
       "streetAddress": "Street Address",
       "city": "City",
       "district": "District",
-      "orderNote": "Order Note"
+      "orderNote": "Order Note",
+      "recipient": "Recipient",
+      "phone": "Phone",
+      "address": "Address",
+      "note": "Note"
     },
     "items": {
-      "title": "Products",
-      "description": "Products included in this order.",
+      "title": "Order Items",
+      "description": "{count, plural, one {# item included in this order} other {# items included in this order}}",
       "count": "{count, plural, one {# item} other {# items}}",
-      "quantity": "Quantity: {count}",
-      "sku": "SKU",
-      "subtotal": "Subtotal"
+      "quantity": "Quantity: {quantity}",
+      "sku": "SKU: {sku}",
+      "subtotal": "Subtotal",
+      "empty": "No items found for this order."
     },
     "payment": {
       "title": "Payment Information",
-      "description": "Payment method and transaction details.",
-      "method": "Payment Method",
-      "status": "Payment Status",
-      "amount": "Payment Amount",
-      "unavailable": "Payment information is not available for this order."
+      "description": "Payment details and transaction status",
+      "method": "Method",
+      "status": "Status",
+      "amount": "Amount",
+      "unavailable": "Payment information is not available for this order.",
+      "transactionId": "Transaction ID",
+      "paidAt": "Paid At",
+      "notPaid": "Not paid",
+      "noInformation": "No payment information available",
+      "noInformationDescription": "Payment details have not been recorded for this order."
     },
     "bankTransfer": {
       "title": "Bank Transfer Information",
@@ -1187,7 +1200,11 @@
       "subtotal": "Subtotal",
       "shippingFee": "Shipping Fee",
       "discount": "Discount",
-      "total": "Total"
+      "total": "Total",
+      "description": "Payment breakdown",
+      "orderStatus": "Order Status",
+      "created": "Created",
+      "updated": "Updated"
     },
     "methods": {
       "cod": "Cash on Delivery (COD)",
@@ -1209,6 +1226,29 @@
       "failed": "Failed",
       "refunded": "Refunded",
       "partiallyRefunded": "Partially Refunded"
+    },
+    "loading": {
+      "ariaLabel": "Loading order details"
+    },
+    "errors": {
+      "title": "Unable to Load Order",
+      "orderNotFound": "Order not found."
+    },
+    "buttons": {
+      "backToUser": "Back to User",
+      "backToOrders": "Back to Orders"
+    },
+    "customer": {
+      "title": "Customer Information",
+      "description": "Customer account information",
+      "name": "Name",
+      "email": "Email"
+    },
+    "paymentMethods": {
+      "cod": "Cash on Delivery",
+      "bankTransfer": "Bank Transfer",
+      "creditCard": "Credit Card",
+      "vnpay": "VNPay"
     }
   },
   "CancelOrderButton": {
@@ -1548,5 +1588,626 @@
       "revenue": "Revenue",
       "dateLabel": "Date: {date}"
     }
+  },
+  "AdminBrandsPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Brand Management",
+      "description": "Manage your brands, logos, and brand information."
+    },
+    "buttons": {
+      "addBrand": "Add Brand",
+      "tryAgain": "Try Again",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel",
+      "createBrand": "Create Brand",
+      "creating": "Creating...",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
+    },
+    "search": {
+      "sectionLabel": "Brand search",
+      "title": "Search Brands",
+      "placeholder": "Search by brand name, slug, or description...",
+      "ariaLabel": "Search brands"
+    },
+    "table": {
+      "sectionLabel": "Brands list",
+      "title": "Brands",
+      "description": "View and manage your store brands."
+    },
+    "counts": {
+      "single": "{count} brand",
+      "multiple": "{count} brands"
+    },
+    "loading": {
+      "ariaLabel": "Loading brands"
+    },
+    "errors": {
+      "title": "Unable to load brands"
+    },
+    "empty": {
+      "matchingTitle": "No matching brands",
+      "matchingDescription": "Try a different search term.",
+      "noBrandsTitle": "No brands found",
+      "noBrandsDescription": "Add your first brand to get started."
+    },
+    "columns": {
+      "brand": "Brand",
+      "slug": "Slug",
+      "description": "Description",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "brandLogoAlt": "{name} logo",
+    "deleteConfirmation": "Are you sure you want to delete this brand? This action cannot be undone.",
+    "toasts": {
+      "deleting": "Deleting brand...",
+      "deleted": "Brand deleted successfully.",
+      "deleteFailed": "Unable to delete brand. It may be assigned to existing products.",
+      "creating": "Creating brand...",
+      "created": "Brand created successfully.",
+      "createFailed": "Unable to create brand. Check that the name and slug are unique and the logo URL is valid.",
+      "updating": "Updating brand...",
+      "updated": "Brand updated successfully.",
+      "updateFailed": "Unable to update brand. Check that the name and slug are unique and the logo URL is valid."
+    },
+    "modal": {
+      "createTitle": "Create Brand",
+      "createDescription": "Enter the information for the new brand.",
+      "editTitle": "Edit Brand",
+      "editDescription": "Update the brand information below.",
+      "currentLogo": "Current Logo",
+      "close": "Close brand form"
+    },
+    "fields": {
+      "name": "Brand Name",
+      "namePlaceholder": "e.g. Apple",
+      "slug": "Slug",
+      "slugPlaceholder": "e.g. apple",
+      "slugHint": "Use lowercase letters, numbers, and hyphens. For example: samsung-galaxy.",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter information about this brand...",
+      "logoUrl": "Logo URL",
+      "newLogoUrl": "New Logo URL",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "createLogoHint": "Provide a publicly accessible image URL. The backend will upload the image to Cloudinary.",
+      "editLogoHint": "Enter a new publicly accessible URL to replace the current logo. Leave blank to keep the current logo."
+    },
+    "common": {
+      "optional": "Optional"
+    },
+    "validation": {
+      "nameRequired": "Brand name is required.",
+      "slugRequired": "Brand slug is required.",
+      "slugFormat": "Use lowercase letters, numbers, and hyphens only.",
+      "logoProtocol": "Logo URL must start with http:// or https://.",
+      "logoInvalid": "Please enter a valid logo URL."
+    }
+  },
+  "EditBrandPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Edit Brand",
+      "description": "Update the information for {name}."
+    },
+    "fields": {
+      "name": "Brand Name",
+      "slug": "Slug",
+      "slugHint": "Use lowercase letters, numbers, and hyphens.",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter information about this brand..."
+    },
+    "common": {
+      "optional": "Optional"
+    },
+    "logo": {
+      "current": "Current Logo",
+      "newUrl": "New Logo URL",
+      "placeholder": "https://example.com/new-logo.png",
+      "alt": "{name} logo",
+      "hint": "Enter a publicly accessible URL to replace the current logo. Leave blank to keep the current logo. The backend uploads replacement images to Cloudinary."
+    },
+    "loading": {
+      "ariaLabel": "Loading brand",
+      "message": "Loading brand..."
+    },
+    "errors": {
+      "invalidBrandId": "Invalid brand ID.",
+      "loadFailed": "Unable to load brand. Please try again.",
+      "title": "Unable to load brand",
+      "brandNotFound": "Brand not found."
+    },
+    "validation": {
+      "nameRequired": "Brand name is required.",
+      "slugRequired": "Brand slug is required.",
+      "slugFormat": "Use lowercase letters, numbers, and hyphens only.",
+      "logoProtocol": "Logo URL must start with http:// or https://.",
+      "logoInvalid": "Please enter a valid logo URL."
+    },
+    "buttons": {
+      "tryAgain": "Try Again",
+      "backToBrands": "Back to Brands",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
+    },
+    "toasts": {
+      "updating": "Updating brand...",
+      "updated": "Brand updated successfully.",
+      "updateFailed": "Unable to update brand. Check that the name and slug are unique and the logo URL is valid."
+    }
+  },
+  "CreateBrandPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Create Brand",
+      "description": "Add a new brand to your store."
+    },
+    "fields": {
+      "name": "Brand Name",
+      "namePlaceholder": "e.g. Apple",
+      "slug": "Slug",
+      "slugPlaceholder": "e.g. apple",
+      "slugHint": "Use lowercase letters, numbers, and hyphens. For example: samsung-galaxy.",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter information about this brand...",
+      "logoUrl": "Logo URL",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "logoHint": "Provide a publicly accessible image URL. The backend will upload the image to Cloudinary."
+    },
+    "common": {
+      "optional": "Optional"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create Brand"
+    },
+    "validation": {
+      "nameRequired": "Brand name is required.",
+      "slugRequired": "Brand slug is required.",
+      "slugFormat": "Use lowercase letters, numbers, and hyphens only.",
+      "logoProtocol": "Logo URL must start with http:// or https://.",
+      "logoInvalid": "Please enter a valid logo URL."
+    },
+    "toasts": {
+      "creating": "Creating brand...",
+      "created": "Brand created successfully.",
+      "createFailed": "Unable to create brand. Check that the name and slug are unique and the logo URL is valid."
+    }
+  },
+  "AdminCategoriesPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Category Management",
+      "description": "Manage your product categories and category information."
+    },
+    "buttons": {
+      "addCategory": "Add Category",
+      "tryAgain": "Try Again",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel",
+      "createCategory": "Create Category",
+      "creating": "Creating...",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
+    },
+    "search": {
+      "sectionLabel": "Category search",
+      "title": "Search Categories",
+      "placeholder": "Search by category name, slug, or description...",
+      "ariaLabel": "Search categories"
+    },
+    "table": {
+      "sectionLabel": "Categories list",
+      "title": "Categories",
+      "description": "View and manage your store categories."
+    },
+    "counts": {
+      "single": "{count} category",
+      "multiple": "{count} categories"
+    },
+    "loading": {
+      "ariaLabel": "Loading categories"
+    },
+    "errors": {
+      "title": "Unable to load categories"
+    },
+    "empty": {
+      "matchingTitle": "No matching categories",
+      "matchingDescription": "Try a different search term.",
+      "noCategoriesTitle": "No categories found",
+      "noCategoriesDescription": "Add your first category to get started."
+    },
+    "columns": {
+      "category": "Category",
+      "slug": "Slug",
+      "description": "Description",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "deleteConfirmation": "Are you sure you want to delete this category? This action cannot be undone.",
+    "toasts": {
+      "deleting": "Deleting category...",
+      "deleted": "Category deleted successfully.",
+      "deleteFailed": "Unable to delete category. It may be assigned to existing products.",
+      "creating": "Creating category...",
+      "created": "Category created successfully.",
+      "createFailed": "Unable to create category. Check that the name and slug are unique.",
+      "updating": "Updating category...",
+      "updated": "Category updated successfully.",
+      "updateFailed": "Unable to update category. Check that the name and slug are unique."
+    },
+    "modal": {
+      "createTitle": "Create Category",
+      "createDescription": "Enter the information for the new category.",
+      "editTitle": "Edit Category",
+      "editDescription": "Update the category information below.",
+      "close": "Close category form"
+    },
+    "fields": {
+      "name": "Category Name",
+      "namePlaceholder": "e.g. Smartphones",
+      "slug": "Slug",
+      "slugPlaceholder": "e.g. smartphones",
+      "slugHint": "Use lowercase letters, numbers, and hyphens. For example: computer-accessories.",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the products in this category..."
+    },
+    "common": {
+      "optional": "Optional"
+    },
+    "validation": {
+      "nameRequired": "Category name is required.",
+      "slugRequired": "Category slug is required.",
+      "slugFormat": "Use lowercase letters, numbers, and hyphens only."
+    }
+  },
+  "EditCategoryPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Edit Category",
+      "description": "Update the information for {name}."
+    },
+    "fields": {
+      "name": "Category Name",
+      "slug": "Slug",
+      "slugHint": "Use lowercase letters, numbers, and hyphens.",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the products in this category..."
+    },
+    "common": {
+      "optional": "Optional"
+    },
+    "loading": {
+      "ariaLabel": "Loading category",
+      "message": "Loading category..."
+    },
+    "errors": {
+      "invalidCategoryId": "Invalid category ID.",
+      "loadFailed": "Unable to load category. Please try again.",
+      "title": "Unable to load category",
+      "categoryNotFound": "Category not found."
+    },
+    "validation": {
+      "nameRequired": "Category name is required.",
+      "slugRequired": "Category slug is required.",
+      "slugFormat": "Use lowercase letters, numbers, and hyphens only."
+    },
+    "buttons": {
+      "tryAgain": "Try Again",
+      "backToCategories": "Back to Categories",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
+    },
+    "toasts": {
+      "updating": "Updating category...",
+      "updated": "Category updated successfully.",
+      "updateFailed": "Unable to update category. Check that the name and slug are unique."
+    }
+  },
+  "CreateCategoryPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Create Category",
+      "description": "Add a new category to organize your products."
+    },
+    "fields": {
+      "name": "Category Name",
+      "namePlaceholder": "e.g. Smartphones",
+      "slug": "Slug",
+      "slugPlaceholder": "e.g. smartphones",
+      "slugHint": "Use lowercase letters, numbers, and hyphens. For example: computer-accessories.",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the products in this category..."
+    },
+    "common": {
+      "optional": "Optional"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create Category"
+    },
+    "validation": {
+      "nameRequired": "Category name is required.",
+      "slugRequired": "Category slug is required.",
+      "slugFormat": "Use lowercase letters, numbers, and hyphens only."
+    },
+    "toasts": {
+      "creating": "Creating category...",
+      "created": "Category created successfully.",
+      "createFailed": "Unable to create category. Check that the name and slug are unique."
+    }
+  },
+  "AdminOrdersPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Order Management",
+      "description": "Manage customer orders, payment details, and fulfillment status."
+    },
+    "filters": {
+      "title": "Search and Filters",
+      "searchLabel": "Search Orders",
+      "searchPlaceholder": "Search by order number...",
+      "statusLabel": "Order Status",
+      "allStatuses": "All Statuses",
+      "allOrders": "All Orders"
+    },
+    "table": {
+      "title": "Orders",
+      "description": "Review orders and open their details.",
+      "countSingle": "{count} order on this page",
+      "countMultiple": "{count} orders on this page",
+      "idLabel": "ID: {id}"
+    },
+    "columns": {
+      "order": "Order",
+      "customer": "Customer",
+      "total": "Total",
+      "payment": "Payment",
+      "status": "Status",
+      "created": "Created",
+      "action": "Action"
+    },
+    "empty": {
+      "title": "No orders found",
+      "description": "Try changing your search or status filter."
+    },
+    "buttons": {
+      "view": "View"
+    },
+    "pagination": {
+      "pageInfo": "Page {page} of {totalPages}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "loading": {
+      "ariaLabel": "Loading orders",
+      "message": "Loading orders..."
+    },
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "outForDelivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "canceled": "Canceled"
+    },
+    "paymentMethods": {
+      "cod": "Cash on Delivery",
+      "bankTransfer": "Bank Transfer",
+      "creditCard": "Credit Card",
+      "vnpay": "VNPay"
+    },
+    "paymentStatuses": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "partiallyRefunded": "Partially Refunded",
+      "cancelled": "Cancelled",
+      "canceled": "Canceled"
+    }
+  },
+  "AdminUsersPage": {
+    "adminWorkspace": "Electroshop Administration",
+    "title": "User Management",
+    "subtitle": "Manage registered user accounts, roles, and statuses.",
+    "currentPage": "Current page",
+    "currentPageValue": "{page} of {total}",
+    "searchAndFilters": "Search and Filters",
+    "searchAndFiltersDesc": "Find users by name, email, role, or status.",
+    "clearFilters": "Clear filters",
+    "searchUsers": "Search users",
+    "searchPlaceholder": "Search by name or email...",
+    "role": "Role",
+    "allRoles": "All Roles",
+    "status": "Status",
+    "allStatuses": "All Statuses",
+    "errorTitle": "Unable to load users",
+    "registeredUsers": "Registered Users",
+    "registeredUsersDesc": "Review account information and permissions.",
+    "usersPerPage": "{limit} users per page",
+    "colUser": "User",
+    "colEmail": "Email",
+    "colRole": "Role",
+    "colStatus": "Status",
+    "colCreated": "Created",
+    "colAction": "Action",
+    "noUsers": "No users found",
+    "noUsersHint": "Try changing your search or filters.",
+    "userId": "ID: {id}",
+    "view": "View",
+    "pageOf": "Page <b>{page}</b> of <b>{total}</b>",
+    "previous": "Previous",
+    "next": "Next",
+    "roles": {
+      "USER": "User",
+      "ADMIN": "Admin"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "BANNED": "Banned"
+    }
+  },
+  "AdminUserDetailPage": {
+    "unableToLoadUser": "Unable to load user",
+    "userNotFound": "User not found.",
+    "backToUsers": "Back to Users",
+    "updatingStatusToast": "Updating user status...",
+    "statusUpdated": "User status updated successfully.",
+    "statusUpdatedDesc": "Account status: {status}",
+    "statusUpdateFailed": "Unable to update user status. Please try again.",
+    "userProfile": "User Profile",
+    "userIdLabel": "User ID: #{id}",
+    "accountInfo": "Account Information",
+    "accountInfoDesc": "Review and manage account details.",
+    "fieldUserId": "User ID",
+    "fieldFullName": "Full Name",
+    "fieldEmail": "Email Address",
+    "fieldRole": "Role",
+    "updateAccountStatus": "Update Account Status",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "statusWarning": "Changing the status may affect the ability of this user to access the store.",
+    "accountDetails": "Account Details",
+    "accountDetailsDesc": "Account creation and update history.",
+    "createdAt": "Created At",
+    "lastUpdated": "Last Updated",
+    "addresses": "Addresses",
+    "addressesDesc": "Saved shipping addresses for this user.",
+    "noAddresses": "No addresses found",
+    "noAddressesDesc": "This user has not saved any addresses.",
+    "defaultLabel": "Default",
+    "postalCode": "Postal Code: {code}",
+    "orders": "Orders",
+    "ordersDesc": "Review orders placed by this user.",
+    "noOrders": "No orders found",
+    "noOrdersDesc": "This user has not placed any orders yet.",
+    "colOrder": "Order",
+    "colTotal": "Total",
+    "colStatus": "Status",
+    "colCreated": "Created",
+    "colAction": "Action",
+    "orderId": "ID: {id}",
+    "view": "View",
+    "pageOf": "Page <b>{page}</b> of <b>{total}</b>",
+    "previous": "Previous",
+    "next": "Next",
+    "roles": {
+      "USER": "User",
+      "ADMIN": "Admin"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "BANNED": "Banned",
+      "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "CONFIRMED": "Confirmed",
+      "SHIPPED": "Shipped",
+      "OUT_FOR_DELIVERY": "Out for delivery",
+      "DELIVERED": "Delivered",
+      "PAID": "Paid",
+      "FAILED": "Failed",
+      "CANCELLED": "Cancelled",
+      "CANCELED": "Canceled"
+    }
+  },
+  "AdminReviewsPage": {
+    "starsAria": "{rating} out of 5 stars",
+    "replied": "Replied",
+    "awaitingReply": "Awaiting reply",
+    "noUnanswered": "No unanswered reviews",
+    "noReviews": "No reviews found",
+    "noUnansweredDesc": "All reviews have been answered, or no reviews match the current filters.",
+    "noReviewsDesc": "Try changing your search keywords or rating filter.",
+    "clearFilters": "Clear filters",
+    "adminWorkspace": "Electroshop Administration",
+    "title": "Review Management",
+    "subtitleUnanswered": "Review customer feedback that is awaiting an Admin response.",
+    "subtitleAll": "Manage customer feedback and respond to product reviews.",
+    "awaitingResponse": "Awaiting Response",
+    "searchAndFilters": "Search and Filters",
+    "searchAndFiltersDesc": "Find reviews by customer, product, comment, or rating.",
+    "searchReviews": "Search reviews",
+    "searchPlaceholder": "Search by comment, customer, email, or product...",
+    "rating": "Rating",
+    "allRatings": "All Ratings",
+    "starsOption": "{count, plural, one {# Star} other {# Stars}}",
+    "errorTitle": "Unable to load reviews",
+    "customerReviews": "Customer Reviews",
+    "customerReviewsDesc": "Review feedback and manage Admin responses.",
+    "unansweredBadge": "Unanswered Reviews",
+    "allReviewsBadge": "All Reviews",
+    "colCustomer": "Customer",
+    "colProduct": "Product",
+    "colRating": "Rating",
+    "colComment": "Comment",
+    "colCreated": "Created",
+    "colReplyStatus": "Reply Status",
+    "colAction": "Action",
+    "productId": "ID: {id}",
+    "noComment": "No comment",
+    "replyLine": "Reply: {comment}",
+    "editReply": "Edit Reply",
+    "reply": "Reply",
+    "pageOf": "Page <b>{page}</b> of <b>{total}</b>",
+    "previous": "Previous",
+    "next": "Next",
+    "replyToReview": "Reply to Review",
+    "closeDialog": "Close reply dialog",
+    "yourResponse": "Your Response",
+    "replyPlaceholder": "Write a helpful response to this customer...",
+    "replyHint": "Keep your response helpful and professional.",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "updateReply": "Update Reply",
+    "sendReply": "Send Reply",
+    "replyRequired": "Reply is required",
+    "replyFailed": "Failed to save reply"
+  },
+  "AdminHeader": {
+    "backToStore": "Back to Store",
+    "title": "Store Administration",
+    "description": "Manage your Electroshop store",
+    "selectLanguage": "Select language",
+    "workspace": "Admin Workspace",
+    "administrator": "Administrator"
+  },
+  "AdminSidebar": {
+    "adminPanel": "Admin Panel",
+    "navigationLabel": "Main Navigation",
+    "workspace": "Workspace",
+    "dashboard": "Dashboard",
+    "brands": "Brands",
+    "categories": "Categories",
+    "products": "Products",
+    "orders": "Orders",
+    "users": "Users",
+    "reviews": "Reviews",
+    "administration": "Administration",
+    "storeManagement": "Store Management",
+    "footer": "Electroshop Admin"
+  },
+  "AdminFooter": {
+    "adminPanel": "Admin Panel",
+    "copyright": "© 2026 Electroshop. All rights reserved.",
+    "systemName": "Store Management System"
+  },
+  "Footer": {
+    "copyright": "© 2026 Electroshop. All rights reserved."
   }
 }

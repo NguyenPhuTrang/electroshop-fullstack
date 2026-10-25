@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { Link } from "@/src/i18n/navigation";
+import { Link, useRouter } from "@/src/i18n/navigation";
 import { useParams } from "next/navigation";
-import { useRouter } from "@/src/i18n/navigation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import type { Brand } from "@/src/features/brand/types/brand";
 import {
@@ -21,6 +21,8 @@ type BrandFormErrors = {
 };
 
 export default function EditBrandPage() {
+    const t = useTranslations("EditBrandPage");
+
     const params = useParams<{ id: string }>();
     const router = useRouter();
 
@@ -41,7 +43,7 @@ export default function EditBrandPage() {
     // Load the existing brand.
     const loadBrand = useCallback(async () => {
         if (!Number.isInteger(brandId) || brandId <= 0) {
-            setLoadError("Invalid brand ID.");
+            setLoadError(t("errors.invalidBrandId"));
             setLoading(false);
             return;
         }
@@ -62,11 +64,11 @@ export default function EditBrandPage() {
             setErrors({});
         } catch (error) {
             console.error("Failed to load brand:", error);
-            setLoadError("Unable to load brand. Please try again.");
+            setLoadError(t("errors.loadFailed"));
         } finally {
             setLoading(false);
         }
-    }, [brandId]);
+    }, [brandId, t]);
 
     useEffect(() => {
         void loadBrand();
@@ -90,14 +92,13 @@ export default function EditBrandPage() {
         const nextErrors: BrandFormErrors = {};
 
         if (!trimmedName) {
-            nextErrors.name = "Brand name is required.";
+            nextErrors.name = t("validation.nameRequired");
         }
 
         if (!trimmedSlug) {
-            nextErrors.slug = "Brand slug is required.";
+            nextErrors.slug = t("validation.slugRequired");
         } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(trimmedSlug)) {
-            nextErrors.slug =
-                "Use lowercase letters, numbers, and hyphens only.";
+            nextErrors.slug = t("validation.slugFormat");
         }
 
         if (trimmedLogo) {
@@ -108,11 +109,10 @@ export default function EditBrandPage() {
                     logoUrl.protocol !== "http:" &&
                     logoUrl.protocol !== "https:"
                 ) {
-                    nextErrors.logo =
-                        "Logo URL must start with http:// or https://.";
+                    nextErrors.logo = t("validation.logoProtocol");
                 }
             } catch {
-                nextErrors.logo = "Please enter a valid logo URL.";
+                nextErrors.logo = t("validation.logoInvalid");
             }
         }
 
@@ -122,7 +122,7 @@ export default function EditBrandPage() {
             return;
         }
 
-        const toastId = toast.loading("Updating brand...");
+        const toastId = toast.loading(t("toasts.updating"));
         setSubmitting(true);
 
         try {
@@ -133,7 +133,7 @@ export default function EditBrandPage() {
                 logo: trimmedLogo || undefined,
             });
 
-            toast.success("Brand updated successfully.", {
+            toast.success(t("toasts.updated"), {
                 id: toastId,
             });
 
@@ -141,10 +141,9 @@ export default function EditBrandPage() {
         } catch (error) {
             console.error("Failed to update brand:", error);
 
-            toast.error(
-                "Unable to update brand. Check that the name and slug are unique and the logo URL is valid.",
-                { id: toastId }
-            );
+            toast.error(t("toasts.updateFailed"), {
+                id: toastId,
+            });
         } finally {
             setSubmitting(false);
         }
@@ -156,9 +155,10 @@ export default function EditBrandPage() {
             <div
                 className="flex min-h-60 items-center justify-center gap-3 text-sm text-slate-500"
                 aria-busy="true"
+                aria-label={t("loading.ariaLabel")}
             >
                 <span className="size-5 animate-spin rounded-full border-2 border-blue-100 border-t-blue-600" />
-                Loading brand...
+                {t("loading.message")}
             </div>
         );
     }
@@ -185,11 +185,11 @@ export default function EditBrandPage() {
                 </div>
 
                 <h2 className="mt-4 text-base font-semibold text-slate-900">
-                    Unable to load brand
+                    {t("errors.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-rose-600">
-                    {loadError || "Brand not found."}
+                    {loadError || t("errors.brandNotFound")}
                 </p>
 
                 <div className="mt-5 flex gap-3">
@@ -198,14 +198,14 @@ export default function EditBrandPage() {
                         onClick={() => void loadBrand()}
                         className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
                     >
-                        Try Again
+                        {t("buttons.tryAgain")}
                     </button>
 
                     <Link
                         href="/admin/brands"
                         className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
                     >
-                        Back to Brands
+                        {t("buttons.backToBrands")}
                     </Link>
                 </div>
             </div>
@@ -225,16 +225,18 @@ export default function EditBrandPage() {
                     <span className="size-2 rounded-full bg-cyan-500" />
 
                     <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                        Electroshop Administration
+                        {t("header.brand")}
                     </p>
                 </div>
 
                 <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                    Edit Brand
+                    {t("header.title")}
                 </h1>
 
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Update the information for {brand.name}.
+                    {t("header.description", {
+                        name: brand.name,
+                    })}
                 </p>
             </header>
 
@@ -251,7 +253,7 @@ export default function EditBrandPage() {
                             htmlFor="brand-name"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Brand Name
+                            {t("fields.name")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -289,7 +291,7 @@ export default function EditBrandPage() {
                             htmlFor="brand-slug"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Slug
+                            {t("fields.slug")}
                             <span className="ml-1 text-rose-500">*</span>
                         </label>
 
@@ -319,7 +321,7 @@ export default function EditBrandPage() {
                             id="brand-slug-hint"
                             className="mt-2 text-xs text-slate-500"
                         >
-                            Use lowercase letters, numbers, and hyphens.
+                            {t("fields.slugHint")}
                         </p>
 
                         {errors.slug && (
@@ -335,9 +337,10 @@ export default function EditBrandPage() {
                             htmlFor="brand-description"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            Description
+                            {t("fields.description")}
+
                             <span className="ml-2 text-xs font-normal text-slate-400">
-                                Optional
+                                {t("common.optional")}
                             </span>
                         </label>
 
@@ -348,7 +351,7 @@ export default function EditBrandPage() {
                                 setDescription(event.target.value)
                             }
                             rows={4}
-                            placeholder="Enter information about this brand..."
+                            placeholder={t("fields.descriptionPlaceholder")}
                             className="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                         />
                     </div>
@@ -357,13 +360,15 @@ export default function EditBrandPage() {
                     {brand.logo && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-slate-700">
-                                Current Logo
+                                {t("logo.current")}
                             </p>
 
                             <div className="flex size-24 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-2">
                                 <Image
                                     src={brand.logo}
-                                    alt={`${brand.name} logo`}
+                                    alt={t("logo.alt", {
+                                        name: brand.name,
+                                    })}
                                     width={80}
                                     height={80}
                                     className="size-full object-contain"
@@ -378,9 +383,10 @@ export default function EditBrandPage() {
                             htmlFor="brand-logo"
                             className="mb-2 block text-sm font-medium text-slate-700"
                         >
-                            New Logo URL
+                            {t("logo.newUrl")}
+
                             <span className="ml-2 text-xs font-normal text-slate-400">
-                                Optional
+                                {t("common.optional")}
                             </span>
                         </label>
 
@@ -396,7 +402,7 @@ export default function EditBrandPage() {
                                     logo: undefined,
                                 }));
                             }}
-                            placeholder="https://example.com/new-logo.png"
+                            placeholder={t("logo.placeholder")}
                             aria-invalid={Boolean(errors.logo)}
                             className={`h-11 w-full rounded-lg border bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:ring-2 ${
                                 errors.logo
@@ -406,10 +412,7 @@ export default function EditBrandPage() {
                         />
 
                         <p className="mt-2 text-xs leading-5 text-slate-500">
-                            Enter a publicly accessible URL to replace the
-                            current logo. Leave blank to keep the current logo.
-                            The backend uploads replacement images to
-                            Cloudinary.
+                            {t("logo.hint")}
                         </p>
 
                         {errors.logo && (
@@ -426,7 +429,7 @@ export default function EditBrandPage() {
                         href="/admin/brands"
                         className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     >
-                        Cancel
+                        {t("buttons.cancel")}
                     </Link>
 
                     <button
@@ -437,10 +440,10 @@ export default function EditBrandPage() {
                         {submitting ? (
                             <>
                                 <span className="size-4 animate-spin rounded-full border-2 border-blue-200 border-t-white" />
-                                Saving...
+                                {t("buttons.saving")}
                             </>
                         ) : (
-                            "Save Changes"
+                            t("buttons.saveChanges")
                         )}
                     </button>
                 </div>

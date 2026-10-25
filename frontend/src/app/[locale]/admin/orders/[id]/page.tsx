@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "@/src/i18n/navigation";
 
@@ -37,6 +38,26 @@ const getStatusClassName = (status: string) => {
 };
 
 function OrderStatusBadge({ status }: { status: string }) {
+  const t = useTranslations("AdminOrderDetailPage");
+
+  const statusLabels: Record<string, string> = {
+    PENDING: t("statuses.pending"),
+    CONFIRMED: t("statuses.confirmed"),
+    PROCESSING: t("statuses.processing"),
+    SHIPPED: t("statuses.shipped"),
+    OUT_FOR_DELIVERY: t("statuses.outForDelivery"),
+    DELIVERED: t("statuses.delivered"),
+    CANCELLED: t("statuses.cancelled"),
+    CANCELED: t("statuses.canceled"),
+    FAILED: t("statuses.failed"),
+    PAID: t("statuses.paid"),
+    UNPAID: t("statuses.unpaid"),
+    REFUNDED: t("statuses.refunded"),
+    PARTIALLY_REFUNDED: t("statuses.partiallyRefunded"),
+  };
+
+  const label = statusLabels[status] ?? status.replaceAll("_", " ");
+
   return (
     <span
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${getStatusClassName(
@@ -44,7 +65,7 @@ function OrderStatusBadge({ status }: { status: string }) {
       )}`}
     >
       <span className="size-1.5 rounded-full bg-current" />
-      {status.replaceAll("_", " ")}
+      {label}
     </span>
   );
 }
@@ -92,11 +113,13 @@ function LoadingBlock({
 }
 
 function AdminOrderDetailSkeleton() {
+  const t = useTranslations("AdminOrderDetailPage");
+
   return (
     <main
       className="min-h-full bg-[#f7f8fa] p-4 sm:p-6 lg:p-8"
       aria-busy="true"
-      aria-label="Loading order details"
+      aria-label={t("loading.ariaLabel")}
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -216,6 +239,9 @@ export default function AdminOrderDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const t = useTranslations("AdminOrderDetailPage");
+  const locale = useLocale();
+
   const userId = searchParams.get("userId");
 
   const backPath = userId
@@ -223,8 +249,8 @@ export default function AdminOrderDetailPage() {
     : "/admin/orders";
 
   const backLabel = userId
-    ? "Back to User"
-    : "Back to Orders";
+    ? t("buttons.backToUser")
+    : t("buttons.backToOrders");
 
   const id = Number(params.id);
 
@@ -234,15 +260,24 @@ export default function AdminOrderDetailPage() {
     error,
   } = useAdminOrderDetail(id);
 
+  const paymentMethodLabels: Record<string, string> = {
+    COD: t("paymentMethods.cod"),
+    CASH_ON_DELIVERY: t("paymentMethods.cod"),
+    BANK_TRANSFER: t("paymentMethods.bankTransfer"),
+    CREDIT_CARD: t("paymentMethods.creditCard"),
+    VNPAY: t("paymentMethods.vnpay"),
+  };
+
   const formatPrice = (value: string) => {
-    return Number(value).toLocaleString("en-US", {
+    return Number(value).toLocaleString(locale, {
       style: "currency",
-      currency: "USD",
+      currency: "VND",
+      maximumFractionDigits: 0,
     });
   };
 
   const formatDateTime = (value: string) => {
-    return new Date(value).toLocaleString("en-US", {
+    return new Date(value).toLocaleString(locale, {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -282,14 +317,14 @@ export default function AdminOrderDetailPage() {
             </div>
 
             <h1 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
-              Unable to Load Order
+              {t("errors.title")}
             </h1>
 
             <p
               role="alert"
               className="mt-2 text-sm leading-6 text-rose-600"
             >
-              {error || "Order not found."}
+              {error || t("errors.orderNotFound")}
             </p>
 
             <button
@@ -335,41 +370,24 @@ export default function AdminOrderDetailPage() {
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <button
-                type="button"
-                onClick={() => router.push(backPath)}
-                className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-blue-700"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.8}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-4"
-                  aria-hidden="true"
-                >
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-
-                {backLabel}
-              </button>
-
               <div className="mb-2 flex items-center gap-2">
                 <span className="size-2 rounded-full bg-cyan-500" />
 
                 <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                  Electroshop Administration
+                  {t("header.brand")}
                 </p>
               </div>
 
               <h1 className="break-words text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                Order {order.orderNumber}
+                {t("header.orderNumber", {
+                  orderNumber: order.orderNumber,
+                })}
               </h1>
 
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Created on {formatDateTime(order.createdAt)}
+                {t("header.createdOn", {
+                  date: formatDateTime(order.createdAt),
+                })}
               </p>
             </div>
 
@@ -388,14 +406,14 @@ export default function AdminOrderDetailPage() {
               className="overflow-hidden rounded-xl border border-slate-200 bg-white"
             >
               <SectionHeading
-                title="Customer Information"
-                description="Customer account information"
+                title={t("customer.title")}
+                description={t("customer.description")}
               />
 
               <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
                 <div className="rounded-lg border border-slate-100 bg-slate-50/70 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    Name
+                    {t("customer.name")}
                   </p>
 
                   <p className="mt-2 break-words text-sm font-semibold text-slate-900">
@@ -405,7 +423,7 @@ export default function AdminOrderDetailPage() {
 
                 <div className="rounded-lg border border-slate-100 bg-slate-50/70 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    Email
+                    {t("customer.email")}
                   </p>
 
                   <p className="mt-2 break-all text-sm font-semibold text-slate-900">
@@ -423,14 +441,14 @@ export default function AdminOrderDetailPage() {
               className="overflow-hidden rounded-xl border border-slate-200 bg-white"
             >
               <SectionHeading
-                title="Shipping Information"
-                description="Delivery recipient and address details"
+                title={t("shipping.title")}
+                description={t("shipping.description")}
               />
 
               <div className="grid gap-x-6 gap-y-5 p-5 sm:grid-cols-2 sm:p-6">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    Recipient
+                    {t("shipping.recipient")}
                   </p>
 
                   <p className="mt-2 break-words text-sm font-semibold text-slate-900">
@@ -440,7 +458,7 @@ export default function AdminOrderDetailPage() {
 
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    Phone
+                    {t("shipping.phone")}
                   </p>
 
                   <p className="mt-2 text-sm font-semibold text-slate-900">
@@ -450,7 +468,7 @@ export default function AdminOrderDetailPage() {
 
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    Address
+                    {t("shipping.address")}
                   </p>
 
                   <p className="mt-2 text-sm font-medium leading-6 text-slate-800">
@@ -460,7 +478,7 @@ export default function AdminOrderDetailPage() {
 
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    City
+                    {t("shipping.city")}
                   </p>
 
                   <p className="mt-2 text-sm font-medium text-slate-800">
@@ -470,7 +488,7 @@ export default function AdminOrderDetailPage() {
 
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    District
+                    {t("shipping.district")}
                   </p>
 
                   <p className="mt-2 text-sm font-medium text-slate-800">
@@ -481,7 +499,7 @@ export default function AdminOrderDetailPage() {
                 {order.note && (
                   <div className="sm:col-span-2">
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                      Note
+                      {t("shipping.note")}
                     </p>
 
                     <div className="mt-2 rounded-lg border border-slate-100 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
@@ -500,15 +518,15 @@ export default function AdminOrderDetailPage() {
               className="overflow-hidden rounded-xl border border-slate-200 bg-white"
             >
               <SectionHeading
-                title="Order Items"
-                description={`${order.items.length} ${
-                  order.items.length === 1 ? "item" : "items"
-                } included in this order`}
+                title={t("items.title")}
+                description={t("items.description", {
+                  count: order.items.length,
+                })}
               />
 
               {order.items.length === 0 ? (
                 <div className="px-5 py-10 text-center text-sm text-slate-500">
-                  No items found for this order.
+                  {t("items.empty")}
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100">
@@ -530,11 +548,15 @@ export default function AdminOrderDetailPage() {
                           </p>
 
                           <p className="mt-1 font-mono text-xs text-slate-500">
-                            SKU: {item.productSku}
+                            {t("items.sku", {
+                              sku: item.productSku,
+                            })}
                           </p>
 
                           <span className="mt-3 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
-                            Quantity: {item.quantity}
+                            {t("items.quantity", {
+                              quantity: item.quantity,
+                            })}
                           </span>
                         </div>
 
@@ -562,8 +584,8 @@ export default function AdminOrderDetailPage() {
               className="overflow-hidden rounded-xl border border-slate-200 bg-white"
             >
               <SectionHeading
-                title="Payment Information"
-                description="Payment details and transaction status"
+                title={t("payment.title")}
+                description={t("payment.description")}
               />
 
               <div className="p-5 sm:p-6">
@@ -571,17 +593,18 @@ export default function AdminOrderDetailPage() {
                   <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                        Method
+                        {t("payment.method")}
                       </p>
 
                       <p className="mt-2 text-sm font-semibold text-slate-900">
-                        {order.payment.method}
+                        {paymentMethodLabels[order.payment.method] ??
+                          order.payment.method}
                       </p>
                     </div>
 
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                        Status
+                        {t("payment.status")}
                       </p>
 
                       <div className="mt-2">
@@ -591,7 +614,7 @@ export default function AdminOrderDetailPage() {
 
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                        Amount
+                        {t("payment.amount")}
                       </p>
 
                       <p className="mt-2 text-sm font-bold text-blue-700">
@@ -601,7 +624,7 @@ export default function AdminOrderDetailPage() {
 
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                        Transaction ID
+                        {t("payment.transactionId")}
                       </p>
 
                       <p className="mt-2 break-all font-mono text-sm text-slate-700">
@@ -611,13 +634,13 @@ export default function AdminOrderDetailPage() {
 
                     <div className="sm:col-span-2">
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                        Paid At
+                        {t("payment.paidAt")}
                       </p>
 
                       <p className="mt-2 text-sm font-medium text-slate-800">
                         {order.payment.paidAt
                           ? formatDateTime(order.payment.paidAt)
-                          : "Not paid"}
+                          : t("payment.notPaid")}
                       </p>
                     </div>
                   </div>
@@ -639,11 +662,11 @@ export default function AdminOrderDetailPage() {
 
                     <div>
                       <p className="text-sm font-medium text-slate-700">
-                        No payment information available
+                        {t("payment.noInformation")}
                       </p>
 
                       <p className="mt-1 text-xs leading-5 text-slate-500">
-                        Payment details have not been recorded for this order.
+                        {t("payment.noInformationDescription")}
                       </p>
                     </div>
                   </div>
@@ -657,19 +680,19 @@ export default function AdminOrderDetailPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.12 }}
-            className="h-fit lg:sticky lg:top-6 lg:col-span-1"
+            className="h-fit lg:sticky lg:top-22 lg:col-span-1"
           >
             <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
               <SectionHeading
-                title="Order Summary"
-                description="Payment breakdown"
+                title={t("summary.title")}
+                description={t("summary.description")}
               />
 
               <div className="p-5 sm:p-6">
                 <div className="space-y-4 text-sm">
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-slate-500">
-                      Subtotal
+                      {t("summary.subtotal")}
                     </span>
 
                     <span className="text-right font-medium text-slate-800">
@@ -679,7 +702,7 @@ export default function AdminOrderDetailPage() {
 
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-slate-500">
-                      Shipping Fee
+                      {t("summary.shippingFee")}
                     </span>
 
                     <span className="text-right font-medium text-slate-800">
@@ -689,7 +712,7 @@ export default function AdminOrderDetailPage() {
 
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-slate-500">
-                      Discount
+                      {t("summary.discount")}
                     </span>
 
                     <span className="text-right font-medium text-emerald-600">
@@ -702,17 +725,17 @@ export default function AdminOrderDetailPage() {
 
                 <div className="flex items-start justify-between gap-3">
                   <span className="text-base font-semibold text-slate-900">
-                    Total
+                    {t("summary.total")}
                   </span>
 
-                  <span className="text-xl font-bold tracking-tight text-blue-700">
+                  <span className="text-xl font-bold tracking-tight text-red-500">
                     {formatPrice(order.total)}
                   </span>
                 </div>
 
                 <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                    Order Status
+                    {t("summary.orderStatus")}
                   </p>
 
                   <div className="mt-3">
@@ -723,7 +746,7 @@ export default function AdminOrderDetailPage() {
                 <div className="mt-6 space-y-4 border-t border-slate-100 pt-5">
                   <div>
                     <p className="text-xs text-slate-500">
-                      Created
+                      {t("summary.created")}
                     </p>
 
                     <p className="mt-1 text-sm font-medium leading-5 text-slate-800">
@@ -733,7 +756,7 @@ export default function AdminOrderDetailPage() {
 
                   <div>
                     <p className="text-xs text-slate-500">
-                      Updated
+                      {t("summary.updated")}
                     </p>
 
                     <p className="mt-1 text-sm font-medium leading-5 text-slate-800">

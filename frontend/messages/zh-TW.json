@@ -1145,33 +1145,46 @@
     "header": {
       "badge": "訂單管理",
       "title": "訂單詳細資訊",
-      "description": "查看訂單、配送、付款及總金額資訊。"
+      "description": "查看訂單、配送、付款及總金額資訊。",
+      "brand": "Electroshop 管理後台",
+      "orderNumber": "訂單 {orderNumber}",
+      "createdOn": "建立日期：{date}"
     },
     "shipping": {
       "title": "配送資訊",
-      "description": "此訂單的收件人與配送詳細資訊。",
+      "description": "收件人與配送地址詳細資訊",
       "recipientName": "收件人姓名",
       "phoneNumber": "電話號碼",
       "streetAddress": "街道地址",
       "city": "城市",
-      "district": "區域",
-      "orderNote": "訂單備註"
+      "district": "行政區",
+      "orderNote": "訂單備註",
+      "recipient": "收件人",
+      "phone": "電話",
+      "address": "地址",
+      "note": "備註"
     },
     "items": {
-      "title": "商品",
-      "description": "此訂單所包含的商品。",
+      "title": "訂單商品",
+      "description": "此訂單包含 {count} 件商品",
       "count": "{count} 件商品",
-      "quantity": "數量：{count}",
-      "sku": "商品 SKU",
-      "subtotal": "小計"
+      "quantity": "數量：{quantity}",
+      "sku": "SKU：{sku}",
+      "subtotal": "小計",
+      "empty": "此訂單沒有商品。"
     },
     "payment": {
       "title": "付款資訊",
-      "description": "付款方式與交易詳細資訊。",
+      "description": "付款明細與交易狀態",
       "method": "付款方式",
-      "status": "付款狀態",
-      "amount": "付款金額",
-      "unavailable": "此訂單目前沒有可用的付款資訊。"
+      "status": "狀態",
+      "amount": "金額",
+      "unavailable": "此訂單目前沒有可用的付款資訊。",
+      "transactionId": "交易編號",
+      "paidAt": "付款時間",
+      "notPaid": "尚未付款",
+      "noInformation": "沒有可用的付款資訊",
+      "noInformationDescription": "此訂單尚未記錄付款明細。"
     },
     "bankTransfer": {
       "title": "銀行轉帳資訊",
@@ -1187,7 +1200,11 @@
       "subtotal": "小計",
       "shippingFee": "運費",
       "discount": "折扣",
-      "total": "總計"
+      "total": "總計",
+      "description": "付款明細",
+      "orderStatus": "訂單狀態",
+      "created": "建立時間",
+      "updated": "更新時間"
     },
     "methods": {
       "cod": "貨到付款 (COD)",
@@ -1209,6 +1226,29 @@
       "failed": "失敗",
       "refunded": "已退款",
       "partiallyRefunded": "部分退款"
+    },
+    "loading": {
+      "ariaLabel": "正在載入訂單詳細資訊"
+    },
+    "errors": {
+      "title": "無法載入訂單",
+      "orderNotFound": "找不到訂單。"
+    },
+    "buttons": {
+      "backToUser": "返回使用者頁面",
+      "backToOrders": "返回訂單列表"
+    },
+    "customer": {
+      "title": "客戶資訊",
+      "description": "客戶帳戶資訊",
+      "name": "姓名",
+      "email": "電子郵件"
+    },
+    "paymentMethods": {
+      "cod": "貨到付款",
+      "bankTransfer": "銀行轉帳",
+      "creditCard": "信用卡",
+      "vnpay": "VNPay"
     }
   },
   "CancelOrderButton": {
@@ -1548,5 +1588,626 @@
       "revenue": "營收",
       "dateLabel": "日期：{date}"
     }
+  },
+  "AdminBrandsPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "品牌管理",
+      "description": "管理商店品牌、標誌及品牌資訊。"
+    },
+    "buttons": {
+      "addBrand": "新增品牌",
+      "tryAgain": "重試",
+      "edit": "編輯",
+      "delete": "刪除",
+      "deleting": "正在刪除...",
+      "cancel": "取消",
+      "createBrand": "建立品牌",
+      "creating": "正在建立...",
+      "saveChanges": "儲存變更",
+      "saving": "正在儲存..."
+    },
+    "search": {
+      "sectionLabel": "品牌搜尋",
+      "title": "搜尋品牌",
+      "placeholder": "依品牌名稱、slug 或描述搜尋...",
+      "ariaLabel": "搜尋品牌"
+    },
+    "table": {
+      "sectionLabel": "品牌清單",
+      "title": "品牌",
+      "description": "查看並管理商店品牌。"
+    },
+    "counts": {
+      "single": "{count} 個品牌",
+      "multiple": "{count} 個品牌"
+    },
+    "loading": {
+      "ariaLabel": "正在載入品牌"
+    },
+    "errors": {
+      "title": "無法載入品牌"
+    },
+    "empty": {
+      "matchingTitle": "找不到符合的品牌",
+      "matchingDescription": "請嘗試其他搜尋關鍵字。",
+      "noBrandsTitle": "找不到品牌",
+      "noBrandsDescription": "新增第一個品牌以開始使用。"
+    },
+    "columns": {
+      "brand": "品牌",
+      "slug": "Slug",
+      "description": "描述",
+      "createdAt": "建立日期",
+      "actions": "操作"
+    },
+    "brandLogoAlt": "{name} 標誌",
+    "deleteConfirmation": "確定要刪除此品牌嗎？此操作無法復原。",
+    "toasts": {
+      "deleting": "正在刪除品牌...",
+      "deleted": "品牌已成功刪除。",
+      "deleteFailed": "無法刪除品牌。此品牌可能仍被現有商品使用。",
+      "creating": "正在建立品牌...",
+      "created": "品牌建立成功。",
+      "createFailed": "無法建立品牌。請確認名稱與 slug 尚未被使用，且標誌網址有效。",
+      "updating": "正在更新品牌...",
+      "updated": "品牌更新成功。",
+      "updateFailed": "無法更新品牌。請確認名稱與 slug 尚未被使用，且標誌網址有效。"
+    },
+    "modal": {
+      "createTitle": "新增品牌",
+      "createDescription": "請輸入新品牌的資訊。",
+      "editTitle": "編輯品牌",
+      "editDescription": "請在下方更新品牌資訊。",
+      "currentLogo": "目前的標誌",
+      "close": "關閉品牌表單"
+    },
+    "fields": {
+      "name": "品牌名稱",
+      "namePlaceholder": "例如：Apple",
+      "slug": "Slug",
+      "slugPlaceholder": "例如：apple",
+      "slugHint": "僅使用小寫英文字母、數字與連字號。例如：samsung-galaxy。",
+      "description": "描述",
+      "descriptionPlaceholder": "輸入此品牌的相關資訊...",
+      "logoUrl": "標誌網址",
+      "newLogoUrl": "新標誌網址",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "createLogoHint": "請提供可公開存取的圖片網址。後端會將圖片上傳至 Cloudinary。",
+      "editLogoHint": "輸入新的公開圖片網址以替換目前標誌。若要保留目前標誌，請留空。"
+    },
+    "common": {
+      "optional": "選填"
+    },
+    "validation": {
+      "nameRequired": "請輸入品牌名稱。",
+      "slugRequired": "請輸入品牌 slug。",
+      "slugFormat": "僅可使用小寫英文字母、數字與連字號。",
+      "logoProtocol": "標誌網址必須以 http:// 或 https:// 開頭。",
+      "logoInvalid": "請輸入有效的標誌網址。"
+    }
+  },
+  "EditBrandPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "編輯品牌",
+      "description": "更新品牌 {name} 的資訊。"
+    },
+    "fields": {
+      "name": "品牌名稱",
+      "slug": "Slug",
+      "slugHint": "僅使用小寫英文字母、數字與連字號。",
+      "description": "描述",
+      "descriptionPlaceholder": "輸入此品牌的相關資訊..."
+    },
+    "common": {
+      "optional": "選填"
+    },
+    "logo": {
+      "current": "目前的標誌",
+      "newUrl": "新標誌網址",
+      "placeholder": "https://example.com/new-logo.png",
+      "alt": "{name} 標誌",
+      "hint": "輸入可公開存取的網址以替換目前的標誌。若要保留目前標誌，請留空。後端會將替換圖片上傳至 Cloudinary。"
+    },
+    "loading": {
+      "ariaLabel": "正在載入品牌",
+      "message": "正在載入品牌..."
+    },
+    "errors": {
+      "invalidBrandId": "品牌 ID 無效。",
+      "loadFailed": "無法載入品牌，請重試。",
+      "title": "無法載入品牌",
+      "brandNotFound": "找不到品牌。"
+    },
+    "validation": {
+      "nameRequired": "請輸入品牌名稱。",
+      "slugRequired": "請輸入品牌 slug。",
+      "slugFormat": "僅可使用小寫英文字母、數字與連字號。",
+      "logoProtocol": "標誌網址必須以 http:// 或 https:// 開頭。",
+      "logoInvalid": "請輸入有效的標誌網址。"
+    },
+    "buttons": {
+      "tryAgain": "重試",
+      "backToBrands": "返回品牌列表",
+      "cancel": "取消",
+      "saving": "正在儲存...",
+      "saveChanges": "儲存變更"
+    },
+    "toasts": {
+      "updating": "正在更新品牌...",
+      "updated": "品牌更新成功。",
+      "updateFailed": "無法更新品牌。請確認名稱與 slug 尚未被使用，且標誌網址有效。"
+    }
+  },
+  "CreateBrandPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "建立品牌",
+      "description": "在商店中新增品牌。"
+    },
+    "fields": {
+      "name": "品牌名稱",
+      "namePlaceholder": "例如：Apple",
+      "slug": "Slug",
+      "slugPlaceholder": "例如：apple",
+      "slugHint": "僅使用小寫英文字母、數字與連字號。例如：samsung-galaxy。",
+      "description": "描述",
+      "descriptionPlaceholder": "輸入此品牌的相關資訊...",
+      "logoUrl": "標誌網址",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "logoHint": "請提供可公開存取的圖片網址。後端會將圖片上傳至 Cloudinary。"
+    },
+    "common": {
+      "optional": "選填"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "creating": "正在建立...",
+      "create": "建立品牌"
+    },
+    "validation": {
+      "nameRequired": "請輸入品牌名稱。",
+      "slugRequired": "請輸入品牌 slug。",
+      "slugFormat": "僅可使用小寫英文字母、數字與連字號。",
+      "logoProtocol": "標誌網址必須以 http:// 或 https:// 開頭。",
+      "logoInvalid": "請輸入有效的標誌網址。"
+    },
+    "toasts": {
+      "creating": "正在建立品牌...",
+      "created": "品牌建立成功。",
+      "createFailed": "無法建立品牌。請確認名稱與 slug 尚未被使用，且標誌網址有效。"
+    }
+  },
+  "AdminCategoriesPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "分類管理",
+      "description": "管理商品分類及相關資訊。"
+    },
+    "buttons": {
+      "addCategory": "新增分類",
+      "tryAgain": "重試",
+      "edit": "編輯",
+      "delete": "刪除",
+      "deleting": "正在刪除...",
+      "cancel": "取消",
+      "createCategory": "建立分類",
+      "creating": "正在建立...",
+      "saveChanges": "儲存變更",
+      "saving": "正在儲存..."
+    },
+    "search": {
+      "sectionLabel": "分類搜尋",
+      "title": "搜尋分類",
+      "placeholder": "依分類名稱、slug 或描述搜尋...",
+      "ariaLabel": "搜尋分類"
+    },
+    "table": {
+      "sectionLabel": "分類清單",
+      "title": "分類",
+      "description": "查看並管理商店分類。"
+    },
+    "counts": {
+      "single": "{count} 個分類",
+      "multiple": "{count} 個分類"
+    },
+    "loading": {
+      "ariaLabel": "正在載入分類"
+    },
+    "errors": {
+      "title": "無法載入分類"
+    },
+    "empty": {
+      "matchingTitle": "找不到符合的分類",
+      "matchingDescription": "請嘗試其他搜尋關鍵字。",
+      "noCategoriesTitle": "找不到分類",
+      "noCategoriesDescription": "新增第一個分類以開始使用。"
+    },
+    "columns": {
+      "category": "分類",
+      "slug": "Slug",
+      "description": "描述",
+      "createdAt": "建立日期",
+      "actions": "操作"
+    },
+    "deleteConfirmation": "確定要刪除此分類嗎？此操作無法復原。",
+    "toasts": {
+      "deleting": "正在刪除分類...",
+      "deleted": "分類已成功刪除。",
+      "deleteFailed": "無法刪除分類。此分類可能仍被現有商品使用。",
+      "creating": "正在建立分類...",
+      "created": "分類建立成功。",
+      "createFailed": "無法建立分類。請確認名稱與 slug 尚未被使用。",
+      "updating": "正在更新分類...",
+      "updated": "分類更新成功。",
+      "updateFailed": "無法更新分類。請確認名稱與 slug 尚未被使用。"
+    },
+    "modal": {
+      "createTitle": "新增分類",
+      "createDescription": "請輸入新分類的資訊。",
+      "editTitle": "編輯分類",
+      "editDescription": "請在下方更新分類資訊。",
+      "close": "關閉分類表單"
+    },
+    "fields": {
+      "name": "分類名稱",
+      "namePlaceholder": "例如：智慧型手機",
+      "slug": "Slug",
+      "slugPlaceholder": "例如：smartphones",
+      "slugHint": "僅使用小寫英文字母、數字與連字號。例如：computer-accessories。",
+      "description": "描述",
+      "descriptionPlaceholder": "描述此分類中的商品..."
+    },
+    "common": {
+      "optional": "選填"
+    },
+    "validation": {
+      "nameRequired": "請輸入分類名稱。",
+      "slugRequired": "請輸入分類 slug。",
+      "slugFormat": "僅可使用小寫英文字母、數字與連字號。"
+    }
+  },
+  "EditCategoryPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "編輯分類",
+      "description": "更新分類 {name} 的資訊。"
+    },
+    "fields": {
+      "name": "分類名稱",
+      "slug": "Slug",
+      "slugHint": "僅使用小寫英文字母、數字與連字號。",
+      "description": "描述",
+      "descriptionPlaceholder": "描述此分類中的商品..."
+    },
+    "common": {
+      "optional": "選填"
+    },
+    "loading": {
+      "ariaLabel": "正在載入分類",
+      "message": "正在載入分類..."
+    },
+    "errors": {
+      "invalidCategoryId": "分類 ID 無效。",
+      "loadFailed": "無法載入分類，請重試。",
+      "title": "無法載入分類",
+      "categoryNotFound": "找不到分類。"
+    },
+    "validation": {
+      "nameRequired": "請輸入分類名稱。",
+      "slugRequired": "請輸入分類 slug。",
+      "slugFormat": "僅可使用小寫英文字母、數字與連字號。"
+    },
+    "buttons": {
+      "tryAgain": "重試",
+      "backToCategories": "返回分類列表",
+      "cancel": "取消",
+      "saving": "正在儲存...",
+      "saveChanges": "儲存變更"
+    },
+    "toasts": {
+      "updating": "正在更新分類...",
+      "updated": "分類更新成功。",
+      "updateFailed": "無法更新分類。請確認名稱與 slug 尚未被使用。"
+    }
+  },
+  "CreateCategoryPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "建立分類",
+      "description": "新增分類以整理商品。"
+    },
+    "fields": {
+      "name": "分類名稱",
+      "namePlaceholder": "例如：智慧型手機",
+      "slug": "Slug",
+      "slugPlaceholder": "例如：smartphones",
+      "slugHint": "僅使用小寫英文字母、數字與連字號。例如：computer-accessories。",
+      "description": "描述",
+      "descriptionPlaceholder": "描述此分類中的商品..."
+    },
+    "common": {
+      "optional": "選填"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "creating": "正在建立...",
+      "create": "建立分類"
+    },
+    "validation": {
+      "nameRequired": "請輸入分類名稱。",
+      "slugRequired": "請輸入分類 slug。",
+      "slugFormat": "僅可使用小寫英文字母、數字與連字號。"
+    },
+    "toasts": {
+      "creating": "正在建立分類...",
+      "created": "分類建立成功。",
+      "createFailed": "無法建立分類。請確認名稱與 slug 尚未被使用。"
+    }
+  },
+  "AdminOrdersPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "訂單管理",
+      "description": "管理顧客訂單、付款資訊與出貨狀態。"
+    },
+    "filters": {
+      "title": "搜尋與篩選",
+      "searchLabel": "搜尋訂單",
+      "searchPlaceholder": "依訂單編號搜尋...",
+      "statusLabel": "訂單狀態",
+      "allStatuses": "所有狀態",
+      "allOrders": "所有訂單"
+    },
+    "table": {
+      "title": "訂單",
+      "description": "查看訂單並開啟詳細資訊。",
+      "countSingle": "此頁共 {count} 筆訂單",
+      "countMultiple": "此頁共 {count} 筆訂單",
+      "idLabel": "ID：{id}"
+    },
+    "columns": {
+      "order": "訂單",
+      "customer": "顧客",
+      "total": "總金額",
+      "payment": "付款方式",
+      "status": "狀態",
+      "created": "建立日期",
+      "action": "操作"
+    },
+    "empty": {
+      "title": "找不到訂單",
+      "description": "請嘗試修改搜尋關鍵字或狀態篩選條件。"
+    },
+    "buttons": {
+      "view": "查看"
+    },
+    "pagination": {
+      "pageInfo": "第 {page} 頁，共 {totalPages} 頁",
+      "previous": "上一頁",
+      "next": "下一頁"
+    },
+    "loading": {
+      "ariaLabel": "正在載入訂單",
+      "message": "正在載入訂單..."
+    },
+    "statuses": {
+      "pending": "待處理",
+      "confirmed": "已確認",
+      "processing": "處理中",
+      "shipped": "已出貨",
+      "outForDelivery": "配送中",
+      "delivered": "已送達",
+      "cancelled": "已取消",
+      "canceled": "已取消"
+    },
+    "paymentMethods": {
+      "cod": "貨到付款",
+      "bankTransfer": "銀行轉帳",
+      "creditCard": "信用卡",
+      "vnpay": "VNPay"
+    },
+    "paymentStatuses": {
+      "pending": "待處理",
+      "processing": "處理中",
+      "paid": "已付款",
+      "unpaid": "未付款",
+      "failed": "失敗",
+      "refunded": "已退款",
+      "partiallyRefunded": "部分退款",
+      "cancelled": "已取消",
+      "canceled": "已取消"
+    }
+  },
+  "AdminUsersPage": {
+    "adminWorkspace": "Electroshop 管理後台",
+    "title": "使用者管理",
+    "subtitle": "管理已註冊使用者的帳戶、角色與狀態。",
+    "currentPage": "目前頁面",
+    "currentPageValue": "第 {page} 頁，共 {total} 頁",
+    "searchAndFilters": "搜尋與篩選",
+    "searchAndFiltersDesc": "依姓名、電子郵件、角色或狀態尋找使用者。",
+    "clearFilters": "清除篩選",
+    "searchUsers": "搜尋使用者",
+    "searchPlaceholder": "依姓名或電子郵件搜尋...",
+    "role": "角色",
+    "allRoles": "所有角色",
+    "status": "狀態",
+    "allStatuses": "所有狀態",
+    "errorTitle": "無法載入使用者",
+    "registeredUsers": "已註冊使用者",
+    "registeredUsersDesc": "查看帳戶資訊與權限。",
+    "usersPerPage": "每頁 {limit} 位使用者",
+    "colUser": "使用者",
+    "colEmail": "電子郵件",
+    "colRole": "角色",
+    "colStatus": "狀態",
+    "colCreated": "建立時間",
+    "colAction": "操作",
+    "noUsers": "找不到使用者",
+    "noUsersHint": "請嘗試變更搜尋或篩選條件。",
+    "userId": "ID：{id}",
+    "view": "查看",
+    "pageOf": "第 <b>{page}</b> 頁，共 <b>{total}</b> 頁",
+    "previous": "上一頁",
+    "next": "下一頁",
+    "roles": {
+      "USER": "使用者",
+      "ADMIN": "管理員"
+    },
+    "statuses": {
+      "ACTIVE": "啟用",
+      "INACTIVE": "停用",
+      "BANNED": "已封鎖"
+    }
+  },
+  "AdminUserDetailPage": {
+    "unableToLoadUser": "無法載入使用者",
+    "userNotFound": "找不到使用者。",
+    "backToUsers": "返回使用者列表",
+    "updatingStatusToast": "正在更新使用者狀態...",
+    "statusUpdated": "使用者狀態更新成功。",
+    "statusUpdatedDesc": "帳戶狀態：{status}",
+    "statusUpdateFailed": "無法更新使用者狀態，請再試一次。",
+    "userProfile": "使用者檔案",
+    "userIdLabel": "使用者 ID：#{id}",
+    "accountInfo": "帳戶資訊",
+    "accountInfoDesc": "查看並管理帳戶詳細資料。",
+    "fieldUserId": "使用者 ID",
+    "fieldFullName": "姓名",
+    "fieldEmail": "電子郵件",
+    "fieldRole": "角色",
+    "updateAccountStatus": "更新帳戶狀態",
+    "saving": "儲存中...",
+    "saveChanges": "儲存變更",
+    "statusWarning": "變更狀態可能會影響此使用者存取商店的權限。",
+    "accountDetails": "帳戶詳細資料",
+    "accountDetailsDesc": "帳戶建立與更新紀錄。",
+    "createdAt": "建立時間",
+    "lastUpdated": "最後更新",
+    "addresses": "地址",
+    "addressesDesc": "此使用者已儲存的收件地址。",
+    "noAddresses": "找不到地址",
+    "noAddressesDesc": "此使用者尚未儲存任何地址。",
+    "defaultLabel": "預設",
+    "postalCode": "郵遞區號：{code}",
+    "orders": "訂單",
+    "ordersDesc": "查看此使用者所下的訂單。",
+    "noOrders": "找不到訂單",
+    "noOrdersDesc": "此使用者尚未下過任何訂單。",
+    "colOrder": "訂單",
+    "colTotal": "總額",
+    "colStatus": "狀態",
+    "colCreated": "建立時間",
+    "colAction": "操作",
+    "orderId": "ID：{id}",
+    "view": "查看",
+    "pageOf": "第 <b>{page}</b> 頁，共 <b>{total}</b> 頁",
+    "previous": "上一頁",
+    "next": "下一頁",
+    "roles": {
+      "USER": "使用者",
+      "ADMIN": "管理員"
+    },
+    "statuses": {
+      "ACTIVE": "啟用",
+      "INACTIVE": "停用",
+      "BANNED": "已封鎖",
+      "PENDING": "待處理",
+      "PROCESSING": "處理中",
+      "CONFIRMED": "已確認",
+      "SHIPPED": "已出貨",
+      "OUT_FOR_DELIVERY": "配送中",
+      "DELIVERED": "已送達",
+      "PAID": "已付款",
+      "FAILED": "失敗",
+      "CANCELLED": "已取消",
+      "CANCELED": "已取消"
+    }
+  },
+  "AdminReviewsPage": {
+    "starsAria": "5 顆星中的 {rating} 顆",
+    "replied": "已回覆",
+    "awaitingReply": "待回覆",
+    "noUnanswered": "沒有未回覆的評價",
+    "noReviews": "找不到評價",
+    "noUnansweredDesc": "所有評價皆已回覆，或沒有符合目前篩選條件的評價。",
+    "noReviewsDesc": "請嘗試變更搜尋關鍵字或星級篩選。",
+    "clearFilters": "清除篩選",
+    "adminWorkspace": "Electroshop 管理後台",
+    "title": "評價管理",
+    "subtitleUnanswered": "查看等待管理員回覆的顧客意見。",
+    "subtitleAll": "管理顧客意見並回覆商品評價。",
+    "awaitingResponse": "待回覆",
+    "searchAndFilters": "搜尋與篩選",
+    "searchAndFiltersDesc": "依顧客、商品、評論或星級尋找評價。",
+    "searchReviews": "搜尋評價",
+    "searchPlaceholder": "依評論、顧客、電子郵件或商品搜尋...",
+    "rating": "星級",
+    "allRatings": "所有星級",
+    "starsOption": "{count} 星",
+    "errorTitle": "無法載入評價",
+    "customerReviews": "顧客評價",
+    "customerReviewsDesc": "查看意見並管理管理員的回覆。",
+    "unansweredBadge": "未回覆評價",
+    "allReviewsBadge": "所有評價",
+    "colCustomer": "顧客",
+    "colProduct": "商品",
+    "colRating": "評分",
+    "colComment": "評論",
+    "colCreated": "建立時間",
+    "colReplyStatus": "回覆狀態",
+    "colAction": "操作",
+    "productId": "ID：{id}",
+    "noComment": "無評論",
+    "replyLine": "回覆：{comment}",
+    "editReply": "編輯回覆",
+    "reply": "回覆",
+    "pageOf": "第 <b>{page}</b> 頁，共 <b>{total}</b> 頁",
+    "previous": "上一頁",
+    "next": "下一頁",
+    "replyToReview": "回覆評價",
+    "closeDialog": "關閉回覆視窗",
+    "yourResponse": "您的回覆",
+    "replyPlaceholder": "請為這位顧客撰寫有幫助的回覆...",
+    "replyHint": "請保持回覆有幫助且專業。",
+    "cancel": "取消",
+    "saving": "儲存中...",
+    "updateReply": "更新回覆",
+    "sendReply": "送出回覆",
+    "replyRequired": "請輸入回覆內容",
+    "replyFailed": "無法儲存回覆"
+  },
+  "AdminHeader": {
+    "backToStore": "返回商店",
+    "title": "商店管理",
+    "description": "管理您的 Electroshop 商店",
+    "selectLanguage": "選擇語言",
+    "workspace": "管理工作區",
+    "administrator": "管理員"
+  },
+  "AdminSidebar": {
+    "adminPanel": "管理面板",
+    "navigationLabel": "主要導覽",
+    "workspace": "工作區",
+    "dashboard": "儀表板",
+    "brands": "品牌",
+    "categories": "商品分類",
+    "products": "商品",
+    "orders": "訂單",
+    "users": "使用者",
+    "reviews": "評價",
+    "administration": "管理",
+    "storeManagement": "商店管理",
+    "footer": "Electroshop 管理後台"
+  },
+  "AdminFooter": {
+    "adminPanel": "管理面板",
+    "copyright": "© 2026 Electroshop。保留所有權利。",
+    "systemName": "商店管理系統"
+  },
+  "Footer": {
+    "copyright": "© 2026 Electroshop。保留所有權利。"
   }
 }
