@@ -1,7 +1,8 @@
-
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
+
 import type { CreateAddressData } from "@/src/features/address/types/address";
 
 type AddressFormProps = {
@@ -19,8 +20,10 @@ const labelClassName =
 export default function AddressForm({
   initialData,
   onSubmit,
-  buttonText = "Save Address",
+  buttonText,
 }: AddressFormProps) {
+  const t = useTranslations("AddressForm");
+
   const [fullName, setFullName] = useState(
     initialData?.fullName ?? ""
   );
@@ -99,7 +102,7 @@ export default function AddressForm({
       {/* Recipient Information */}
       <div>
         <h3 className="mb-4 text-sm font-semibold text-slate-800">
-          Recipient Information
+          {t("sections.recipient")}
         </h3>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -108,7 +111,7 @@ export default function AddressForm({
               htmlFor="address-full-name"
               className={labelClassName}
             >
-              Full Name
+              {t("fields.fullName")}
             </label>
 
             <input
@@ -117,7 +120,7 @@ export default function AddressForm({
               autoComplete="name"
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
-              placeholder="Enter recipient's full name"
+              placeholder={t("placeholders.fullName")}
               className={inputClassName}
               required
               disabled={isSubmitting}
@@ -129,7 +132,7 @@ export default function AddressForm({
               htmlFor="address-phone"
               className={labelClassName}
             >
-              Phone Number
+              {t("fields.phone")}
             </label>
 
             <input
@@ -138,7 +141,7 @@ export default function AddressForm({
               autoComplete="tel"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              placeholder="Enter phone number"
+              placeholder={t("placeholders.phone")}
               className={inputClassName}
               required
               disabled={isSubmitting}
@@ -150,7 +153,7 @@ export default function AddressForm({
       {/* Address Information */}
       <div className="border-t border-slate-100 pt-5">
         <h3 className="mb-4 text-sm font-semibold text-slate-800">
-          Address Information
+          {t("sections.address")}
         </h3>
 
         <div className="space-y-5">
@@ -159,7 +162,7 @@ export default function AddressForm({
               htmlFor="address-street"
               className={labelClassName}
             >
-              Street Address
+              {t("fields.streetAddress")}
             </label>
 
             <input
@@ -168,7 +171,7 @@ export default function AddressForm({
               autoComplete="street-address"
               value={address}
               onChange={(event) => setAddress(event.target.value)}
-              placeholder="House number, street name, etc."
+              placeholder={t("placeholders.streetAddress")}
               className={inputClassName}
               required
               disabled={isSubmitting}
@@ -181,7 +184,7 @@ export default function AddressForm({
                 htmlFor="address-city"
                 className={labelClassName}
               >
-                City
+                {t("fields.city")}
               </label>
 
               <input
@@ -190,7 +193,7 @@ export default function AddressForm({
                 autoComplete="address-level2"
                 value={city}
                 onChange={(event) => setCity(event.target.value)}
-                placeholder="Enter city"
+                placeholder={t("placeholders.city")}
                 className={inputClassName}
                 required
                 disabled={isSubmitting}
@@ -202,7 +205,7 @@ export default function AddressForm({
                 htmlFor="address-district"
                 className={labelClassName}
               >
-                District
+                {t("fields.district")}
               </label>
 
               <input
@@ -210,7 +213,7 @@ export default function AddressForm({
                 type="text"
                 value={district}
                 onChange={(event) => setDistrict(event.target.value)}
-                placeholder="Enter district"
+                placeholder={t("placeholders.district")}
                 className={inputClassName}
                 required
                 disabled={isSubmitting}
@@ -223,9 +226,9 @@ export default function AddressForm({
               htmlFor="address-postal-code"
               className={labelClassName}
             >
-              Postal Code
+              {t("fields.postalCode")}
               <span className="ml-1 font-normal text-slate-400">
-                (Optional)
+                ({t("common.optional")})
               </span>
             </label>
 
@@ -235,7 +238,7 @@ export default function AddressForm({
               autoComplete="postal-code"
               value={postalCode}
               onChange={(event) => setPostalCode(event.target.value)}
-              placeholder="Enter postal code"
+              placeholder={t("placeholders.postalCode")}
               className={inputClassName}
               disabled={isSubmitting}
             />
@@ -256,11 +259,11 @@ export default function AddressForm({
 
           <span>
             <span className="block text-sm font-medium text-slate-800">
-              Set as default address
+              {t("defaultAddress.title")}
             </span>
 
             <span className="mt-1 block text-xs leading-5 text-slate-500">
-              Use this address as your default delivery address.
+              {t("defaultAddress.description")}
             </span>
           </span>
         </label>
@@ -280,7 +283,9 @@ export default function AddressForm({
             />
           )}
 
-          {isSubmitting ? "Saving..." : buttonText}
+          {isSubmitting
+            ? t("buttons.saving")
+            : buttonText ?? t("buttons.saveAddress")}
         </button>
       </div>
     </form>

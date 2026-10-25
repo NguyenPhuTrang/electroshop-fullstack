@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 
 import type { Order } from "../types/order";
 
@@ -6,32 +9,23 @@ type OrderStatusBadgeProps = {
 };
 
 const statusStyles: Record<string, string> = {
-  PENDING:
-    "border-amber-200 bg-amber-50 text-amber-700",
+  PENDING: "border-amber-200 bg-amber-50 text-amber-700",
 
-  CONFIRMED:
-    "border-blue-200 bg-blue-50 text-blue-700",
+  CONFIRMED: "border-blue-200 bg-blue-50 text-blue-700",
 
-  PROCESSING:
-    "border-blue-200 bg-blue-50 text-blue-700",
+  PROCESSING: "border-blue-200 bg-blue-50 text-blue-700",
 
-  SHIPPED:
-    "border-cyan-200 bg-cyan-50 text-cyan-700",
+  SHIPPED: "border-cyan-200 bg-cyan-50 text-cyan-700",
 
-  OUT_FOR_DELIVERY:
-    "border-cyan-200 bg-cyan-50 text-cyan-700",
+  OUT_FOR_DELIVERY: "border-cyan-200 bg-cyan-50 text-cyan-700",
 
-  DELIVERED:
-    "border-emerald-200 bg-emerald-50 text-emerald-700",
+  DELIVERED: "border-emerald-200 bg-emerald-50 text-emerald-700",
 
-  CANCELLED:
-    "border-rose-200 bg-rose-50 text-rose-700",
+  CANCELLED: "border-rose-200 bg-rose-50 text-rose-700",
 
-  CANCELED:
-    "border-rose-200 bg-rose-50 text-rose-700",
+  CANCELED: "border-rose-200 bg-rose-50 text-rose-700",
 
-  FAILED:
-    "border-rose-200 bg-rose-50 text-rose-700",
+  FAILED: "border-rose-200 bg-rose-50 text-rose-700",
 };
 
 const statusDotStyles: Record<string, string> = {
@@ -49,6 +43,8 @@ const statusDotStyles: Record<string, string> = {
 export default function OrderStatusBadge({
   status,
 }: OrderStatusBadgeProps) {
+  const t = useTranslations("OrderStatusBadge");
+
   const normalizedStatus = String(status).toUpperCase();
 
   const badgeClass =
@@ -58,7 +54,30 @@ export default function OrderStatusBadge({
   const dotClass =
     statusDotStyles[normalizedStatus] ?? "bg-slate-400";
 
-  const label = normalizedStatus.replaceAll("_", " ");
+  const getStatusLabel = () => {
+    switch (normalizedStatus) {
+      case "PENDING":
+        return t("statuses.pending");
+      case "CONFIRMED":
+        return t("statuses.confirmed");
+      case "PROCESSING":
+        return t("statuses.processing");
+      case "SHIPPED":
+        return t("statuses.shipped");
+      case "OUT_FOR_DELIVERY":
+        return t("statuses.outForDelivery");
+      case "DELIVERED":
+        return t("statuses.delivered");
+      case "CANCELLED":
+        return t("statuses.cancelled");
+      case "CANCELED":
+        return t("statuses.canceled");
+      case "FAILED":
+        return t("statuses.failed");
+      default:
+        return normalizedStatus.replaceAll("_", " ");
+    }
+  };
 
   return (
     <span
@@ -69,7 +88,7 @@ export default function OrderStatusBadge({
         className={`size-1.5 shrink-0 rounded-full ${dotClass}`}
       />
 
-      {label}
+      {getStatusLabel()}
     </span>
   );
 }

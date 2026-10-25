@@ -820,5 +820,477 @@
       "invalidProductId": "產品 ID 無效。",
       "productNotFound": "找不到產品。"
     }
+  },
+  "CartItem": {
+    "configuration": {
+      "storage": "儲存容量",
+      "color": "顏色",
+      "colorOption": "顏色選項",
+      "standard": "標準配置"
+    },
+    "quantityControls": "數量調整",
+    "decreaseQuantity": "減少「{name}」的數量",
+    "increaseQuantity": "增加「{name}」的數量",
+    "updatingQuantity": "正在更新數量",
+    "priceUnavailable": "無法取得價格",
+    "removing": "正在移除...",
+    "remove": "移除",
+    "subtotal": "小計",
+    "confirmRemove": "確定要將「{name}」從購物車中移除嗎？",
+    "stock": {
+      "variantUnavailable": "此款式無法使用",
+      "outOfStock": "目前缺貨",
+      "maximumSelected": "已選擇可購買的最大數量",
+      "unitsAvailable": "尚有 {count} 件庫存"
+    },
+    "toast": {
+      "updatingQuantity": "正在更新購物車數量...",
+      "quantityUpdated": "購物車數量已更新。",
+      "quantityUpdatedDescription": "{name} · 數量：{quantity}",
+      "updateQuantityFailed": "無法更新數量，請再試一次。",
+      "removingItem": "正在從購物車移除商品...",
+      "itemRemoved": "商品已從購物車移除。",
+      "removeItemFailed": "無法移除此商品，請再試一次。"
+    }
+  },
+  "CartPage": {
+    "loading": {
+      "label": "正在載入購物車"
+    },
+    "heading": {
+      "badge": "您的購物袋",
+      "title": "我的購物車",
+      "description": "結帳前請確認購物車中的商品。"
+    },
+    "counts": {
+      "items": "{count} 件商品",
+      "products": "{count} 項商品"
+    },
+    "items": {
+      "title": "購物車商品"
+    },
+    "empty": {
+      "title": "購物車是空的",
+      "description": "您尚未將任何商品加入購物車。歡迎瀏覽我們的商品系列。"
+    },
+    "login": {
+      "title": "登入以查看購物車",
+      "description": "登入後即可查看購物車並繼續購物。",
+      "signIn": "登入"
+    },
+    "error": {
+      "title": "無法載入購物車",
+      "description": "載入購物車時發生錯誤，請再試一次。"
+    },
+    "summary": {
+      "title": "訂單摘要",
+      "description": "訂單資訊一覽",
+      "subtotal": "小計",
+      "shipping": "運費",
+      "shippingAtCheckout": "結帳時計算",
+      "estimatedTotal": "預估總額",
+      "secureCheckout": "安全結帳"
+    },
+    "buttons": {
+      "continueShopping": "繼續購物",
+      "tryAgain": "重試",
+      "exploreProducts": "瀏覽商品",
+      "clearing": "正在清除...",
+      "clearCart": "清空購物車",
+      "checkout": "前往結帳"
+    },
+    "priceUnavailable": "無法取得價格",
+    "toast": {
+      "clearing": "正在清空購物車...",
+      "cleared": "購物車已成功清空。",
+      "clearFailed": "無法清空購物車，請再試一次。"
+    }
+  },
+  "CheckoutPage": {
+    "loading": {
+      "ariaLabel": "正在載入結帳頁面",
+      "title": "正在載入結帳頁面...",
+      "description": "正在準備您的訂單資訊。"
+    },
+    "errors": {
+      "addressLoad": "無法載入已儲存的地址，請重試。",
+      "cartLoad": "無法載入購物車，請重試。",
+      "cartEmpty": "您的購物車是空的。",
+      "invalidPrices": "部分商品的價格無效。請重新載入購物車後再試一次。",
+      "addressRequired": "請選擇配送地址。",
+      "shippingRequired": "請填寫所有必填的配送資訊。",
+      "paymentUnavailable": "此付款方式目前尚未開放。請選擇貨到付款或銀行轉帳。",
+      "placeOrder": "無法建立訂單。請檢查您的資訊後再試一次。"
+    },
+    "cartError": {
+      "title": "無法載入結帳頁面",
+      "description": "目前無法取得您的購物車資訊。"
+    },
+    "buttons": {
+      "tryAgain": "重試",
+      "returnToCart": "返回購物車",
+      "continueShopping": "繼續購物",
+      "addAddress": "新增地址",
+      "manageAddresses": "管理地址",
+      "placingOrder": "正在下單...",
+      "placeOrder": "確認下單"
+    },
+    "emptyCart": {
+      "title": "購物車是空的",
+      "description": "請先將商品加入購物車，再繼續結帳。"
+    },
+    "header": {
+      "badge": "安全結帳",
+      "title": "結帳",
+      "description": "下單前請確認配送資訊並檢查您的訂單。"
+    },
+    "address": {
+      "title": "配送地址",
+      "description": "選擇此訂單的配送地址。",
+      "loading": "正在載入已儲存的地址...",
+      "emptyTitle": "尚無已儲存的地址",
+      "emptyDescription": "下單前請先新增配送地址。",
+      "default": "預設",
+      "selected": "已選擇",
+      "postalCode": "郵遞區號"
+    },
+    "shipping": {
+      "title": "配送資訊",
+      "description": "請檢查或調整此次配送的相關資訊。",
+      "fields": {
+        "fullName": "收件人姓名",
+        "phone": "電話號碼",
+        "streetAddress": "街道地址",
+        "city": "城市",
+        "district": "區域",
+        "orderNote": "訂單備註"
+      },
+      "placeholders": {
+        "fullName": "請輸入收件人姓名",
+        "phone": "請輸入電話號碼",
+        "streetAddress": "門牌號碼、街道名稱等",
+        "city": "請輸入城市",
+        "district": "請輸入區域",
+        "orderNote": "新增配送指示或備註..."
+      },
+      "optional": "選填"
+    },
+    "payment": {
+      "title": "付款方式",
+      "description": "選擇您要使用的付款方式。",
+      "cod": {
+        "title": "貨到付款 (COD)",
+        "description": "商品送達時付款。"
+      },
+      "bankTransfer": {
+        "title": "銀行轉帳",
+        "description": "下單後可查看訂單詳細資訊。"
+      },
+      "creditCard": {
+        "title": "信用卡",
+        "description": "信用卡付款目前尚未開放。",
+        "ariaLabel": "信用卡，即將推出"
+      },
+      "vnpay": {
+        "title": "VNPay",
+        "description": "線上付款目前尚未開放。",
+        "ariaLabel": "VNPay，即將推出"
+      },
+      "comingSoon": "即將推出"
+    },
+    "placeOrder": {
+      "title": "準備好下單了嗎？",
+      "description": "繼續之前，請確認您的配送資訊。",
+      "confirmation": "送出訂單即表示您確認配送資訊正確無誤。"
+    },
+    "summary": {
+      "title": "訂單摘要",
+      "itemCount": "{count} 件商品",
+      "quantity": "數量：{count}",
+      "subtotal": "小計",
+      "shipping": "運費",
+      "shippingCalculatedSeparately": "另行計算",
+      "total": "總計",
+      "totalExcludesShipping": "此總額依目前購物車中的商品計算，不包含另行計算的配送費用。",
+      "shippingTo": "配送至",
+      "recipientFallback": "收件人",
+      "selectAddressToContinue": "請選擇已儲存的地址以繼續。"
+    },
+    "toast": {
+      "placingOrder": "正在建立訂單...",
+      "orderPlaced": "訂單建立成功！",
+      "redirecting": "正在前往訂單詳細資訊..."
+    }
+  },
+  "AddressForm": {
+    "sections": {
+      "recipient": "收件人資訊",
+      "address": "地址資訊"
+    },
+    "fields": {
+      "fullName": "姓名",
+      "phone": "電話號碼",
+      "streetAddress": "街道地址",
+      "city": "城市",
+      "district": "區域",
+      "postalCode": "郵遞區號"
+    },
+    "placeholders": {
+      "fullName": "請輸入收件人姓名",
+      "phone": "請輸入電話號碼",
+      "streetAddress": "門牌號碼、街道名稱等",
+      "city": "請輸入城市",
+      "district": "請輸入區域",
+      "postalCode": "請輸入郵遞區號"
+    },
+    "common": {
+      "optional": "選填"
+    },
+    "defaultAddress": {
+      "title": "設為預設地址",
+      "description": "將此地址設為您的預設配送地址。"
+    },
+    "buttons": {
+      "saving": "儲存中...",
+      "saveAddress": "儲存地址"
+    }
+  },
+  "AddressesPage": {
+    "page": {
+      "title": "我的地址",
+      "description": "管理您的配送地址，讓結帳更快速。"
+    },
+    "buttons": {
+      "addAddress": "新增地址",
+      "tryAgain": "重試",
+      "saveAddress": "儲存地址",
+      "cancel": "取消",
+      "updateAddress": "更新地址",
+      "edit": "編輯",
+      "deleting": "正在刪除...",
+      "delete": "刪除"
+    },
+    "loadError": {
+      "title": "無法載入地址",
+      "description": "無法載入地址清單，請重試。"
+    },
+    "createModal": {
+      "title": "新增地址",
+      "description": "請在下方輸入您的配送資訊。"
+    },
+    "editForm": {
+      "title": "編輯地址",
+      "description": "更新您的配送資訊。"
+    },
+    "badges": {
+      "defaultAddress": "預設地址"
+    },
+    "emptyState": {
+      "title": "尚未新增地址",
+      "description": "新增配送地址，讓您日後下單更加快速方便。",
+      "addFirstAddress": "新增第一個地址"
+    },
+    "accessibility": {
+      "closeAddDialog": "關閉新增地址視窗",
+      "closeEditForm": "關閉地址編輯表單"
+    },
+    "toasts": {
+      "adding": "正在新增地址...",
+      "added": "地址新增成功。",
+      "addFailed": "無法新增地址，請重試。",
+      "updating": "正在更新地址...",
+      "updated": "地址更新成功。",
+      "updateFailed": "無法更新地址，請重試。",
+      "deleting": "正在刪除地址...",
+      "deleted": "地址刪除成功。",
+      "deleteFailed": "無法刪除地址，請重試。"
+    }
+  },
+  "OrdersPage": {
+    "loading": {
+      "ariaLabel": "正在載入訂單",
+      "title": "正在載入您的訂單...",
+      "description": "請稍候，我們正在取得您的訂單資訊。"
+    },
+    "header": {
+      "badge": "訂單管理",
+      "title": "我的訂單",
+      "description": "追蹤訂單進度並查看訂單詳細資訊。",
+      "activeOrders": "目前有 {count} 筆進行中的訂單"
+    },
+    "errors": {
+      "loadTitle": "無法載入訂單",
+      "loadDescription": "無法載入您的訂單，請重試。"
+    },
+    "buttons": {
+      "tryAgain": "重試",
+      "startShopping": "開始購物",
+      "viewHistory": "查看訂單紀錄",
+      "viewDetails": "查看詳情"
+    },
+    "empty": {
+      "title": "尚無訂單",
+      "description": "您目前尚未下單。歡迎瀏覽我們的商品，找到您喜愛的產品。"
+    },
+    "completed": {
+      "title": "所有訂單均已完成",
+      "description": "您的所有訂單均已送達。您可以在訂單紀錄中查看相關資訊。"
+    },
+    "order": {
+      "orderNumber": "訂單編號",
+      "total": "訂單總額"
+    }
+  },
+  "AdminOrderDetailPage": {
+    "header": {
+      "badge": "訂單管理",
+      "title": "訂單詳細資訊",
+      "description": "查看訂單、配送、付款及總金額資訊。"
+    },
+    "shipping": {
+      "title": "配送資訊",
+      "description": "此訂單的收件人與配送詳細資訊。",
+      "recipientName": "收件人姓名",
+      "phoneNumber": "電話號碼",
+      "streetAddress": "街道地址",
+      "city": "城市",
+      "district": "區域",
+      "orderNote": "訂單備註"
+    },
+    "items": {
+      "title": "商品",
+      "description": "此訂單所包含的商品。",
+      "count": "{count} 件商品",
+      "quantity": "數量：{count}",
+      "sku": "商品 SKU",
+      "subtotal": "小計"
+    },
+    "payment": {
+      "title": "付款資訊",
+      "description": "付款方式與交易詳細資訊。",
+      "method": "付款方式",
+      "status": "付款狀態",
+      "amount": "付款金額",
+      "unavailable": "此訂單目前沒有可用的付款資訊。"
+    },
+    "bankTransfer": {
+      "title": "銀行轉帳資訊",
+      "description": "轉帳時請使用以下資訊。",
+      "bank": "銀行",
+      "accountNumber": "銀行帳號",
+      "accountHolder": "帳戶持有人",
+      "transferAmount": "轉帳金額",
+      "transferNote": "轉帳備註"
+    },
+    "summary": {
+      "title": "訂單摘要",
+      "subtotal": "小計",
+      "shippingFee": "運費",
+      "discount": "折扣",
+      "total": "總計"
+    },
+    "methods": {
+      "cod": "貨到付款 (COD)",
+      "bankTransfer": "銀行轉帳",
+      "creditCard": "信用卡",
+      "vnpay": "VNPay"
+    },
+    "statuses": {
+      "pending": "待處理",
+      "processing": "處理中",
+      "confirmed": "已確認",
+      "shipped": "已出貨",
+      "outForDelivery": "配送中",
+      "delivered": "已送達",
+      "paid": "已付款",
+      "unpaid": "未付款",
+      "cancelled": "已取消",
+      "canceled": "已取消",
+      "failed": "失敗",
+      "refunded": "已退款",
+      "partiallyRefunded": "部分退款"
+    }
+  },
+  "CancelOrderButton": {
+    "toasts": {
+      "cancelling": "正在取消訂單...",
+      "cancelled": "訂單已成功取消。",
+      "cancelFailed": "無法取消此訂單，請重試。"
+    },
+    "buttons": {
+      "cancelling": "正在取消...",
+      "cancelOrder": "取消訂單"
+    },
+    "accessibility": {
+      "cancelling": "正在取消訂單...",
+      "cancelOrder": "取消訂單"
+    }
+  },
+  "OrderHistory": {
+    "loading": {
+      "ariaLabel": "正在載入訂單紀錄"
+    },
+    "emptyOrders": {
+      "title": "尚無訂單",
+      "description": "您目前尚未下單。歡迎瀏覽我們的商品，找到您喜愛的產品。"
+    },
+    "noCompletedOrders": {
+      "title": "尚無已完成的訂單",
+      "description": "訂單送達後，相關紀錄將顯示於此。"
+    },
+    "header": {
+      "title": "訂單紀錄",
+      "description": "查看已完成的訂單與付款資訊。",
+      "completedCount": "已完成 {count} 筆訂單"
+    },
+    "order": {
+      "orderNumber": "訂單編號",
+      "delivered": "已送達",
+      "date": "訂單日期",
+      "paymentStatus": "付款狀態",
+      "total": "訂單總額"
+    },
+    "buttons": {
+      "startShopping": "開始購物",
+      "viewDetails": "查看詳情"
+    },
+    "common": {
+      "notAvailable": "無資料"
+    },
+    "paymentStatus": {
+      "pending": "待處理",
+      "processing": "處理中",
+      "paid": "已付款",
+      "unpaid": "未付款",
+      "failed": "失敗",
+      "refunded": "已退款",
+      "partiallyRefunded": "部分退款",
+      "cancelled": "已取消"
+    }
+  },
+  "OrderStatusBadge": {
+    "statuses": {
+      "pending": "待處理",
+      "confirmed": "已確認",
+      "processing": "處理中",
+      "shipped": "已出貨",
+      "outForDelivery": "配送中",
+      "delivered": "已送達",
+      "cancelled": "已取消",
+      "canceled": "已取消",
+      "failed": "失敗"
+    }
+  },
+  "OrderStatusSection": {
+    "header": {
+      "title": "訂單狀態",
+      "description": "查看訂單目前的狀態。"
+    },
+    "orderNumber": "訂單編號",
+    "currentStatus": "目前狀態",
+    "cancelOrder": {
+      "title": "需要取消此訂單嗎？",
+      "description": "訂單仍在等待處理時，您可以取消訂單。"
+    }
   }
 }

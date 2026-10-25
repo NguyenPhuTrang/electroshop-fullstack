@@ -820,5 +820,477 @@
       "invalidProductId": "Invalid product ID.",
       "productNotFound": "Product not found."
     }
+  },
+  "CartItem": {
+    "configuration": {
+      "storage": "Storage",
+      "color": "Color",
+      "colorOption": "Color option",
+      "standard": "Standard configuration"
+    },
+    "quantityControls": "Quantity controls",
+    "decreaseQuantity": "Decrease quantity of {name}",
+    "increaseQuantity": "Increase quantity of {name}",
+    "updatingQuantity": "Updating quantity",
+    "priceUnavailable": "Price unavailable",
+    "removing": "Removing...",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "confirmRemove": "Are you sure you want to remove \"{name}\" from your cart?",
+    "stock": {
+      "variantUnavailable": "Variant unavailable",
+      "outOfStock": "Currently out of stock",
+      "maximumSelected": "Maximum available quantity selected",
+      "unitsAvailable": "{count} units available"
+    },
+    "toast": {
+      "updatingQuantity": "Updating cart quantity...",
+      "quantityUpdated": "Cart quantity updated.",
+      "quantityUpdatedDescription": "{name} · Quantity: {quantity}",
+      "updateQuantityFailed": "Unable to update quantity. Please try again.",
+      "removingItem": "Removing item from cart...",
+      "itemRemoved": "Item removed from cart.",
+      "removeItemFailed": "Unable to remove this item. Please try again."
+    }
+  },
+  "CartPage": {
+    "loading": {
+      "label": "Loading cart"
+    },
+    "heading": {
+      "badge": "Your shopping bag",
+      "title": "My Cart",
+      "description": "Review your items before checking out."
+    },
+    "counts": {
+      "items": "{count, plural, one {# item} other {# items}}",
+      "products": "{count, plural, one {# product} other {# products}}"
+    },
+    "items": {
+      "title": "Cart Items"
+    },
+    "empty": {
+      "title": "Your cart is empty",
+      "description": "Looks like you haven't added anything to your cart yet. Explore our collection to find something you love."
+    },
+    "login": {
+      "title": "Sign in to view your cart",
+      "description": "Log in to access your cart and continue shopping.",
+      "signIn": "Log In"
+    },
+    "error": {
+      "title": "Unable to load your cart",
+      "description": "Something went wrong while loading your cart. Please try again."
+    },
+    "summary": {
+      "title": "Order Summary",
+      "description": "Your order at a glance",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "shippingAtCheckout": "Calculated at checkout",
+      "estimatedTotal": "Estimated total",
+      "secureCheckout": "Secure checkout"
+    },
+    "buttons": {
+      "continueShopping": "Continue shopping",
+      "tryAgain": "Try Again",
+      "exploreProducts": "Explore Products",
+      "clearing": "Clearing...",
+      "clearCart": "Clear Cart",
+      "checkout": "Proceed to Checkout"
+    },
+    "priceUnavailable": "Price unavailable",
+    "toast": {
+      "clearing": "Clearing cart...",
+      "cleared": "Cart cleared successfully.",
+      "clearFailed": "Unable to clear your cart. Please try again."
+    }
+  },
+  "CheckoutPage": {
+    "loading": {
+      "ariaLabel": "Loading checkout",
+      "title": "Loading checkout...",
+      "description": "Preparing your order information."
+    },
+    "errors": {
+      "addressLoad": "Unable to load your saved addresses. Please try again.",
+      "cartLoad": "Unable to load your cart. Please try again.",
+      "cartEmpty": "Your cart is empty.",
+      "invalidPrices": "Some items have invalid prices. Please refresh your cart and try again.",
+      "addressRequired": "Please select a shipping address.",
+      "shippingRequired": "Please complete all required shipping information.",
+      "paymentUnavailable": "This payment method is not available yet. Please choose Cash on Delivery or Bank Transfer.",
+      "placeOrder": "Unable to place your order. Please check your information and try again."
+    },
+    "cartError": {
+      "title": "Unable to Load Checkout",
+      "description": "Your cart information is unavailable."
+    },
+    "buttons": {
+      "tryAgain": "Try Again",
+      "returnToCart": "Return to Cart",
+      "continueShopping": "Continue Shopping",
+      "addAddress": "Add Address",
+      "manageAddresses": "Manage Addresses",
+      "placingOrder": "Placing Order...",
+      "placeOrder": "Place Order"
+    },
+    "emptyCart": {
+      "title": "Your Cart Is Empty",
+      "description": "Add some products to your cart before proceeding to checkout."
+    },
+    "header": {
+      "badge": "Secure Checkout",
+      "title": "Checkout",
+      "description": "Confirm your shipping details and review your order before placing it."
+    },
+    "address": {
+      "title": "Shipping Address",
+      "description": "Select an address for your delivery.",
+      "loading": "Loading saved addresses...",
+      "emptyTitle": "No Saved Addresses",
+      "emptyDescription": "Add a delivery address before placing your order.",
+      "default": "Default",
+      "selected": "Selected",
+      "postalCode": "Postal Code"
+    },
+    "shipping": {
+      "title": "Shipping Information",
+      "description": "Review or adjust the information for this delivery.",
+      "fields": {
+        "fullName": "Full Name",
+        "phone": "Phone Number",
+        "streetAddress": "Street Address",
+        "city": "City",
+        "district": "District",
+        "orderNote": "Order Note"
+      },
+      "placeholders": {
+        "fullName": "Enter recipient name",
+        "phone": "Enter phone number",
+        "streetAddress": "House number, street name, etc.",
+        "city": "Enter city",
+        "district": "Enter district",
+        "orderNote": "Add delivery instructions or a note..."
+      },
+      "optional": "Optional"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "description": "Choose how you would like to pay for your order.",
+      "cod": {
+        "title": "Cash on Delivery (COD)",
+        "description": "Pay when your order is delivered."
+      },
+      "bankTransfer": {
+        "title": "Bank Transfer",
+        "description": "Continue to your order details after placing the order."
+      },
+      "creditCard": {
+        "title": "Credit Card",
+        "description": "Card payment is not available yet.",
+        "ariaLabel": "Credit Card, coming soon"
+      },
+      "vnpay": {
+        "title": "VNPay",
+        "description": "Online payment is not available yet.",
+        "ariaLabel": "VNPay, coming soon"
+      },
+      "comingSoon": "Coming Soon"
+    },
+    "placeOrder": {
+      "title": "Ready to Place Your Order?",
+      "description": "Please review your shipping information before continuing.",
+      "confirmation": "By placing your order, you confirm that your shipping details are correct."
+    },
+    "summary": {
+      "title": "Order Summary",
+      "itemCount": "{count, plural, one {# item} other {# items}}",
+      "quantity": "Quantity: {count}",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "shippingCalculatedSeparately": "Calculated separately",
+      "total": "Total",
+      "totalExcludesShipping": "The total shown is based on your current cart items and does not include any separately calculated shipping fees.",
+      "shippingTo": "Shipping to",
+      "recipientFallback": "Recipient",
+      "selectAddressToContinue": "Select a saved address to continue."
+    },
+    "toast": {
+      "placingOrder": "Placing your order...",
+      "orderPlaced": "Order placed successfully!",
+      "redirecting": "Redirecting to your order details..."
+    }
+  },
+  "AddressForm": {
+    "sections": {
+      "recipient": "Recipient Information",
+      "address": "Address Information"
+    },
+    "fields": {
+      "fullName": "Full Name",
+      "phone": "Phone Number",
+      "streetAddress": "Street Address",
+      "city": "City",
+      "district": "District",
+      "postalCode": "Postal Code"
+    },
+    "placeholders": {
+      "fullName": "Enter recipient's full name",
+      "phone": "Enter phone number",
+      "streetAddress": "House number, street name, etc.",
+      "city": "Enter city",
+      "district": "Enter district",
+      "postalCode": "Enter postal code"
+    },
+    "common": {
+      "optional": "Optional"
+    },
+    "defaultAddress": {
+      "title": "Set as default address",
+      "description": "Use this address as your default delivery address."
+    },
+    "buttons": {
+      "saving": "Saving...",
+      "saveAddress": "Save Address"
+    }
+  },
+  "AddressesPage": {
+    "page": {
+      "title": "My Addresses",
+      "description": "Manage your delivery addresses for a faster checkout."
+    },
+    "buttons": {
+      "addAddress": "Add Address",
+      "tryAgain": "Try Again",
+      "saveAddress": "Save Address",
+      "cancel": "Cancel",
+      "updateAddress": "Update Address",
+      "edit": "Edit",
+      "deleting": "Deleting...",
+      "delete": "Delete"
+    },
+    "loadError": {
+      "title": "Unable to load addresses",
+      "description": "Unable to load your addresses. Please try again."
+    },
+    "createModal": {
+      "title": "Add New Address",
+      "description": "Enter your delivery information below."
+    },
+    "editForm": {
+      "title": "Edit Address",
+      "description": "Update your delivery information."
+    },
+    "badges": {
+      "defaultAddress": "Default Address"
+    },
+    "emptyState": {
+      "title": "No addresses yet",
+      "description": "Add a delivery address to make your future orders quicker and easier.",
+      "addFirstAddress": "Add Your First Address"
+    },
+    "accessibility": {
+      "closeAddDialog": "Close add address dialog",
+      "closeEditForm": "Close edit address form"
+    },
+    "toasts": {
+      "adding": "Adding address...",
+      "added": "Address added successfully.",
+      "addFailed": "Unable to add your address. Please try again.",
+      "updating": "Updating address...",
+      "updated": "Address updated successfully.",
+      "updateFailed": "Unable to update your address. Please try again.",
+      "deleting": "Deleting address...",
+      "deleted": "Address deleted successfully.",
+      "deleteFailed": "Unable to delete your address. Please try again."
+    }
+  },
+  "OrdersPage": {
+    "loading": {
+      "ariaLabel": "Loading orders",
+      "title": "Loading your orders...",
+      "description": "Please wait while we fetch your order information."
+    },
+    "header": {
+      "badge": "Order Management",
+      "title": "My Orders",
+      "description": "Track your orders and view their details.",
+      "activeOrders": "{count, plural, one {# active order} other {# active orders}}"
+    },
+    "errors": {
+      "loadTitle": "Unable to Load Orders",
+      "loadDescription": "Unable to load your orders. Please try again."
+    },
+    "buttons": {
+      "tryAgain": "Try Again",
+      "startShopping": "Start Shopping",
+      "viewHistory": "View Order History",
+      "viewDetails": "View Details"
+    },
+    "empty": {
+      "title": "No Orders Yet",
+      "description": "You haven't placed any orders yet. Browse our products to find something you love."
+    },
+    "completed": {
+      "title": "All Orders Completed",
+      "description": "All your orders have been delivered. You can review them in your order history."
+    },
+    "order": {
+      "orderNumber": "Order Number",
+      "total": "Order Total"
+    }
+  },
+  "AdminOrderDetailPage": {
+    "header": {
+      "badge": "Order Management",
+      "title": "Order Details",
+      "description": "Review order information, shipping details, payment, and totals."
+    },
+    "shipping": {
+      "title": "Shipping Information",
+      "description": "Recipient and delivery details for this order.",
+      "recipientName": "Recipient Name",
+      "phoneNumber": "Phone Number",
+      "streetAddress": "Street Address",
+      "city": "City",
+      "district": "District",
+      "orderNote": "Order Note"
+    },
+    "items": {
+      "title": "Products",
+      "description": "Products included in this order.",
+      "count": "{count, plural, one {# item} other {# items}}",
+      "quantity": "Quantity: {count}",
+      "sku": "SKU",
+      "subtotal": "Subtotal"
+    },
+    "payment": {
+      "title": "Payment Information",
+      "description": "Payment method and transaction details.",
+      "method": "Payment Method",
+      "status": "Payment Status",
+      "amount": "Payment Amount",
+      "unavailable": "Payment information is not available for this order."
+    },
+    "bankTransfer": {
+      "title": "Bank Transfer Information",
+      "description": "Use the following details when making your transfer.",
+      "bank": "Bank",
+      "accountNumber": "Account Number",
+      "accountHolder": "Account Holder",
+      "transferAmount": "Transfer Amount",
+      "transferNote": "Transfer Note"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "shippingFee": "Shipping Fee",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "methods": {
+      "cod": "Cash on Delivery (COD)",
+      "bankTransfer": "Bank Transfer",
+      "creditCard": "Credit Card",
+      "vnpay": "VNPay"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped",
+      "outForDelivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "cancelled": "Cancelled",
+      "canceled": "Canceled",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "partiallyRefunded": "Partially Refunded"
+    }
+  },
+  "CancelOrderButton": {
+    "toasts": {
+      "cancelling": "Cancelling order...",
+      "cancelled": "Order cancelled successfully.",
+      "cancelFailed": "Unable to cancel this order. Please try again."
+    },
+    "buttons": {
+      "cancelling": "Cancelling...",
+      "cancelOrder": "Cancel Order"
+    },
+    "accessibility": {
+      "cancelling": "Cancelling order...",
+      "cancelOrder": "Cancel order"
+    }
+  },
+  "OrderHistory": {
+    "loading": {
+      "ariaLabel": "Loading order history"
+    },
+    "emptyOrders": {
+      "title": "No Orders Yet",
+      "description": "You haven't placed any orders yet. Explore our products and find something you love."
+    },
+    "noCompletedOrders": {
+      "title": "No Completed Orders",
+      "description": "Your order history will appear here once an order has been delivered."
+    },
+    "header": {
+      "title": "Order History",
+      "description": "View your completed orders and payment details.",
+      "completedCount": "{count, plural, one {# order completed} other {# orders completed}}"
+    },
+    "order": {
+      "orderNumber": "Order Number",
+      "delivered": "Delivered",
+      "date": "Order Date",
+      "paymentStatus": "Payment Status",
+      "total": "Order Total"
+    },
+    "buttons": {
+      "startShopping": "Start Shopping",
+      "viewDetails": "View Details"
+    },
+    "common": {
+      "notAvailable": "N/A"
+    },
+    "paymentStatus": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "partiallyRefunded": "Partially Refunded",
+      "cancelled": "Cancelled"
+    }
+  },
+  "OrderStatusBadge": {
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "outForDelivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "canceled": "Canceled",
+      "failed": "Failed"
+    }
+  },
+  "OrderStatusSection": {
+    "header": {
+      "title": "Order Status",
+      "description": "View the current status of your order."
+    },
+    "orderNumber": "Order Number",
+    "currentStatus": "Current Status",
+    "cancelOrder": {
+      "title": "Need to cancel this order?",
+      "description": "You can cancel your order while it is pending."
+    }
   }
 }

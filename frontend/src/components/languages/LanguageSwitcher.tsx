@@ -4,9 +4,9 @@ import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/src/i18n/navigation";
 
 const languages = [
-  { code: "en", label: "English" },
-  { code: "vi", label: "Tiếng Việt" },
-  { code: "zh-TW", label: "繁體中文" },
+  { code: "en", label: "English 🇺🇸" },
+  { code: "vi", label: "Tiếng Việt 🇻🇳" },
+  { code: "zh-TW", label: "繁體中文 🇹🇼" },
 ];
 
 export default function LanguageSwitcher() {

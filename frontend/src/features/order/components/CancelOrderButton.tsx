@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+
 import { cancelOrder } from "../services/order.service";
 
 type CancelOrderButtonProps = {
@@ -15,6 +17,7 @@ export default function CancelOrderButton({
   onCancelled,
   onRestore,
 }: CancelOrderButtonProps) {
+  const t = useTranslations("CancelOrderButton");
   const [loading, setLoading] = useState(false);
 
   const handleCancelOrderButton = async () => {
@@ -22,7 +25,7 @@ export default function CancelOrderButton({
 
     setLoading(true);
 
-    const toastId = toast.loading("Cancelling order...");
+    const toastId = toast.loading(t("toasts.cancelling"));
 
     // Optimistically update the order status.
     onCancelled(orderId);
@@ -30,7 +33,7 @@ export default function CancelOrderButton({
     try {
       await cancelOrder(orderId);
 
-      toast.success("Order cancelled successfully.", {
+      toast.success(t("toasts.cancelled"), {
         id: toastId,
       });
     } catch (error) {
@@ -39,7 +42,7 @@ export default function CancelOrderButton({
       // Restore the original order status if the request fails.
       onRestore(orderId);
 
-      toast.error("Unable to cancel this order. Please try again.", {
+      toast.error(t("toasts.cancelFailed"), {
         id: toastId,
       });
     } finally {
@@ -52,7 +55,11 @@ export default function CancelOrderButton({
       type="button"
       onClick={() => void handleCancelOrderButton()}
       disabled={loading}
-      aria-label={loading ? "Canceling order..." : "Cancel order"}
+      aria-label={
+        loading
+          ? t("accessibility.cancelling")
+          : t("accessibility.cancelOrder")
+      }
       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {loading ? (
@@ -61,7 +68,7 @@ export default function CancelOrderButton({
             aria-hidden="true"
             className="size-4 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600"
           />
-          Canceling...
+          {t("buttons.cancelling")}
         </>
       ) : (
         <>
@@ -80,7 +87,7 @@ export default function CancelOrderButton({
             <path d="m9 9 6 6m0-6-6 6" />
           </svg>
 
-          Cancel Order
+          {t("buttons.cancelOrder")}
         </>
       )}
     </button>

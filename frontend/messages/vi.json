@@ -820,5 +820,477 @@
       "invalidProductId": "ID sản phẩm không hợp lệ.",
       "productNotFound": "Không tìm thấy sản phẩm."
     }
+  },
+  "CartItem": {
+    "configuration": {
+      "storage": "Dung lượng",
+      "color": "Màu sắc",
+      "colorOption": "Tùy chọn màu",
+      "standard": "Cấu hình tiêu chuẩn"
+    },
+    "quantityControls": "Điều chỉnh số lượng",
+    "decreaseQuantity": "Giảm số lượng của {name}",
+    "increaseQuantity": "Tăng số lượng của {name}",
+    "updatingQuantity": "Đang cập nhật số lượng",
+    "priceUnavailable": "Không có thông tin giá",
+    "removing": "Đang xóa...",
+    "remove": "Xóa",
+    "subtotal": "Thành tiền",
+    "confirmRemove": "Bạn có chắc muốn xóa \"{name}\" khỏi giỏ hàng không?",
+    "stock": {
+      "variantUnavailable": "Biến thể không khả dụng",
+      "outOfStock": "Hiện đã hết hàng",
+      "maximumSelected": "Đã chọn số lượng tối đa có thể mua",
+      "unitsAvailable": "Còn {count} sản phẩm"
+    },
+    "toast": {
+      "updatingQuantity": "Đang cập nhật số lượng trong giỏ hàng...",
+      "quantityUpdated": "Đã cập nhật số lượng trong giỏ hàng.",
+      "quantityUpdatedDescription": "{name} · Số lượng: {quantity}",
+      "updateQuantityFailed": "Không thể cập nhật số lượng. Vui lòng thử lại.",
+      "removingItem": "Đang xóa sản phẩm khỏi giỏ hàng...",
+      "itemRemoved": "Đã xóa sản phẩm khỏi giỏ hàng.",
+      "removeItemFailed": "Không thể xóa sản phẩm này. Vui lòng thử lại."
+    }
+  },
+  "CartPage": {
+    "loading": {
+      "label": "Đang tải giỏ hàng"
+    },
+    "heading": {
+      "badge": "Giỏ hàng của bạn",
+      "title": "Giỏ hàng",
+      "description": "Kiểm tra sản phẩm trước khi tiến hành thanh toán."
+    },
+    "counts": {
+      "items": "{count} sản phẩm",
+      "products": "{count} sản phẩm"
+    },
+    "items": {
+      "title": "Sản phẩm trong giỏ"
+    },
+    "empty": {
+      "title": "Giỏ hàng đang trống",
+      "description": "Bạn chưa thêm sản phẩm nào vào giỏ hàng. Hãy khám phá bộ sưu tập để tìm sản phẩm phù hợp."
+    },
+    "login": {
+      "title": "Đăng nhập để xem giỏ hàng",
+      "description": "Đăng nhập để truy cập giỏ hàng và tiếp tục mua sắm.",
+      "signIn": "Đăng nhập"
+    },
+    "error": {
+      "title": "Không thể tải giỏ hàng",
+      "description": "Đã xảy ra lỗi khi tải giỏ hàng. Vui lòng thử lại."
+    },
+    "summary": {
+      "title": "Tóm tắt đơn hàng",
+      "description": "Thông tin đơn hàng của bạn",
+      "subtotal": "Tạm tính",
+      "shipping": "Phí vận chuyển",
+      "shippingAtCheckout": "Được tính khi thanh toán",
+      "estimatedTotal": "Tổng tiền dự kiến",
+      "secureCheckout": "Thanh toán an toàn"
+    },
+    "buttons": {
+      "continueShopping": "Tiếp tục mua sắm",
+      "tryAgain": "Thử lại",
+      "exploreProducts": "Khám phá sản phẩm",
+      "clearing": "Đang xóa...",
+      "clearCart": "Xóa giỏ hàng",
+      "checkout": "Tiến hành thanh toán"
+    },
+    "priceUnavailable": "Không có thông tin giá",
+    "toast": {
+      "clearing": "Đang xóa giỏ hàng...",
+      "cleared": "Đã xóa toàn bộ giỏ hàng.",
+      "clearFailed": "Không thể xóa giỏ hàng. Vui lòng thử lại."
+    }
+  },
+  "CheckoutPage": {
+    "loading": {
+      "ariaLabel": "Đang tải trang thanh toán",
+      "title": "Đang tải trang thanh toán...",
+      "description": "Đang chuẩn bị thông tin đơn hàng của bạn."
+    },
+    "errors": {
+      "addressLoad": "Không thể tải địa chỉ đã lưu. Vui lòng thử lại.",
+      "cartLoad": "Không thể tải giỏ hàng. Vui lòng thử lại.",
+      "cartEmpty": "Giỏ hàng của bạn đang trống.",
+      "invalidPrices": "Một số sản phẩm có giá không hợp lệ. Vui lòng tải lại giỏ hàng và thử lại.",
+      "addressRequired": "Vui lòng chọn địa chỉ giao hàng.",
+      "shippingRequired": "Vui lòng điền đầy đủ thông tin giao hàng bắt buộc.",
+      "paymentUnavailable": "Phương thức thanh toán này hiện chưa khả dụng. Vui lòng chọn thanh toán khi nhận hàng hoặc chuyển khoản ngân hàng.",
+      "placeOrder": "Không thể đặt hàng. Vui lòng kiểm tra thông tin và thử lại."
+    },
+    "cartError": {
+      "title": "Không thể tải trang thanh toán",
+      "description": "Thông tin giỏ hàng hiện không khả dụng."
+    },
+    "buttons": {
+      "tryAgain": "Thử lại",
+      "returnToCart": "Quay lại giỏ hàng",
+      "continueShopping": "Tiếp tục mua sắm",
+      "addAddress": "Thêm địa chỉ",
+      "manageAddresses": "Quản lý địa chỉ",
+      "placingOrder": "Đang đặt hàng...",
+      "placeOrder": "Đặt hàng"
+    },
+    "emptyCart": {
+      "title": "Giỏ hàng đang trống",
+      "description": "Hãy thêm sản phẩm vào giỏ hàng trước khi tiến hành thanh toán."
+    },
+    "header": {
+      "badge": "Thanh toán an toàn",
+      "title": "Thanh toán",
+      "description": "Xác nhận thông tin giao hàng và kiểm tra đơn hàng trước khi đặt."
+    },
+    "address": {
+      "title": "Địa chỉ giao hàng",
+      "description": "Chọn địa chỉ dùng để giao đơn hàng.",
+      "loading": "Đang tải địa chỉ đã lưu...",
+      "emptyTitle": "Chưa có địa chỉ đã lưu",
+      "emptyDescription": "Vui lòng thêm địa chỉ giao hàng trước khi đặt hàng.",
+      "default": "Mặc định",
+      "selected": "Đã chọn",
+      "postalCode": "Mã bưu chính"
+    },
+    "shipping": {
+      "title": "Thông tin giao hàng",
+      "description": "Kiểm tra hoặc điều chỉnh thông tin cho lần giao hàng này.",
+      "fields": {
+        "fullName": "Họ và tên",
+        "phone": "Số điện thoại",
+        "streetAddress": "Địa chỉ đường",
+        "city": "Thành phố",
+        "district": "Quận / Huyện",
+        "orderNote": "Ghi chú đơn hàng"
+      },
+      "placeholders": {
+        "fullName": "Nhập tên người nhận",
+        "phone": "Nhập số điện thoại",
+        "streetAddress": "Số nhà, tên đường, v.v.",
+        "city": "Nhập thành phố",
+        "district": "Nhập quận hoặc huyện",
+        "orderNote": "Thêm hướng dẫn giao hàng hoặc ghi chú..."
+      },
+      "optional": "Không bắt buộc"
+    },
+    "payment": {
+      "title": "Phương thức thanh toán",
+      "description": "Chọn cách bạn muốn thanh toán cho đơn hàng.",
+      "cod": {
+        "title": "Thanh toán khi nhận hàng (COD)",
+        "description": "Thanh toán khi đơn hàng được giao đến bạn."
+      },
+      "bankTransfer": {
+        "title": "Chuyển khoản ngân hàng",
+        "description": "Xem thông tin đơn hàng sau khi đặt hàng."
+      },
+      "creditCard": {
+        "title": "Thẻ tín dụng",
+        "description": "Thanh toán bằng thẻ hiện chưa khả dụng.",
+        "ariaLabel": "Thẻ tín dụng, sắp ra mắt"
+      },
+      "vnpay": {
+        "title": "VNPay",
+        "description": "Thanh toán trực tuyến hiện chưa khả dụng.",
+        "ariaLabel": "VNPay, sắp ra mắt"
+      },
+      "comingSoon": "Sắp ra mắt"
+    },
+    "placeOrder": {
+      "title": "Sẵn sàng đặt hàng?",
+      "description": "Vui lòng kiểm tra thông tin giao hàng trước khi tiếp tục.",
+      "confirmation": "Khi đặt hàng, bạn xác nhận rằng thông tin giao hàng đã chính xác."
+    },
+    "summary": {
+      "title": "Tóm tắt đơn hàng",
+      "itemCount": "{count} sản phẩm",
+      "quantity": "Số lượng: {count}",
+      "subtotal": "Tạm tính",
+      "shipping": "Phí vận chuyển",
+      "shippingCalculatedSeparately": "Tính riêng",
+      "total": "Tổng cộng",
+      "totalExcludesShipping": "Tổng tiền được tính dựa trên các sản phẩm hiện có trong giỏ hàng và chưa bao gồm phí vận chuyển được tính riêng.",
+      "shippingTo": "Giao hàng đến",
+      "recipientFallback": "Người nhận",
+      "selectAddressToContinue": "Chọn địa chỉ đã lưu để tiếp tục."
+    },
+    "toast": {
+      "placingOrder": "Đang đặt đơn hàng...",
+      "orderPlaced": "Đặt hàng thành công!",
+      "redirecting": "Đang chuyển đến chi tiết đơn hàng..."
+    }
+  },
+  "AddressForm": {
+    "sections": {
+      "recipient": "Thông tin người nhận",
+      "address": "Thông tin địa chỉ"
+    },
+    "fields": {
+      "fullName": "Họ và tên",
+      "phone": "Số điện thoại",
+      "streetAddress": "Địa chỉ đường",
+      "city": "Thành phố",
+      "district": "Quận / Huyện",
+      "postalCode": "Mã bưu chính"
+    },
+    "placeholders": {
+      "fullName": "Nhập họ tên người nhận",
+      "phone": "Nhập số điện thoại",
+      "streetAddress": "Số nhà, tên đường, v.v.",
+      "city": "Nhập thành phố",
+      "district": "Nhập quận hoặc huyện",
+      "postalCode": "Nhập mã bưu chính"
+    },
+    "common": {
+      "optional": "Không bắt buộc"
+    },
+    "defaultAddress": {
+      "title": "Đặt làm địa chỉ mặc định",
+      "description": "Sử dụng địa chỉ này làm địa chỉ giao hàng mặc định."
+    },
+    "buttons": {
+      "saving": "Đang lưu...",
+      "saveAddress": "Lưu địa chỉ"
+    }
+  },
+  "AddressesPage": {
+    "page": {
+      "title": "Địa chỉ của tôi",
+      "description": "Quản lý địa chỉ giao hàng để thanh toán nhanh hơn."
+    },
+    "buttons": {
+      "addAddress": "Thêm địa chỉ",
+      "tryAgain": "Thử lại",
+      "saveAddress": "Lưu địa chỉ",
+      "cancel": "Hủy",
+      "updateAddress": "Cập nhật địa chỉ",
+      "edit": "Sửa",
+      "deleting": "Đang xóa...",
+      "delete": "Xóa"
+    },
+    "loadError": {
+      "title": "Không thể tải địa chỉ",
+      "description": "Không thể tải danh sách địa chỉ. Vui lòng thử lại."
+    },
+    "createModal": {
+      "title": "Thêm địa chỉ mới",
+      "description": "Nhập thông tin giao hàng của bạn bên dưới."
+    },
+    "editForm": {
+      "title": "Chỉnh sửa địa chỉ",
+      "description": "Cập nhật thông tin giao hàng của bạn."
+    },
+    "badges": {
+      "defaultAddress": "Địa chỉ mặc định"
+    },
+    "emptyState": {
+      "title": "Bạn chưa có địa chỉ nào",
+      "description": "Thêm địa chỉ giao hàng để đặt hàng nhanh chóng và thuận tiện hơn.",
+      "addFirstAddress": "Thêm địa chỉ đầu tiên"
+    },
+    "accessibility": {
+      "closeAddDialog": "Đóng cửa sổ thêm địa chỉ",
+      "closeEditForm": "Đóng biểu mẫu chỉnh sửa địa chỉ"
+    },
+    "toasts": {
+      "adding": "Đang thêm địa chỉ...",
+      "added": "Thêm địa chỉ thành công.",
+      "addFailed": "Không thể thêm địa chỉ. Vui lòng thử lại.",
+      "updating": "Đang cập nhật địa chỉ...",
+      "updated": "Cập nhật địa chỉ thành công.",
+      "updateFailed": "Không thể cập nhật địa chỉ. Vui lòng thử lại.",
+      "deleting": "Đang xóa địa chỉ...",
+      "deleted": "Xóa địa chỉ thành công.",
+      "deleteFailed": "Không thể xóa địa chỉ. Vui lòng thử lại."
+    }
+  },
+  "OrdersPage": {
+    "loading": {
+      "ariaLabel": "Đang tải đơn hàng",
+      "title": "Đang tải đơn hàng...",
+      "description": "Vui lòng chờ trong khi chúng tôi tải thông tin đơn hàng."
+    },
+    "header": {
+      "badge": "Quản lý đơn hàng",
+      "title": "Đơn hàng của tôi",
+      "description": "Theo dõi đơn hàng và xem chi tiết đơn hàng.",
+      "activeOrders": "{count} đơn hàng đang xử lý"
+    },
+    "errors": {
+      "loadTitle": "Không thể tải đơn hàng",
+      "loadDescription": "Không thể tải danh sách đơn hàng. Vui lòng thử lại."
+    },
+    "buttons": {
+      "tryAgain": "Thử lại",
+      "startShopping": "Bắt đầu mua sắm",
+      "viewHistory": "Xem lịch sử đơn hàng",
+      "viewDetails": "Xem chi tiết"
+    },
+    "empty": {
+      "title": "Chưa có đơn hàng",
+      "description": "Bạn chưa đặt đơn hàng nào. Hãy khám phá các sản phẩm của chúng tôi để tìm món đồ yêu thích."
+    },
+    "completed": {
+      "title": "Tất cả đơn hàng đã hoàn tất",
+      "description": "Tất cả đơn hàng của bạn đã được giao. Bạn có thể xem lại trong lịch sử đơn hàng."
+    },
+    "order": {
+      "orderNumber": "Mã đơn hàng",
+      "total": "Tổng tiền đơn hàng"
+    }
+  },
+  "AdminOrderDetailPage": {
+    "header": {
+      "badge": "Quản lý đơn hàng",
+      "title": "Chi tiết đơn hàng",
+      "description": "Xem thông tin đơn hàng, giao hàng, thanh toán và tổng tiền."
+    },
+    "shipping": {
+      "title": "Thông tin giao hàng",
+      "description": "Thông tin người nhận và giao hàng của đơn hàng này.",
+      "recipientName": "Tên người nhận",
+      "phoneNumber": "Số điện thoại",
+      "streetAddress": "Địa chỉ đường",
+      "city": "Thành phố",
+      "district": "Quận / Huyện",
+      "orderNote": "Ghi chú đơn hàng"
+    },
+    "items": {
+      "title": "Sản phẩm",
+      "description": "Các sản phẩm có trong đơn hàng này.",
+      "count": "{count} sản phẩm",
+      "quantity": "Số lượng: {count}",
+      "sku": "Mã SKU",
+      "subtotal": "Thành tiền"
+    },
+    "payment": {
+      "title": "Thông tin thanh toán",
+      "description": "Phương thức thanh toán và chi tiết giao dịch.",
+      "method": "Phương thức thanh toán",
+      "status": "Trạng thái thanh toán",
+      "amount": "Số tiền thanh toán",
+      "unavailable": "Không có thông tin thanh toán cho đơn hàng này."
+    },
+    "bankTransfer": {
+      "title": "Thông tin chuyển khoản ngân hàng",
+      "description": "Sử dụng thông tin dưới đây khi thực hiện chuyển khoản.",
+      "bank": "Ngân hàng",
+      "accountNumber": "Số tài khoản",
+      "accountHolder": "Chủ tài khoản",
+      "transferAmount": "Số tiền chuyển khoản",
+      "transferNote": "Nội dung chuyển khoản"
+    },
+    "summary": {
+      "title": "Tóm tắt đơn hàng",
+      "subtotal": "Tạm tính",
+      "shippingFee": "Phí vận chuyển",
+      "discount": "Giảm giá",
+      "total": "Tổng cộng"
+    },
+    "methods": {
+      "cod": "Thanh toán khi nhận hàng (COD)",
+      "bankTransfer": "Chuyển khoản ngân hàng",
+      "creditCard": "Thẻ tín dụng",
+      "vnpay": "VNPay"
+    },
+    "statuses": {
+      "pending": "Đang chờ xử lý",
+      "processing": "Đang xử lý",
+      "confirmed": "Đã xác nhận",
+      "shipped": "Đã gửi hàng",
+      "outForDelivery": "Đang giao hàng",
+      "delivered": "Đã giao hàng",
+      "paid": "Đã thanh toán",
+      "unpaid": "Chưa thanh toán",
+      "cancelled": "Đã hủy",
+      "canceled": "Đã hủy",
+      "failed": "Thất bại",
+      "refunded": "Đã hoàn tiền",
+      "partiallyRefunded": "Đã hoàn tiền một phần"
+    }
+  },
+  "CancelOrderButton": {
+    "toasts": {
+      "cancelling": "Đang hủy đơn hàng...",
+      "cancelled": "Hủy đơn hàng thành công.",
+      "cancelFailed": "Không thể hủy đơn hàng này. Vui lòng thử lại."
+    },
+    "buttons": {
+      "cancelling": "Đang hủy...",
+      "cancelOrder": "Hủy đơn hàng"
+    },
+    "accessibility": {
+      "cancelling": "Đang hủy đơn hàng...",
+      "cancelOrder": "Hủy đơn hàng"
+    }
+  },
+  "OrderHistory": {
+    "loading": {
+      "ariaLabel": "Đang tải lịch sử đơn hàng"
+    },
+    "emptyOrders": {
+      "title": "Chưa có đơn hàng",
+      "description": "Bạn chưa đặt đơn hàng nào. Hãy khám phá sản phẩm của chúng tôi để tìm món đồ yêu thích."
+    },
+    "noCompletedOrders": {
+      "title": "Chưa có đơn hàng hoàn tất",
+      "description": "Lịch sử đơn hàng sẽ xuất hiện tại đây khi có đơn hàng được giao thành công."
+    },
+    "header": {
+      "title": "Lịch sử đơn hàng",
+      "description": "Xem các đơn hàng đã hoàn tất và chi tiết thanh toán.",
+      "completedCount": "{count} đơn hàng đã hoàn tất"
+    },
+    "order": {
+      "orderNumber": "Mã đơn hàng",
+      "delivered": "Đã giao hàng",
+      "date": "Ngày đặt hàng",
+      "paymentStatus": "Trạng thái thanh toán",
+      "total": "Tổng tiền đơn hàng"
+    },
+    "buttons": {
+      "startShopping": "Bắt đầu mua sắm",
+      "viewDetails": "Xem chi tiết"
+    },
+    "common": {
+      "notAvailable": "Không có thông tin"
+    },
+    "paymentStatus": {
+      "pending": "Đang chờ xử lý",
+      "processing": "Đang xử lý",
+      "paid": "Đã thanh toán",
+      "unpaid": "Chưa thanh toán",
+      "failed": "Thất bại",
+      "refunded": "Đã hoàn tiền",
+      "partiallyRefunded": "Đã hoàn tiền một phần",
+      "cancelled": "Đã hủy"
+    }
+  },
+  "OrderStatusBadge": {
+    "statuses": {
+      "pending": "Đang chờ xử lý",
+      "confirmed": "Đã xác nhận",
+      "processing": "Đang xử lý",
+      "shipped": "Đã gửi hàng",
+      "outForDelivery": "Đang giao hàng",
+      "delivered": "Đã giao hàng",
+      "cancelled": "Đã hủy",
+      "canceled": "Đã hủy",
+      "failed": "Thất bại"
+    }
+  },
+  "OrderStatusSection": {
+    "header": {
+      "title": "Trạng thái đơn hàng",
+      "description": "Xem trạng thái hiện tại của đơn hàng."
+    },
+    "orderNumber": "Mã đơn hàng",
+    "currentStatus": "Trạng thái hiện tại",
+    "cancelOrder": {
+      "title": "Bạn muốn hủy đơn hàng này?",
+      "description": "Bạn có thể hủy đơn hàng khi đơn vẫn đang chờ xử lý."
+    }
   }
 }

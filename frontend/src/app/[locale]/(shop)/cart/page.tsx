@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "@/src/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -37,15 +38,16 @@ function LoadingBar({
 }
 
 function CartLoadingSkeleton() {
+  const t = useTranslations("CartPage");
+
   return (
     <main
       className="min-h-screen bg-[#f7f8fa]"
       aria-busy="true"
-      aria-label="Loading cart"
+      aria-label={t("loading.label")}
     >
-      {/* Keep the same outer container as the loaded page. */}
       <div className="mx-auto w-full max-w-7xl px-3 py-5 sm:px-5 sm:py-7 lg:px-6 lg:py-8">
-        {/* Heading skeleton: white surface with neutral gray placeholders. */}
+        {/* Heading skeleton */}
         <section className="relative mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6">
           <div className="mb-2">
             <LoadingBar className="h-6 w-36 rounded-full bg-slate-200" />
@@ -70,14 +72,13 @@ function CartLoadingSkeleton() {
           />
         </section>
 
-        {/* Same two-column grid as the real cart. */}
+        {/* Same two-column grid as the loaded cart */}
         <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-          {/* Cart items skeleton. */}
+          {/* Cart items skeleton */}
           <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="h-1 bg-slate-200" />
 
             <div className="p-4 sm:p-5">
-              {/* Match the real Cart Items header. */}
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100">
@@ -93,7 +94,6 @@ function CartLoadingSkeleton() {
                 <LoadingBar className="h-9 w-24 rounded-lg bg-slate-200" />
               </div>
 
-              {/* Product rows: consistent image and content dimensions. */}
               <div className="divide-y divide-slate-100">
                 {Array.from({ length: 3 }, (_, index) => (
                   <motion.div
@@ -126,14 +126,13 @@ function CartLoadingSkeleton() {
                 ))}
               </div>
 
-              {/* Match the continue-shopping footer spacing. */}
               <div className="mt-4 border-t border-slate-100 pt-4">
                 <LoadingBar className="h-9 w-36 rounded-lg bg-slate-200" />
               </div>
             </div>
           </section>
 
-          {/* Order summary skeleton: neutral borders and gray placeholders. */}
+          {/* Order summary skeleton */}
           <aside className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:sticky lg:top-6">
             <div className="h-1.5 bg-slate-200" />
 
@@ -219,13 +218,16 @@ function getCartItemPrice(
 }
 
 export default function CartPage() {
+  const t = useTranslations("CartPage");
+  const locale = useLocale();
+
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [requiresLogin, setRequiresLogin] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
-  // The initial skeleton stays visible for at least 700 ms.
+  // Keep the initial skeleton visible for at least 700 ms.
   const [minimumLoadingTimeElapsed, setMinimumLoadingTimeElapsed] =
     useState(false);
   const [hasInitialFetchSettled, setHasInitialFetchSettled] =
@@ -303,7 +305,7 @@ export default function CartPage() {
   const handleClearCart = async () => {
     if (!cart || cart.items.length === 0 || isClearing) return;
 
-    const toastId = toast.loading("Clearing cart...");
+    const toastId = toast.loading(t("toast.clearing"));
     setIsClearing(true);
 
     try {
@@ -318,13 +320,13 @@ export default function CartPage() {
         };
       });
 
-      toast.success("Cart cleared successfully.", {
+      toast.success(t("toast.cleared"), {
         id: toastId,
       });
     } catch (error) {
       console.error("Failed to clear cart", error);
 
-      toast.error("Unable to clear your cart. Please try again.", {
+      toast.error(t("toast.clearFailed"), {
         id: toastId,
       });
     } finally {
@@ -341,63 +343,62 @@ export default function CartPage() {
     return <CartLoadingSkeleton />;
   }
 
-if (requiresLogin) {
-  return (
-    <main className="min-h-[calc(100vh-80px)] w-full bg-[#f7f8fa] px-4 py-8">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-        className="relative mx-auto flex w-full max-w-md flex-col items-center overflow-hidden rounded-2xl border border-slate-200 bg-white text-center shadow-sm"
-      >
+  if (requiresLogin) {
+    return (
+      <main className="min-h-[calc(100vh-80px)] w-full bg-[#f7f8fa] px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="relative mx-auto flex w-full max-w-md flex-col items-center overflow-hidden rounded-2xl border border-slate-200 bg-white text-center shadow-sm"
+        >
+          <div className="px-6 py-9">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-100 text-blue-700 shadow-sm">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="size-7"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path
+                  d="M4 21a8 8 0 0 1 16 0"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
 
-        <div className="px-6 py-9">
-          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-100 text-blue-700 shadow-sm">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              className="size-7"
-            >
-              <circle cx="12" cy="8" r="4" />
-              <path
-                d="M4 21a8 8 0 0 1 16 0"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
+            <h1 className="mt-5 text-xl font-semibold tracking-tight text-slate-900">
+              {t("login.title")}
+            </h1>
 
-          <h1 className="mt-5 text-xl font-semibold tracking-tight text-slate-900">
-            Sign in to view your cart
-          </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {t("login.description")}
+            </p>
 
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Log in to access your cart and continue shopping.
-          </p>
-
-          <Link
-            href="/login"
-            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 text-sm font-semibold text-white shadow-md shadow-blue-600/15 transition duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-cyan-700 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          >
-            Log In
-            <span aria-hidden="true">→</span>
-          </Link>
-
-          <div>
             <Link
-              href="/products"
-              className="mt-4 inline-block text-sm font-medium text-slate-500 transition hover:text-blue-700"
+              href="/login"
+              className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 text-sm font-semibold text-white shadow-md shadow-blue-600/15 transition duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-cyan-700 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
-              Continue shopping
+              {t("login.signIn")}
+              <span aria-hidden="true">→</span>
             </Link>
+
+            <div>
+              <Link
+                href="/products"
+                className="mt-4 inline-block text-sm font-medium text-slate-500 transition hover:text-blue-700"
+              >
+                {t("buttons.continueShopping")}
+              </Link>
+            </div>
           </div>
-        </div>
-      </motion.div>
-    </main>
-  );
-}
+        </motion.div>
+      </main>
+    );
+  }
 
   if (loadError || !cart) {
     return (
@@ -417,11 +418,11 @@ if (requiresLogin) {
             </div>
 
             <h1 className="mt-4 text-xl font-semibold text-slate-900">
-              Unable to load your cart
+              {t("error.title")}
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Something went wrong while loading your cart. Please try again.
+              {t("error.description")}
             </p>
 
             <button
@@ -429,7 +430,7 @@ if (requiresLogin) {
               onClick={() => void fetchCart()}
               className="mt-6 inline-flex h-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-600/15 transition hover:from-blue-700 hover:to-cyan-700"
             >
-              Try Again
+              {t("buttons.tryAgain")}
             </button>
           </div>
         </motion.div>
@@ -449,9 +450,16 @@ if (requiresLogin) {
       : sum + price * item.quantity;
   }, 0);
 
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
+    }).format(value);
+
   const formattedTotal = hasUnavailablePrice
-    ? "Price unavailable"
-    : `${total.toLocaleString("vi-VN")} VND`;
+    ? t("priceUnavailable")
+    : formatPrice(total);
 
   const totalQuantity = cart.items.reduce(
     (sum, item) => sum + item.quantity,
@@ -460,7 +468,6 @@ if (requiresLogin) {
 
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
-      {/* The outer dimensions match CartLoadingSkeleton. */}
       <div className="mx-auto w-full max-w-7xl px-3 py-5 sm:px-5 sm:py-7 lg:px-6 lg:py-8">
         {/* Page Heading */}
         <motion.section
@@ -474,18 +481,18 @@ if (requiresLogin) {
               <span className="size-1.5 rounded-full bg-cyan-500" />
 
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-800 sm:text-xs">
-                Your shopping bag
+                {t("heading.badge")}
               </p>
             </div>
 
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                  My Cart
+                  {t("heading.title")}
                 </h1>
 
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Review your items before checking out.
+                  {t("heading.description")}
                 </p>
               </div>
 
@@ -517,8 +524,7 @@ if (requiresLogin) {
                     </svg>
 
                     <span className="text-xs font-semibold text-blue-800">
-                      {totalQuantity}{" "}
-                      {totalQuantity === 1 ? "item" : "items"}
+                      {t("counts.items", { count: totalQuantity })}
                     </span>
                   </motion.div>
                 )}
@@ -559,19 +565,18 @@ if (requiresLogin) {
                 </div>
 
                 <h2 className="mt-5 text-xl font-semibold tracking-tight text-slate-900">
-                  Your cart is empty
+                  {t("empty.title")}
                 </h2>
 
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                  Looks like you haven&apos;t added anything to your cart yet.
-                  Explore our collection to find something you love.
+                  {t("empty.description")}
                 </p>
 
                 <Link
                   href="/products"
                   className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 text-sm font-semibold text-white shadow-md shadow-blue-600/15 transition duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-cyan-700 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
-                  Explore Products
+                  {t("buttons.exploreProducts")}
                   <span aria-hidden="true">→</span>
                 </Link>
               </div>
@@ -611,12 +616,13 @@ if (requiresLogin) {
 
                       <div>
                         <h2 className="text-base font-semibold text-slate-900">
-                          Cart Items
+                          {t("items.title")}
                         </h2>
 
                         <p className="mt-1 text-xs text-slate-500">
-                          {cart.items.length}{" "}
-                          {cart.items.length === 1 ? "product" : "products"}
+                          {t("counts.products", {
+                            count: cart.items.length,
+                          })}
                         </p>
                       </div>
                     </div>
@@ -630,7 +636,7 @@ if (requiresLogin) {
                       {isClearing ? (
                         <>
                           <span className="size-3.5 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600" />
-                          Clearing...
+                          {t("buttons.clearing")}
                         </>
                       ) : (
                         <>
@@ -649,7 +655,7 @@ if (requiresLogin) {
                             />
                           </svg>
 
-                          Clear Cart
+                          {t("buttons.clearCart")}
                         </>
                       )}
                     </button>
@@ -689,7 +695,7 @@ if (requiresLogin) {
                       className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-50 hover:text-blue-900"
                     >
                       <span aria-hidden="true">←</span>
-                      Continue shopping
+                      {t("buttons.continueShopping")}
                     </Link>
                   </div>
                 </div>
@@ -718,11 +724,11 @@ if (requiresLogin) {
 
                     <div>
                       <h2 className="text-base font-semibold tracking-tight text-slate-900">
-                        Order Summary
+                        {t("summary.title")}
                       </h2>
 
                       <p className="mt-0.5 text-xs text-slate-500">
-                        Your order at a glance
+                        {t("summary.description")}
                       </p>
                     </div>
                   </div>
@@ -730,10 +736,9 @@ if (requiresLogin) {
                   <div className="mt-5 space-y-4">
                     <div className="flex items-start justify-between gap-3 text-sm">
                       <span className="text-slate-500">
-                        Subtotal
+                        {t("summary.subtotal")}
                         <span className="ml-1 text-xs">
-                          ({totalQuantity}{" "}
-                          {totalQuantity === 1 ? "item" : "items"})
+                          ({t("counts.items", { count: totalQuantity })})
                         </span>
                       </span>
 
@@ -743,17 +748,19 @@ if (requiresLogin) {
                     </div>
 
                     <div className="flex items-start justify-between gap-3 text-sm">
-                      <span className="text-slate-500">Shipping</span>
+                      <span className="text-slate-500">
+                        {t("summary.shipping")}
+                      </span>
 
                       <span className="text-right text-xs text-slate-500">
-                        Calculated at checkout
+                        {t("summary.shippingAtCheckout")}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-5 rounded-xl border border-slate-200 bg-slate-100 p-4">
-                    <p className="text-xs font-medium text-slate-500">
-                      Estimated total
+                  <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs font-medium text-slate-900">
+                      {t("summary.estimatedTotal")}
                     </p>
 
                     <motion.p
@@ -767,7 +774,7 @@ if (requiresLogin) {
                     </motion.p>
 
                     <div className="mt-3 flex items-center gap-2 border-t border-blue-100 pt-3">
-                      <span className="flex size-5  items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                      <span className="flex size-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                         <svg
                           aria-hidden="true"
                           viewBox="0 0 20 20"
@@ -785,7 +792,7 @@ if (requiresLogin) {
                       </span>
 
                       <p className="text-xs leading-5 text-slate-600">
-                        Shipping calculated at checkout
+                        {t("summary.shippingAtCheckout")}
                       </p>
                     </div>
                   </div>
@@ -794,7 +801,7 @@ if (requiresLogin) {
                     href="/checkout"
                     className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-600/20 transition duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-cyan-700 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   >
-                    Proceed to Checkout
+                    {t("buttons.checkout")}
                     <span aria-hidden="true" className="text-base">
                       →
                     </span>
@@ -809,20 +816,14 @@ if (requiresLogin) {
                       strokeWidth="1.5"
                       className="size-4 text-emerald-600"
                     >
-                      <rect
-                        x="4"
-                        y="10"
-                        width="16"
-                        height="11"
-                        rx="2"
-                      />
+                      <rect x="4" y="10" width="16" height="11" rx="2" />
                       <path
                         d="M8 10V7a4 4 0 0 1 8 0v3"
                         strokeLinecap="round"
                       />
                     </svg>
 
-                    Secure checkout
+                    {t("summary.secureCheckout")}
                   </div>
                 </div>
               </aside>

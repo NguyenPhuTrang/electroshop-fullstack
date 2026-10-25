@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "@/src/i18n/navigation";
-import { Link } from "@/src/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter, Link } from "@/src/i18n/navigation";
 import { toast } from "sonner";
 
 import { getAddresses } from "@/src/features/address/services/address.service";
@@ -23,8 +23,12 @@ const labelClassName =
 const sectionClassName =
   "rounded-xl border border-slate-200 bg-white p-5 sm:p-6";
 
-function formatVND(amount: number) {
-  return `${amount.toLocaleString("vi-VN")} VND`;
+function formatVND(amount: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
 function getCartItemPrice(
@@ -65,6 +69,8 @@ function LoadingSpinner() {
 }
 
 export default function CheckoutPage() {
+  const t = useTranslations("CheckoutPage");
+  const locale = useLocale();
   const router = useRouter();
 
   // Shipping Information
@@ -128,13 +134,11 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Failed to get addresses:", error);
 
-      setAddressError(
-        "Unable to load your saved addresses. Please try again."
-      );
+      setAddressError(t("errors.addressLoad"));
     } finally {
       setIsLoadingAddresses(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void fetchAddresses();
@@ -151,11 +155,11 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Failed to get cart:", error);
 
-      setCartError("Unable to load your cart. Please try again.");
+      setCartError(t("errors.cartLoad"));
     } finally {
       setIsLoadingCart(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void fetchCart();
@@ -172,7 +176,7 @@ export default function CheckoutPage() {
     setShippingDistrict(address.district);
   };
 
-// Calculate Order Total
+  // Calculate Order Total
   const orderTotal =
     cart?.items.reduce((sum, item) => {
       const price = getCartItemPrice(item);
@@ -187,19 +191,17 @@ export default function CheckoutPage() {
     if (isSubmitting) return;
 
     if (!cart || cart.items.length === 0) {
-      toast.error("Your cart is empty.");
+      toast.error(t("errors.cartEmpty"));
       return;
     }
 
     if (cart.items.some((item) => getCartItemPrice(item) === null)) {
-      toast.error(
-        "Some items have invalid prices. Please refresh your cart and try again."
-      );
+      toast.error(t("errors.invalidPrices"));
       return;
     }
 
     if (!selectedAddressId) {
-      toast.error("Please select a shipping address.");
+      toast.error(t("errors.addressRequired"));
       return;
     }
 
@@ -210,9 +212,7 @@ export default function CheckoutPage() {
       !shippingCity.trim() ||
       !shippingDistrict.trim()
     ) {
-      toast.error(
-        "Please complete all required shipping information."
-      );
+      toast.error(t("errors.shippingRequired"));
       return;
     }
 
@@ -221,15 +221,13 @@ export default function CheckoutPage() {
       paymentMethod === "VNPAY" ||
       paymentMethod === "CREDIT_CARD"
     ) {
-      toast.error(
-        "This payment method is not available yet. Please choose Cash on Delivery or Bank Transfer."
-      );
+      toast.error(t("errors.paymentUnavailable"));
       return;
     }
 
     setIsSubmitting(true);
 
-    const toastId = toast.loading("Placing your order...");
+    const toastId = toast.loading(t("toast.placingOrder"));
 
     try {
       const result = await createOrder({
@@ -242,21 +240,18 @@ export default function CheckoutPage() {
         paymentMethod,
       });
 
-      toast.success("Order placed successfully!", {
+      toast.success(t("toast.orderPlaced"), {
         id: toastId,
-        description: "Redirecting to your order details...",
+        description: t("toast.redirecting"),
       });
 
       router.push(`/orders/${result.order.id}`);
     } catch (error) {
       console.error("Failed to create order:", error);
 
-      toast.error(
-        "Unable to place your order. Please check your information and try again.",
-        {
-          id: toastId,
-        }
-      );
+      toast.error(t("errors.placeOrder"), {
+        id: toastId,
+      });
 
       setIsSubmitting(false);
     }
@@ -268,7 +263,7 @@ export default function CheckoutPage() {
       <main
         className="min-h-screen bg-[#f7f8fa] px-4 py-8"
         aria-busy="true"
-        aria-label="Loading checkout"
+        aria-label={t("loading.ariaLabel")}
       >
         <div className="mx-auto max-w-6xl">
           <div className="flex items-center gap-3">
@@ -276,11 +271,11 @@ export default function CheckoutPage() {
 
             <div>
               <p className="text-sm font-semibold text-slate-700">
-                Loading checkout...
+                {t("loading.title")}
               </p>
 
               <p className="mt-1 text-xs text-slate-400">
-                Preparing your order information.
+                {t("loading.description")}
               </p>
             </div>
           </div>
@@ -324,11 +319,11 @@ export default function CheckoutPage() {
       <main className="flex min-h-[60vh] items-center justify-center bg-[#f7f8fa] px-4 py-10">
         <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center">
           <h1 className="text-xl font-semibold text-slate-900">
-            Unable to Load Checkout
+            {t("cartError.title")}
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            {cartError ?? "Your cart information is unavailable."}
+            {cartError ?? t("cartError.description")}
           </p>
 
           <button
@@ -336,7 +331,7 @@ export default function CheckoutPage() {
             onClick={() => void fetchCart()}
             className="mt-5 inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            Try Again
+            {t("buttons.tryAgain")}
           </button>
 
           <div>
@@ -344,7 +339,7 @@ export default function CheckoutPage() {
               href="/cart"
               className="mt-4 inline-block text-sm font-medium text-blue-700 hover:text-blue-800"
             >
-              Return to Cart
+              {t("buttons.returnToCart")}
             </Link>
           </div>
         </section>
@@ -355,7 +350,7 @@ export default function CheckoutPage() {
   // Empty Cart
   if (cart.items.length === 0) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center bg-[#f7f8fa] px-4 py-10">
+      <main className="flex min-h-screen items-start justify-center bg-[#f7f8fa] px-4 py-10">
         <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center">
           <div className="mx-auto flex size-14 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-blue-600">
             <svg
@@ -375,18 +370,18 @@ export default function CheckoutPage() {
           </div>
 
           <h1 className="mt-4 text-xl font-semibold text-slate-900">
-            Your Cart Is Empty
+            {t("emptyCart.title")}
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Add some products to your cart before proceeding to checkout.
+            {t("emptyCart.description")}
           </p>
 
           <Link
             href="/products"
             className="mt-5 inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            Continue Shopping
+            {t("buttons.continueShopping")}
           </Link>
         </section>
       </main>
@@ -402,16 +397,16 @@ export default function CheckoutPage() {
             <span className="size-1.5 rounded-full bg-cyan-500" />
 
             <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-800 sm:text-xs">
-              Secure Checkout
+              {t("header.badge")}
             </span>
           </div>
 
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-            Checkout
+            {t("header.title")}
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Confirm your shipping details and review your order before placing it.
+            {t("header.description")}
           </p>
         </header>
 
@@ -440,11 +435,11 @@ export default function CheckoutPage() {
 
                 <div>
                   <h2 className="text-lg font-semibold text-slate-900">
-                    Shipping Address
+                    {t("address.title")}
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    Select an address for your delivery.
+                    {t("address.description")}
                   </p>
                 </div>
               </div>
@@ -454,7 +449,7 @@ export default function CheckoutPage() {
                   <LoadingSpinner />
 
                   <p className="text-sm text-slate-500">
-                    Loading saved addresses...
+                    {t("address.loading")}
                   </p>
                 </div>
               ) : addressError ? (
@@ -468,24 +463,24 @@ export default function CheckoutPage() {
                     onClick={() => void fetchAddresses()}
                     className="mt-3 text-sm font-semibold text-blue-700 hover:text-blue-800"
                   >
-                    Try Again
+                    {t("buttons.tryAgain")}
                   </button>
                 </div>
               ) : addresses.length === 0 ? (
                 <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-5">
                   <p className="text-sm font-medium text-slate-800">
-                    No Saved Addresses
+                    {t("address.emptyTitle")}
                   </p>
 
                   <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Add a delivery address before placing your order.
+                    {t("address.emptyDescription")}
                   </p>
 
                   <Link
                     href="/addresses"
                     className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
                   >
-                    Add Address
+                    {t("buttons.addAddress")}
                   </Link>
                 </div>
               ) : (
@@ -520,13 +515,13 @@ export default function CheckoutPage() {
 
                               {address.isDefault && (
                                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                                  Default
+                                  {t("address.default")}
                                 </span>
                               )}
 
                               {isSelected && (
                                 <span className="rounded-full border border-blue-100 bg-white px-2 py-0.5 text-[11px] font-medium text-blue-700">
-                                  Selected
+                                  {t("address.selected")}
                                 </span>
                               )}
                             </div>
@@ -545,7 +540,7 @@ export default function CheckoutPage() {
 
                             {address.postalCode && (
                               <p className="mt-1 text-sm text-slate-500">
-                                Postal Code: {address.postalCode}
+                                {t("address.postalCode")}: {address.postalCode}
                               </p>
                             )}
                           </div>
@@ -558,7 +553,7 @@ export default function CheckoutPage() {
                     href="/addresses"
                     className="inline-flex items-center gap-1 pt-1 text-sm font-medium text-blue-700 hover:text-blue-800"
                   >
-                    Manage Addresses
+                    {t("buttons.manageAddresses")}
                     <span aria-hidden="true">→</span>
                   </Link>
                 </div>
@@ -569,18 +564,18 @@ export default function CheckoutPage() {
             <section className={sectionClassName}>
               <div className="mb-5">
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Shipping Information
+                  {t("shipping.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Review or adjust the information for this delivery.
+                  {t("shipping.description")}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="shipping-name" className={labelClassName}>
-                    Full Name
+                    {t("shipping.fields.fullName")}
                   </label>
 
                   <input
@@ -591,7 +586,7 @@ export default function CheckoutPage() {
                     onChange={(event) =>
                       setShippingName(event.target.value)
                     }
-                    placeholder="Enter recipient's name"
+                    placeholder={t("shipping.placeholders.fullName")}
                     className={inputClassName}
                     required
                   />
@@ -599,7 +594,7 @@ export default function CheckoutPage() {
 
                 <div>
                   <label htmlFor="shipping-phone" className={labelClassName}>
-                    Phone Number
+                    {t("shipping.fields.phone")}
                   </label>
 
                   <input
@@ -610,7 +605,7 @@ export default function CheckoutPage() {
                     onChange={(event) =>
                       setShippingPhone(event.target.value)
                     }
-                    placeholder="Enter phone number"
+                    placeholder={t("shipping.placeholders.phone")}
                     className={inputClassName}
                     required
                   />
@@ -621,7 +616,7 @@ export default function CheckoutPage() {
                     htmlFor="shipping-address"
                     className={labelClassName}
                   >
-                    Street Address
+                    {t("shipping.fields.streetAddress")}
                   </label>
 
                   <input
@@ -632,7 +627,7 @@ export default function CheckoutPage() {
                     onChange={(event) =>
                       setShippingAddress(event.target.value)
                     }
-                    placeholder="House number, street name, etc."
+                    placeholder={t("shipping.placeholders.streetAddress")}
                     className={inputClassName}
                     required
                   />
@@ -640,7 +635,7 @@ export default function CheckoutPage() {
 
                 <div>
                   <label htmlFor="shipping-city" className={labelClassName}>
-                    City
+                    {t("shipping.fields.city")}
                   </label>
 
                   <input
@@ -651,7 +646,7 @@ export default function CheckoutPage() {
                     onChange={(event) =>
                       setShippingCity(event.target.value)
                     }
-                    placeholder="Enter city"
+                    placeholder={t("shipping.placeholders.city")}
                     className={inputClassName}
                     required
                   />
@@ -662,7 +657,7 @@ export default function CheckoutPage() {
                     htmlFor="shipping-district"
                     className={labelClassName}
                   >
-                    District
+                    {t("shipping.fields.district")}
                   </label>
 
                   <input
@@ -672,7 +667,7 @@ export default function CheckoutPage() {
                     onChange={(event) =>
                       setShippingDistrict(event.target.value)
                     }
-                    placeholder="Enter district"
+                    placeholder={t("shipping.placeholders.district")}
                     className={inputClassName}
                     required
                   />
@@ -680,9 +675,9 @@ export default function CheckoutPage() {
 
                 <div className="sm:col-span-2">
                   <label htmlFor="order-note" className={labelClassName}>
-                    Order Note
+                    {t("shipping.fields.orderNote")}
                     <span className="ml-1 font-normal text-slate-400">
-                      (Optional)
+                      ({t("shipping.optional")})
                     </span>
                   </label>
 
@@ -690,7 +685,7 @@ export default function CheckoutPage() {
                     id="order-note"
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
-                    placeholder="Add delivery instructions or a note..."
+                    placeholder={t("shipping.placeholders.orderNote")}
                     rows={3}
                     className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
@@ -702,11 +697,11 @@ export default function CheckoutPage() {
             <section className={sectionClassName}>
               <div className="mb-5">
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Payment Method
+                  {t("payment.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Choose how you would like to pay for your order.
+                  {t("payment.description")}
                 </p>
               </div>
 
@@ -730,11 +725,11 @@ export default function CheckoutPage() {
 
                   <div>
                     <p className="text-sm font-semibold text-slate-800">
-                      Cash on Delivery (COD)
+                      {t("payment.cod.title")}
                     </p>
 
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Pay when your order is delivered.
+                      {t("payment.cod.description")}
                     </p>
                   </div>
                 </label>
@@ -760,11 +755,11 @@ export default function CheckoutPage() {
 
                   <div>
                     <p className="text-sm font-semibold text-slate-800">
-                      Bank Transfer
+                      {t("payment.bankTransfer.title")}
                     </p>
 
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Continue to your order details after placing the order.
+                      {t("payment.bankTransfer.description")}
                     </p>
                   </div>
                 </label>
@@ -778,22 +773,22 @@ export default function CheckoutPage() {
                     disabled
                     readOnly
                     className="mt-1 size-4 accent-blue-600"
-                    aria-label="Credit Card, coming soon"
+                    aria-label={t("payment.creditCard.ariaLabel")}
                   />
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-semibold text-slate-600">
-                        Credit Card
+                        {t("payment.creditCard.title")}
                       </p>
 
                       <span className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500">
-                        Coming Soon
+                        {t("payment.comingSoon")}
                       </span>
                     </div>
 
                     <p className="mt-1 text-xs leading-5 text-slate-400">
-                      Card payment is not available yet.
+                      {t("payment.creditCard.description")}
                     </p>
                   </div>
                 </div>
@@ -807,22 +802,22 @@ export default function CheckoutPage() {
                     disabled
                     readOnly
                     className="mt-1 size-4 accent-blue-600"
-                    aria-label="VNPay, coming soon"
+                    aria-label={t("payment.vnpay.ariaLabel")}
                   />
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-semibold text-slate-600">
-                        VNPay
+                        {t("payment.vnpay.title")}
                       </p>
 
                       <span className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500">
-                        Coming Soon
+                        {t("payment.comingSoon")}
                       </span>
                     </div>
 
                     <p className="mt-1 text-xs leading-5 text-slate-400">
-                      Online payment is not available yet.
+                      {t("payment.vnpay.description")}
                     </p>
                   </div>
                 </div>
@@ -834,11 +829,11 @@ export default function CheckoutPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-base font-semibold text-slate-900">
-                    Ready to Place Your Order?
+                    {t("placeOrder.title")}
                   </h2>
 
                   <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Please review your shipping information before continuing.
+                    {t("placeOrder.description")}
                   </p>
                 </div>
               </div>
@@ -856,18 +851,18 @@ export default function CheckoutPage() {
                 {isSubmitting ? (
                   <>
                     <LoadingSpinner />
-                    Placing Order...
+                    {t("buttons.placingOrder")}
                   </>
                 ) : (
                   <>
-                    Place Order
+                    {t("buttons.placeOrder")}
                     <span aria-hidden="true">→</span>
                   </>
                 )}
               </button>
 
               <p className="mt-3 text-center text-xs leading-5 text-slate-400">
-                By placing your order, you confirm that your shipping details are correct.
+                {t("placeOrder.confirmation")}
               </p>
             </section>
           </div>
@@ -877,18 +872,17 @@ export default function CheckoutPage() {
             <section className={sectionClassName}>
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Order Summary
+                  {t("summary.title")}
                 </h2>
 
                 <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
-                  {cart.items.length}{" "}
-                  {cart.items.length === 1 ? "item" : "items"}
+                  {t("summary.itemCount", { count: cart.items.length })}
                 </span>
               </div>
 
               <div className="mt-5 space-y-4">
                 {cart.items.map((item) => {
-                 const price = getCartItemPrice(item);
+                  const price = getCartItemPrice(item);
                   const subtotal =
                     price !== null ? price * item.quantity : null;
 
@@ -903,14 +897,17 @@ export default function CheckoutPage() {
                         </p>
 
                         <p className="mt-1 text-xs text-slate-500">
-                          Quantity: {item.quantity}
+                          {t("summary.quantity", {
+                            count: item.quantity,
+                          })}
                         </p>
-                        
                       </div>
 
-                        <p className="shrink-0 text-right text-sm font-semibold text-slate-800">
-                          {subtotal !== null ? formatVND(subtotal) : "—"}
-                        </p>
+                      <p className="shrink-0 text-right text-sm font-semibold text-blue-800">
+                        {subtotal !== null
+                          ? formatVND(subtotal, locale)
+                          : "—"}
+                      </p>
                     </div>
                   );
                 })}
@@ -919,21 +916,21 @@ export default function CheckoutPage() {
               <div className="mt-5 space-y-3">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-slate-500">
-                    Subtotal
+                    {t("summary.subtotal")}
                   </span>
 
-                  <span className="font-medium text-blue-700">
-                    {formatVND(orderTotal)}
+                  <span className="font-medium text-slate-00">
+                    {formatVND(orderTotal, locale)}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-slate-500">
-                    Shipping
+                    {t("summary.shipping")}
                   </span>
 
                   <span className="font-medium text-slate-600">
-                    Calculated separately
+                    {t("summary.shippingCalculatedSeparately")}
                   </span>
                 </div>
               </div>
@@ -941,28 +938,28 @@ export default function CheckoutPage() {
               <div className="mt-5 border-t border-slate-200 pt-5">
                 <div className="flex items-start justify-between gap-3">
                   <span className="text-base font-semibold text-slate-900">
-                    Total
+                    {t("summary.total")}
                   </span>
 
                   <span className="text-right text-xl font-bold tracking-tight text-red-500">
-                    {formatVND(orderTotal)}
+                    {formatVND(orderTotal, locale)}
                   </span>
                 </div>
 
                 <p className="mt-2 text-xs leading-5 text-slate-400">
-                  The total shown is based on your current cart items and does not include any separately calculated shipping fees.
+                  {t("summary.totalExcludesShipping")}
                 </p>
               </div>
 
               <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <p className="text-sm font-medium text-slate-800">
-                  Shipping to
+                  {t("summary.shippingTo")}
                 </p>
 
                 {selectedAddressId ? (
                   <>
                     <p className="mt-2 break-words text-sm text-slate-700">
-                      {shippingName || "Recipient"}
+                      {shippingName || t("summary.recipientFallback")}
                     </p>
 
                     <p className="mt-1 break-words text-xs leading-5 text-slate-500">
@@ -973,7 +970,7 @@ export default function CheckoutPage() {
                   </>
                 ) : (
                   <p className="mt-2 text-xs leading-5 text-slate-500">
-                    Select a saved address to continue.
+                    {t("summary.selectAddressToContinue")}
                   </p>
                 )}
               </div>
@@ -983,7 +980,7 @@ export default function CheckoutPage() {
                 className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-800"
               >
                 <span aria-hidden="true">←</span>
-                Return to Cart
+                {t("buttons.returnToCart")}
               </Link>
             </section>
           </aside>

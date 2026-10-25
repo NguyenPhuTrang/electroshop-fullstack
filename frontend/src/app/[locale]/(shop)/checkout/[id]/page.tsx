@@ -1,6 +1,6 @@
-
 import { Link } from "@/src/i18n/navigation";
 import { getOrderById } from "@/src/features/order/services/order.service.server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 type OrderDetailPageProps = {
   params: Promise<{
@@ -8,8 +8,15 @@ type OrderDetailPageProps = {
   }>;
 };
 
-const formatVND = (amount: number | string | null | undefined) =>
-  `${Number(amount ?? 0).toLocaleString("vi-VN")} VND`;
+const formatVND = (
+  amount: number | string | null | undefined,
+  locale: string
+) =>
+  new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(Number(amount ?? 0));
 
 function getStatusClassName(status: string) {
   switch (status.toUpperCase()) {
@@ -30,9 +37,62 @@ function getStatusClassName(status: string) {
 export default async function OrderDetailPage({
   params,
 }: OrderDetailPageProps) {
-  const { id } = await params;
+  const [{ id }, t, locale] = await Promise.all([
+    params,
+    getTranslations("OrderDetailPage"),
+    getLocale(),
+  ]);
+
   const orderId = Number(id);
   const order = await getOrderById(orderId);
+
+  function getStatusLabel(status: string) {
+    switch (status.toUpperCase()) {
+      case "PENDING":
+        return t("statuses.pending");
+      case "PROCESSING":
+        return t("statuses.processing");
+      case "CONFIRMED":
+        return t("statuses.confirmed");
+      case "SHIPPED":
+        return t("statuses.shipped");
+      case "OUT_FOR_DELIVERY":
+        return t("statuses.outForDelivery");
+      case "DELIVERED":
+        return t("statuses.delivered");
+      case "PAID":
+        return t("statuses.paid");
+      case "UNPAID":
+        return t("statuses.unpaid");
+      case "CANCELLED":
+        return t("statuses.cancelled");
+      case "CANCELED":
+        return t("statuses.canceled");
+      case "FAILED":
+        return t("statuses.failed");
+      case "REFUNDED":
+        return t("statuses.refunded");
+      case "PARTIALLY_REFUNDED":
+        return t("statuses.partiallyRefunded");
+      default:
+        return status.replaceAll("_", " ");
+    }
+  }
+
+  function getPaymentMethodLabel(method: string) {
+    switch (method.toUpperCase()) {
+      case "COD":
+        return t("methods.cod");
+      case "BANK_TRANSFER":
+        return t("methods.bankTransfer");
+      case "CREDIT_CARD":
+        return t("methods.creditCard");
+      case "VNPAY":
+        return t("methods.vnpay");
+      default:
+        return method.replaceAll("_", " ");
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
@@ -44,14 +104,14 @@ export default async function OrderDetailPage({
             className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-blue-700"
           >
             <span aria-hidden="true">←</span>
-            Back to Order History
+            {t("navigation.backToHistory")}
           </Link>
 
           <div className="mt-4 rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                  Order Number
+                  {t("header.orderNumber")}
                 </p>
 
                 <h1 className="mt-1 break-words text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
@@ -59,14 +119,14 @@ export default async function OrderDetailPage({
                 </h1>
 
                 <p className="mt-2 text-sm text-slate-500">
-                  Review your order information and payment details.
+                  {t("header.description")}
                 </p>
               </div>
 
               <span
                 className={`inline-flex w-fit items-center rounded-full border px-3 py-1.5 text-sm font-semibold ${getStatusClassName(String(order.status))}`}
               >
-                {String(order.status).replaceAll("_", " ")}
+                {getStatusLabel(String(order.status))}
               </span>
             </div>
           </div>
@@ -95,11 +155,11 @@ export default async function OrderDetailPage({
 
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Shipping Information
+                  {t("shipping.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Delivery details for this order.
+                  {t("shipping.description")}
                 </p>
               </div>
             </div>
@@ -107,7 +167,7 @@ export default async function OrderDetailPage({
             <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Recipient Name
+                  {t("shipping.recipientName")}
                 </p>
 
                 <p className="mt-1.5 break-words text-sm font-medium text-slate-800">
@@ -117,7 +177,7 @@ export default async function OrderDetailPage({
 
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Phone Number
+                  {t("shipping.phoneNumber")}
                 </p>
 
                 <p className="mt-1.5 break-words text-sm font-medium text-slate-800">
@@ -127,7 +187,7 @@ export default async function OrderDetailPage({
 
               <div className="sm:col-span-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Street Address
+                  {t("shipping.streetAddress")}
                 </p>
 
                 <p className="mt-1.5 break-words text-sm leading-6 text-slate-700">
@@ -137,7 +197,7 @@ export default async function OrderDetailPage({
 
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  City
+                  {t("shipping.city")}
                 </p>
 
                 <p className="mt-1.5 break-words text-sm text-slate-700">
@@ -147,7 +207,7 @@ export default async function OrderDetailPage({
 
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  District
+                  {t("shipping.district")}
                 </p>
 
                 <p className="mt-1.5 break-words text-sm text-slate-700">
@@ -158,7 +218,7 @@ export default async function OrderDetailPage({
               {order.note && (
                 <div className="sm:col-span-2">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                    Order Note
+                    {t("shipping.orderNote")}
                   </p>
 
                   <p className="mt-1.5 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">
@@ -169,22 +229,21 @@ export default async function OrderDetailPage({
             </div>
           </section>
 
-          {/* Products */}
+          {/* Order Items */}
           <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Order Items
+                  {t("items.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Products included in this order.
+                  {t("items.description")}
                 </p>
               </div>
 
               <span className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                {order.items.length}{" "}
-                {order.items.length === 1 ? "item" : "items"}
+                {t("items.count", { count: order.items.length })}
               </span>
             </div>
 
@@ -200,17 +259,17 @@ export default async function OrderDetailPage({
                     </p>
 
                     <p className="mt-1.5 text-sm text-slate-500">
-                      Quantity: {item.quantity}
+                      {t("items.quantity", { count: item.quantity })}
                     </p>
                   </div>
 
                   <div className="shrink-0 sm:text-right">
                     <p className="text-xs text-slate-400">
-                      Subtotal
+                      {t("items.subtotal")}
                     </p>
 
                     <p className="mt-1 text-base font-semibold text-slate-800">
-                      {formatVND(item.subtotal)}
+                      {formatVND(item.subtotal, locale)}
                     </p>
                   </div>
                 </div>
@@ -218,7 +277,7 @@ export default async function OrderDetailPage({
             </div>
           </section>
 
-          {/* Payment */}
+          {/* Payment Information */}
           <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
             <div className="flex items-start gap-3 border-b border-slate-100 pb-4">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-blue-600">
@@ -246,11 +305,11 @@ export default async function OrderDetailPage({
 
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Payment Information
+                  {t("payment.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Payment method and current status.
+                  {t("payment.description")}
                 </p>
               </div>
             </div>
@@ -258,19 +317,19 @@ export default async function OrderDetailPage({
             <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Payment Method
+                  {t("payment.method")}
                 </p>
 
                 <p className="mt-1.5 break-words text-sm font-medium text-slate-800">
                   {order.payment?.method
-                    ? String(order.payment.method).replaceAll("_", " ")
-                    : "N/A"}
+                    ? getPaymentMethodLabel(String(order.payment.method))
+                    : t("common.notAvailable")}
                 </p>
               </div>
 
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Payment Status
+                  {t("payment.status")}
                 </p>
 
                 <div className="mt-1.5">
@@ -278,11 +337,11 @@ export default async function OrderDetailPage({
                     <span
                       className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClassName(String(order.payment.status))}`}
                     >
-                      {String(order.payment.status).replaceAll("_", " ")}
+                      {getStatusLabel(String(order.payment.status))}
                     </span>
                   ) : (
                     <span className="text-sm text-slate-500">
-                      N/A
+                      {t("common.notAvailable")}
                     </span>
                   )}
                 </div>
@@ -290,50 +349,50 @@ export default async function OrderDetailPage({
             </div>
           </section>
 
-          {/* Order Total */}
+          {/* Order Summary */}
           <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-slate-900">
-              Order Summary
+              {t("summary.title")}
             </h2>
 
             <div className="mt-5 space-y-4">
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className="text-slate-500">
-                  Subtotal
+                  {t("summary.subtotal")}
                 </span>
 
                 <span className="text-right font-medium text-slate-800">
-                  {formatVND(order.subtotal)}
+                  {formatVND(order.subtotal, locale)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className="text-slate-500">
-                  Shipping Fee
+                  {t("summary.shippingFee")}
                 </span>
 
                 <span className="text-right font-medium text-slate-800">
-                  {formatVND(order.shippingFee)}
+                  {formatVND(order.shippingFee, locale)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className="text-slate-500">
-                  Discount
+                  {t("summary.discount")}
                 </span>
 
                 <span className="text-right font-medium text-slate-800">
-                  {formatVND(order.discount)}
+                  {formatVND(order.discount, locale)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-4 border-t border-slate-200 pt-4">
                 <span className="text-base font-semibold text-slate-900">
-                  Total
+                  {t("summary.total")}
                 </span>
 
                 <span className="text-right text-xl font-bold tracking-tight text-blue-700 sm:text-2xl">
-                  {formatVND(order.total)}
+                  {formatVND(order.total, locale)}
                 </span>
               </div>
             </div>
@@ -346,7 +405,7 @@ export default async function OrderDetailPage({
               className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
             >
               <span aria-hidden="true">←</span>
-              Back to Order History
+              {t("navigation.backToHistory")}
             </Link>
           </div>
         </div>

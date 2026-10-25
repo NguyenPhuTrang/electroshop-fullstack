@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type { CartItem as CartItemType } from "@/src/features/cart/types/cart";
@@ -45,13 +47,14 @@ export default function CartItem({
   onRemove,
   onQuantityChange,
 }: CartItemProps) {
+  const t = useTranslations("CartItem");
+  const locale = useLocale();
+
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
   const quantity = item.quantity;
 
-  // The casts let this component handle the richer API response while
-  // remaining compatible with the existing Cart type during migration.
   const product = item.product as CartItemType["product"] & ProductDisplayInfo;
   const variant = item.variant as
     | (NonNullable<CartItemType["variant"]> & VariantDisplayInfo)
@@ -106,8 +109,13 @@ export default function CartItem({
   const price = salePrice ?? regularPrice;
   const hasValidPrice = Number.isFinite(price) && price >= 0;
   const subtotal = hasValidPrice ? price * quantity : null;
+
   const formattedPrice = (value: number) =>
-    `${value.toLocaleString("vi-VN")} VND`;
+    new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
+    }).format(value);
 
   const hasDiscount =
     salePrice !== null &&
@@ -124,7 +132,11 @@ export default function CartItem({
   const colorName = variant?.colorOption?.name?.trim() || null;
   const colorHex = variant?.colorOption?.hexCode || null;
   const colorId = variant?.colorId ?? null;
-  const hasConfiguration = Boolean(variantSku || storage || colorName || colorId !== null);
+
+  const hasConfiguration = Boolean(
+    variantSku || storage || colorName || colorId !== null
+  );
+
   const isBusy = isUpdating || isRemoving;
 
   const handleQuantityUpdate = async (newQuantity: number) => {
@@ -137,20 +149,24 @@ export default function CartItem({
       return;
     }
 
-    const toastId = toast.loading("Updating cart quantity...");
+    const toastId = toast.loading(t("toast.updatingQuantity"));
     setIsUpdating(true);
 
     try {
       await updateCartItem(item.id, newQuantity);
       onQuantityChange(item.id, newQuantity);
 
-      toast.success("Cart quantity updated.", {
+      toast.success(t("toast.quantityUpdated"), {
         id: toastId,
-        description: `${item.product.name} · Quantity: ${newQuantity}`,
+        description: t("toast.quantityUpdatedDescription", {
+          name: item.product.name,
+          quantity: newQuantity,
+        }),
       });
     } catch (error) {
       console.error("Failed to update cart quantity:", error);
-      toast.error("Unable to update quantity. Please try again.", {
+
+      toast.error(t("toast.updateQuantityFailed"), {
         id: toastId,
       });
     } finally {
@@ -172,25 +188,26 @@ export default function CartItem({
     if (isBusy) return;
 
     const confirmed = window.confirm(
-      `Are you sure you want to remove "${item.product.name}" from your cart?`
+      t("confirmRemove", { name: item.product.name })
     );
 
     if (!confirmed) return;
 
-    const toastId = toast.loading("Removing item from cart...");
+    const toastId = toast.loading(t("toast.removingItem"));
     setIsRemoving(true);
 
     try {
       await removeCartItem(item.id);
       onRemove(item.id);
 
-      toast.success("Item removed from cart.", {
+      toast.success(t("toast.itemRemoved"), {
         id: toastId,
         description: item.product.name,
       });
     } catch (error) {
       console.error("Failed to remove cart item:", error);
-      toast.error("Unable to remove this item. Please try again.", {
+
+      toast.error(t("toast.removeItemFailed"), {
         id: toastId,
       });
     } finally {
@@ -239,14 +256,21 @@ export default function CartItem({
             <div className="mt-2 space-y-1.5 rounded-lg px-3 py-2.5 text-xs text-slate-600">
               {storage && (
                 <p>
-                  <span className="font-medium text-slate-500">Storage:</span>{" "}
-                  <span className="font-medium text-slate-700">{storage}</span>
+                  <span className="font-medium text-slate-500">
+                    {t("configuration.storage")}:
+                  </span>{" "}
+                  <span className="font-medium text-slate-700">
+                    {storage}
+                  </span>
                 </p>
               )}
 
               {colorName ? (
                 <p className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium text-slate-500">Color:</span>
+                  <span className="font-medium text-slate-500">
+                    {t("configuration.color")}:
+                  </span>
+
                   {colorHex && (
                     <span
                       aria-hidden="true"
@@ -254,25 +278,39 @@ export default function CartItem({
                       style={{ backgroundColor: colorHex }}
                     />
                   )}
-                  <span className="font-medium text-slate-700">{colorName}</span>
+
+                  <span className="font-medium text-slate-700">
+                    {colorName}
+                  </span>
                 </p>
               ) : colorId !== null ? (
                 <p>
-                  <span className="font-medium text-slate-500">Color option:</span>{" "}
-                  <span className="font-medium text-slate-700">#{colorId}</span>
+                  <span className="font-medium text-slate-500">
+                    {t("configuration.colorOption")}:
+                  </span>{" "}
+                  <span className="font-medium text-slate-700">
+                    #{colorId}
+                  </span>
                 </p>
               ) : null}
 
-              {!variantSku && !storage && !colorName && colorId === null && (
-                <p className="text-slate-500">Standard configuration</p>
-              )}
+              {!variantSku &&
+                !storage &&
+                !colorName &&
+                colorId === null && (
+                  <p className="text-slate-500">
+                    {t("configuration.standard")}
+                  </p>
+                )}
             </div>
           )}
 
           {/* Unit price */}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="text-sm font-bold text-blue-700">
-              {hasValidPrice ? formattedPrice(price) : "Price unavailable"}
+              {hasValidPrice
+                ? formattedPrice(price)
+                : t("priceUnavailable")}
             </span>
 
             {hasDiscount && (
@@ -280,6 +318,7 @@ export default function CartItem({
                 <span className="text-xs text-slate-400 line-through">
                   {formattedPrice(regularPrice)}
                 </span>
+
                 <span className="rounded-full border border-rose-100 bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-600">
                   -{discountPercentage}%
                 </span>
@@ -291,13 +330,15 @@ export default function CartItem({
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
             <div
               className="inline-flex h-9 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
-              aria-label="Quantity controls"
+              aria-label={t("quantityControls")}
             >
               <button
                 type="button"
                 onClick={() => void handleDecrease()}
                 disabled={isBusy || quantity <= 1}
-                aria-label={`Decrease quantity of ${item.product.name}`}
+                aria-label={t("decreaseQuantity", {
+                  name: item.product.name,
+                })}
                 className="flex h-full w-9 items-center justify-center text-lg text-blue-700 transition-colors hover:bg-blue-50 hover:text-blue-900 disabled:cursor-not-allowed disabled:text-slate-300"
               >
                 −
@@ -309,7 +350,7 @@ export default function CartItem({
               >
                 {isUpdating ? (
                   <span
-                    aria-label="Updating quantity"
+                    aria-label={t("updatingQuantity")}
                     className="size-3.5 animate-spin rounded-full border-2 border-blue-100 border-t-blue-600"
                   />
                 ) : (
@@ -321,7 +362,9 @@ export default function CartItem({
                 type="button"
                 onClick={() => void handleIncrease()}
                 disabled={isBusy || quantity >= stock || stock <= 0}
-                aria-label={`Increase quantity of ${item.product.name}`}
+                aria-label={t("increaseQuantity", {
+                  name: item.product.name,
+                })}
                 className="flex h-full w-9 items-center justify-center text-lg text-blue-700 transition-colors hover:bg-blue-50 hover:text-blue-900 disabled:cursor-not-allowed disabled:text-slate-300"
               >
                 +
@@ -340,7 +383,7 @@ export default function CartItem({
                     aria-hidden="true"
                     className="size-3 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600"
                   />
-                  Removing...
+                  {t("removing")}
                 </>
               ) : (
                 <>
@@ -358,7 +401,8 @@ export default function CartItem({
                       strokeLinejoin="round"
                     />
                   </svg>
-                  Remove
+
+                  {t("remove")}
                 </>
               )}
             </button>
@@ -377,20 +421,25 @@ export default function CartItem({
             }`}
           >
             {!variant
-              ? "Variant unavailable"
+              ? t("stock.variantUnavailable")
               : stock <= 0
-                ? "Currently out of stock"
+                ? t("stock.outOfStock")
                 : quantity >= stock
-                  ? "Maximum available quantity selected"
-                  : `${stock} units available`}
+                  ? t("stock.maximumSelected")
+                  : t("stock.unitsAvailable", { count: stock })}
           </p>
         </div>
 
         {/* Subtotal */}
         <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 sm:min-w-[155px] sm:flex-col sm:items-end sm:justify-center sm:bg-transparent sm:px-0 sm:py-0">
-          <p className="text-xs font-medium text-slate-500 sm:text-right">Subtotal</p>
-          <p className="text-base font-bold tracking-tight text-blue-800 sm:text-right">
-            {subtotal !== null ? formattedPrice(subtotal) : "Price unavailable"}
+          <p className="text-xs font-medium text-slate-500 sm:text-right">
+            {t("subtotal")}
+          </p>
+
+          <p className="text-base font-bold tracking-tight text-gray-500 sm:text-right">
+            {subtotal !== null
+              ? formattedPrice(subtotal)
+              : t("priceUnavailable")}
           </p>
         </div>
       </div>

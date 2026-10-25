@@ -1,5 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+
 import AddressForm from "@/src/features/address/components/address.Form";
 import {
   createAddress,
@@ -13,10 +17,9 @@ import type {
   CreateAddressData,
 } from "@/src/features/address/types/address";
 
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-
 export default function AddressesPage() {
+  const t = useTranslations("AddressesPage");
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -37,11 +40,11 @@ export default function AddressesPage() {
       setAddresses(data);
     } catch (error) {
       console.error("Failed to get addresses:", error);
-      setLoadError("Unable to load your addresses. Please try again.");
+      setLoadError(t("loadError.description"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void fetchAddresses();
@@ -70,7 +73,7 @@ export default function AddressesPage() {
 
   // Create address
   const handleCreateAddress = async (data: CreateAddressData) => {
-    const toastId = toast.loading("Adding address...");
+    const toastId = toast.loading(t("toasts.adding"));
 
     try {
       const newAddress = await createAddress(data);
@@ -78,13 +81,13 @@ export default function AddressesPage() {
       setAddresses((prev) => [...prev, newAddress]);
       setIsCreating(false);
 
-      toast.success("Address added successfully.", {
+      toast.success(t("toasts.added"), {
         id: toastId,
       });
     } catch (error) {
       console.error("Failed to create address:", error);
 
-      toast.error("Unable to add your address. Please try again.", {
+      toast.error(t("toasts.addFailed"), {
         id: toastId,
       });
     }
@@ -94,7 +97,7 @@ export default function AddressesPage() {
   const handleUpdateAddress = async (data: CreateAddressData) => {
     if (!editingAddress) return;
 
-    const toastId = toast.loading("Updating address...");
+    const toastId = toast.loading(t("toasts.updating"));
 
     try {
       const updatedAddress = await updateAddress(editingAddress.id, data);
@@ -107,13 +110,13 @@ export default function AddressesPage() {
 
       setEditingAddress(null);
 
-      toast.success("Address updated successfully.", {
+      toast.success(t("toasts.updated"), {
         id: toastId,
       });
     } catch (error) {
       console.error("Failed to update address:", error);
 
-      toast.error("Unable to update your address. Please try again.", {
+      toast.error(t("toasts.updateFailed"), {
         id: toastId,
       });
     }
@@ -123,7 +126,7 @@ export default function AddressesPage() {
   const handleDeleteAddress = async (addressId: number) => {
     if (deletingAddressId !== null) return;
 
-    const toastId = toast.loading("Deleting address...");
+    const toastId = toast.loading(t("toasts.deleting"));
     setDeletingAddressId(addressId);
 
     try {
@@ -133,13 +136,13 @@ export default function AddressesPage() {
         prev.filter((address) => address.id !== addressId)
       );
 
-      toast.success("Address deleted successfully.", {
+      toast.success(t("toasts.deleted"), {
         id: toastId,
       });
     } catch (error) {
       console.error("Failed to delete address:", error);
 
-      toast.error("Unable to delete your address. Please try again.", {
+      toast.error(t("toasts.deleteFailed"), {
         id: toastId,
       });
     } finally {
@@ -188,11 +191,11 @@ export default function AddressesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            My Addresses
+            {t("page.title")}
           </h1>
 
           <p className="mt-1 text-sm leading-6 text-slate-500">
-            Manage your delivery addresses for a faster checkout.
+            {t("page.description")}
           </p>
         </div>
 
@@ -218,7 +221,7 @@ export default function AddressesPage() {
               <path d="M12 5v14" />
               <path d="M5 12h14" />
             </svg>
-            Add Address
+            {t("buttons.addAddress")}
           </button>
         )}
       </div>
@@ -247,7 +250,7 @@ export default function AddressesPage() {
 
             <div className="min-w-0 flex-1">
               <h2 className="text-sm font-semibold text-rose-800">
-                Unable to load addresses
+                {t("loadError.title")}
               </h2>
 
               <p className="mt-1 text-sm leading-6 text-rose-700">
@@ -274,7 +277,7 @@ export default function AddressesPage() {
                   <path d="M5.64 9A7 7 0 0 1 17.5 6.5L20 12" />
                   <path d="M4 12l2.5 5.5A7 7 0 0 0 18.36 15" />
                 </svg>
-                Try Again
+                {t("buttons.tryAgain")}
               </button>
             </div>
           </div>
@@ -303,18 +306,18 @@ export default function AddressesPage() {
                   id="add-address-title"
                   className="text-base font-semibold text-slate-900"
                 >
-                  Add New Address
+                  {t("createModal.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Enter your delivery information below.
+                  {t("createModal.description")}
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsCreating(false)}
-                aria-label="Close add address dialog"
+                aria-label={t("accessibility.closeAddDialog")}
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <svg
@@ -336,7 +339,7 @@ export default function AddressesPage() {
             <div className="p-5 sm:p-6">
               <AddressForm
                 onSubmit={handleCreateAddress}
-                buttonText="Save Address"
+                buttonText={t("buttons.saveAddress")}
               />
 
               <div className="mt-4 flex justify-end border-t border-slate-100 pt-4">
@@ -345,7 +348,7 @@ export default function AddressesPage() {
                   onClick={() => setIsCreating(false)}
                   className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                 >
-                  Cancel
+                  {t("buttons.cancel")}
                 </button>
               </div>
             </div>
@@ -359,18 +362,18 @@ export default function AddressesPage() {
           <div className="flex items-center justify-between gap-4 border-b border-slate-100 bg-cyan-50/50 px-5 py-4 sm:px-6">
             <div>
               <h2 className="text-base font-semibold text-slate-900">
-                Edit Address
+                {t("editForm.title")}
               </h2>
 
               <p className="mt-1 text-sm text-slate-500">
-                Update your delivery information.
+                {t("editForm.description")}
               </p>
             </div>
 
             <button
               type="button"
               onClick={() => setEditingAddress(null)}
-              aria-label="Close form"
+              aria-label={t("accessibility.closeEditForm")}
               className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             >
               <svg
@@ -401,7 +404,7 @@ export default function AddressesPage() {
                 isDefault: editingAddress.isDefault,
               }}
               onSubmit={handleUpdateAddress}
-              buttonText="Update Address"
+              buttonText={t("buttons.updateAddress")}
             />
 
             <div className="mt-4 flex justify-end border-t border-slate-100 pt-4">
@@ -410,7 +413,7 @@ export default function AddressesPage() {
                 onClick={() => setEditingAddress(null)}
                 className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
               >
-                Cancel
+                {t("buttons.cancel")}
               </button>
             </div>
           </div>
@@ -464,7 +467,7 @@ export default function AddressesPage() {
                           >
                             <path d="m5 12 4 4L19 6" />
                           </svg>
-                          Default Address
+                          {t("badges.defaultAddress")}
                         </span>
                       )}
                     </div>
@@ -497,7 +500,7 @@ export default function AddressesPage() {
                       <path d="M12 20h9" />
                       <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z" />
                     </svg>
-                    Edit
+                    {t("buttons.edit")}
                   </button>
 
                   <button
@@ -528,7 +531,7 @@ export default function AddressesPage() {
                             d="M4 12a8 8 0 0 1 8-8V0C5.37 0 0 5.37 0 12h4Z"
                           />
                         </svg>
-                        Deleting...
+                        {t("buttons.deleting")}
                       </>
                     ) : (
                       <>
@@ -548,7 +551,7 @@ export default function AddressesPage() {
                           <path d="M10 11v5" />
                           <path d="M14 11v5" />
                         </svg>
-                        Delete
+                        {t("buttons.delete")}
                       </>
                     )}
                   </button>
@@ -616,12 +619,11 @@ export default function AddressesPage() {
             </div>
 
             <h2 className="mt-4 text-lg font-semibold text-slate-900">
-              No addresses yet
+              {t("emptyState.title")}
             </h2>
 
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Add a delivery address to make your future orders quicker and
-              easier.
+              {t("emptyState.description")}
             </p>
 
             <button
@@ -642,7 +644,7 @@ export default function AddressesPage() {
                 <path d="M12 5v14" />
                 <path d="M5 12h14" />
               </svg>
-              Add Your First Address
+              {t("emptyState.addFirstAddress")}
             </button>
           </div>
         )}

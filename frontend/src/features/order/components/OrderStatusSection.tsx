@@ -1,6 +1,6 @@
-
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import CancelOrderButton from "./CancelOrderButton";
@@ -18,6 +18,8 @@ export function OrderStatusSection({
   orderNumber,
   initialStatus,
 }: OrderStatusSectionProps) {
+  const t = useTranslations("OrderStatusSection");
+
   const [status, setStatus] =
     useState<Order["status"]>(initialStatus);
 
@@ -56,11 +58,11 @@ export function OrderStatusSection({
 
         <div>
           <h2 className="text-lg font-semibold text-slate-900">
-            Order Status
+            {t("header.title")}
           </h2>
 
           <p className="mt-1 text-sm text-slate-500">
-            View the current status of your order.
+            {t("header.description")}
           </p>
         </div>
       </div>
@@ -69,7 +71,7 @@ export function OrderStatusSection({
       <div className="flex flex-col gap-4 pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Order Number
+            {t("orderNumber")}
           </p>
 
           <p className="mt-1.5 break-words text-base font-semibold text-slate-900">
@@ -79,7 +81,7 @@ export function OrderStatusSection({
 
         <div className="flex flex-col items-start gap-2 sm:items-end">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Current Status
+            {t("currentStatus")}
           </p>
 
           <OrderStatusBadge status={status} />
@@ -91,11 +93,11 @@ export function OrderStatusSection({
         <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-slate-800">
-              Need to cancel this order?
+              {t("cancelOrder.title")}
             </p>
 
             <p className="mt-1 text-xs leading-5 text-slate-500">
-              You can cancel your order while it is pending.
+              {t("cancelOrder.description")}
             </p>
           </div>
 
