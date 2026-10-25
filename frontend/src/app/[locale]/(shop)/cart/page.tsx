@@ -1,6 +1,6 @@
 
 "use client";
-
+import { useCart } from "@/src/features/cart/context/CartContext";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
@@ -269,6 +269,18 @@ export default function CartPage() {
   useEffect(() => {
     void fetchCart();
   }, [fetchCart]);
+
+  useEffect(() => {
+  void fetchCart();
+  }, [fetchCart]);
+
+  const { setCount } = useCart();
+
+  useEffect(() => {
+  if (!cart) return;
+
+  setCount(cart.items.reduce((sum, item) => sum + item.quantity, 0));
+}, [cart, setCount]);
 
   // CartItem callbacks use the cart row ID, not the product ID.
   const handleRemoveItem = (cartItemId: number) => {

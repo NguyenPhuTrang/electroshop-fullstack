@@ -102,7 +102,10 @@ export default function ProductGallery({
 
   return (
     <div className="w-full space-y-4">
-      <div className="relative isolate aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 shadow-sm">
+      <div
+        data-fly-source
+        className="relative isolate aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 shadow-sm"
+      >
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(226,232,240,0.5),transparent_65%)]"

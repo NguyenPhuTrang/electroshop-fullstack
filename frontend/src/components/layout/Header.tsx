@@ -2,6 +2,7 @@ import UserMenu from "@/src/features/user/components/userMenu";
 import { Link } from "@/src/i18n/navigation";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../languages/LanguageSwitcher";
+import CartLink from "./CartLink";
 
 const navLinkClassName =
   "rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
@@ -53,29 +54,9 @@ export default function Header() {
               </Link>
             </li>
 
-            <li>
-              <Link
-                href="/cart"
-                className={`${navLinkClassName} inline-flex items-center gap-1.5`}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <path d="M3 3h2l2.4 12.2a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 7H6" />
-                  <circle cx="10" cy="20" r="1" />
-                  <circle cx="18" cy="20" r="1" />
-                </svg>
-
-                <span>{t("cart")}</span>
-              </Link>
-            </li>
+              <li>
+                  <CartLink label={t("cart")} />
+              </li>
 
             <li className="ml-1 border-l border-slate-200 pl-2 sm:ml-2 sm:pl-3">
               <LanguageSwitcher />

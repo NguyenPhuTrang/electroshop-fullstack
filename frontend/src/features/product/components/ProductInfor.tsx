@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useCart } from "@/src/features/cart/context/CartContext";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -80,18 +81,16 @@ export default function ProductInfor({
   const t = useTranslations("ProductInfo");
   const locale = useLocale();
 
+  const { flyToCart } = useCart();
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   const {
     variants,
     loading: variantsLoading,
     error: variantsError,
   } = useProductVariants(productId);
 
-  const [selectedStorage, setSelectedStorage] = useState<string | null>(
-    null
-  );
-  const [selectedColorId, setSelectedColorId] = useState<number | null>(
-    null
-  );
+  const [selectedStorage, setSelectedStorage] = useState<string | null>(null);
+  const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
 
@@ -314,7 +313,11 @@ export default function ProductInfor({
         quantity,
         selectedVariant.id
       );
+      const flySource =
+      document.querySelector<HTMLElement>("[data-fly-source]") ??
+      addButtonRef.current;
 
+      if (flySource) flyToCart(flySource, quantity);
       const configuration = [
         selectedVariant.storage &&
         !isStandardStorage(selectedVariant.storage)
@@ -654,6 +657,7 @@ export default function ProductInfor({
       </div>
 
       <button
+        ref={addButtonRef}
         onClick={handleAddToCart}
         type="button"
         disabled={
@@ -699,6 +703,7 @@ export default function ProductInfor({
             {t("addToCart")}
           </>
         )}
+        
       </button>
 
       <p className="mt-4 text-center text-xs leading-5 text-slate-500">
