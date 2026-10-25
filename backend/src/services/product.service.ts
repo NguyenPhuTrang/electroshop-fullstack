@@ -10,10 +10,7 @@ import {
 import { AppError } from "../utils/AppError";
 import { Prisma } from "../generated/prisma/client";
 
-/**
- * Filter variants by their effective selling price:
- * salePrice when available, otherwise regular price.
- */
+
 const buildEffectivePriceCondition = (
     minPrice?: number,
     maxPrice?: number
@@ -51,17 +48,9 @@ type VariantForSummary = {
 };
 
 type ProductSummaryOptions = {
-    /**
-     * Admin can still see a reference price when no active variant exists.
-     * Public endpoints should leave this false.
-     */
     includeUnavailablePrice?: boolean;
 };
 
-/**
- * Add calculated price and stock fields to the API response.
- * These fields are not stored in the Product database table.
- */
 const summarizeProductFromVariants = <
     TVariant extends VariantForSummary,
     TProduct extends { variants: TVariant[] }
@@ -161,9 +150,6 @@ const sortProductsByEffectivePrice = <
     });
 };
 
-/**
- * Shared relations for product responses.
- */
 const productRelations = {
     brand: true,
     category: true,
@@ -190,12 +176,6 @@ const productRelations = {
     },
 };
 
-/**
- * Public product list.
- *
- * A public product must be ACTIVE and have at least one ACTIVE variant.
- * ACTIVE and OUT_OF_STOCK variants are returned for variant selection.
- */
 export const getProducts = async (
     search?: string,
     categoryId?: number,
@@ -319,13 +299,6 @@ export const getProducts = async (
     };
 };
 
-/**
- * Admin product list.
- *
- * Admin can see inactive products and products without active variants.
- * Low-stock filtering matches active products with at least one active
- * variant whose stock is 10 units or fewer.
- */
 export const getAdminProducts = async (
     search?: string,
     categoryId?: number,
@@ -344,23 +317,34 @@ export const getAdminProducts = async (
         maxPrice
     );
 
-    const variantConditions: Prisma.ProductVariantWhereInput[] = [];
-
-    if (priceCondition) {
-        variantConditions.push(priceCondition);
-    }
-
-    if (lowStock) {
-        variantConditions.push({
-            stock: {
-                lte: 10,
-            },
-        });
-    }
+    // Find products whose total stock across ACTIVE variants is <= 10.
+    const lowStockProductIds = lowStock
+        ? (
+              await prisma.productVariant.groupBy({
+                  by: ["productId"],
+                  where: {
+                      status: "ACTIVE",
+                  },
+                  _sum: {
+                      stock: true,
+                  },
+                  having: {
+                      stock: {
+                          _sum: {
+                              lte: 10,
+                          },
+                      },
+                  },
+              })
+          ).map((variant) => variant.productId)
+        : undefined;
 
     const where: Prisma.ProductWhereInput = {
         ...(lowStock && {
             status: "ACTIVE" as const,
+            id: {
+                in: lowStockProductIds ?? [],
+            },
         }),
 
         ...(search && {
@@ -383,11 +367,11 @@ export const getAdminProducts = async (
         ...(categoryId !== undefined && { categoryId }),
         ...(brandId !== undefined && { brandId }),
 
-        ...(variantConditions.length > 0 && {
+        ...(priceCondition && {
             variants: {
                 some: {
                     status: "ACTIVE",
-                    AND: variantConditions,
+                    AND: [priceCondition],
                 },
             },
         }),
@@ -430,10 +414,12 @@ export const getAdminProducts = async (
         );
     }
 
+    // Sort by price before applying pagination.
     if (sortByPrice) {
         products = products.slice(skip, skip + limit);
     }
 
+    // Count using exactly the same filters as the product query.
     const total = await prisma.product.count({ where });
 
     return {
@@ -447,11 +433,6 @@ export const getAdminProducts = async (
     };
 };
 
-/**
- * Get a product by ID.
- *
- * includeInactive should only be true in a protected admin context.
- */
 export const getProductById = async (
     id: number,
     includeInactive: boolean = false
@@ -505,11 +486,6 @@ export const getProductById = async (
     });
 };
 
-/**
- * Get a product by slug.
- *
- * isAdmin should only be true for a protected admin operation.
- */
 export const getProductBySlug = async (
     slug: string,
     isAdmin: boolean = false
@@ -563,13 +539,7 @@ export const getProductBySlug = async (
     });
 };
 
-/**
- * Create Product's general information only.
- *
- * New products stay INACTIVE until an administrator creates at least
- * one sellable variant and explicitly activates the product.
- * Images and variants are managed by their own services.
- */
+
 export const createProduct = async (
     data: z.infer<typeof createProductSchema>
 ) => {
@@ -622,11 +592,6 @@ export const createProduct = async (
     });
 };
 
-/**
- * Update Product's general information and publication status.
- *
- * Images and variants must be changed through their dedicated services.
- */
 export const updateProduct = async (
     id: number,
     data: z.infer<typeof updateProductSchema>
@@ -741,12 +706,6 @@ export const updateProduct = async (
     });
 };
 
-/**
- * Delete a product.
- *
- * Products with historical order items or reviews are soft-deleted.
- * Their variants are deactivated so they cannot be purchased.
- */
 export const deleteProduct = async (id: number) => {
     const product = await prisma.product.findUnique({
         where: {

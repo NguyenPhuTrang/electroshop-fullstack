@@ -10,7 +10,6 @@ export const getAdminDashboard = async (
   const startDate = new Date(now);
 
   startDate.setDate(startDate.getDate() - (range - 1));
-
   startDate.setHours(0, 0, 0, 0);
 
   const [
@@ -21,13 +20,14 @@ export const getAdminDashboard = async (
     averageRating,
     totalRevenueResult,
     pendingOrders,
-    lowStockProducts,
+    lowStockProductGroups,
     unansweredReviews,
     recentOrders,
     recentReviews,
     ordersByStatus,
     salesOrders,
   ] = await Promise.all([
+    // Total users
     prisma.user.count({
       where: {
         role: "USER",
@@ -50,6 +50,7 @@ export const getAdminDashboard = async (
       },
     }),
 
+    // Total delivered revenue
     prisma.order.aggregate({
       where: {
         status: "DELIVERED",
@@ -59,32 +60,46 @@ export const getAdminDashboard = async (
       },
     }),
 
+    // Pending orders
     prisma.order.count({
       where: {
         status: "PENDING",
       },
     }),
-  
-    prisma.product.count({
-        where: {
+
+    // Low-stock products:
+    // Sum stock across ACTIVE variants for each ACTIVE product.
+    // Count products whose total active-variant stock is <= 10.
+    prisma.productVariant.groupBy({
+      by: ["productId"],
+      where: {
+        status: "ACTIVE",
+        product: {
+          is: {
             status: "ACTIVE",
-            variants: {
-                some: {
-                    status: "ACTIVE",
-                    stock: {
-                        lte: 10,
-                    },
-                },
-            },
+          },
         },
+      },
+      _sum: {
+        stock: true,
+      },
+      having: {
+        stock: {
+          _sum: {
+            lte: 10,
+          },
+        },
+      },
     }),
 
+    // Unanswered reviews
     prisma.review.count({
       where: {
         reply: null,
       },
     }),
 
+    // Recent orders
     prisma.order.findMany({
       take: 5,
       orderBy: {
@@ -105,6 +120,7 @@ export const getAdminDashboard = async (
       },
     }),
 
+    // Recent reviews
     prisma.review.findMany({
       take: 5,
       orderBy: {
@@ -135,14 +151,15 @@ export const getAdminDashboard = async (
       },
     }),
 
-    prisma.order.groupBy({ // groupBy gom các record có cùng một giá trị thành từng nhóm
+    // Orders grouped by status
+    prisma.order.groupBy({
       by: ["status"],
       _count: {
         id: true,
       },
     }),
 
-    // Orders for sales chart
+    // Delivered orders for the sales chart
     prisma.order.findMany({
       where: {
         status: "DELIVERED",
@@ -161,6 +178,7 @@ export const getAdminDashboard = async (
     }),
   ]);
 
+  // Build a map containing every date in the selected range.
   const salesMap = new Map<
     string,
     {
@@ -184,6 +202,7 @@ export const getAdminDashboard = async (
     });
   }
 
+  // Aggregate revenue and order counts by date.
   for (const order of salesOrders) {
     const dateKey = order.createdAt
       .toISOString()
@@ -212,7 +231,11 @@ export const getAdminDashboard = async (
         (averageRating._avg.rating ?? 0).toFixed(1)
       ),
       pendingOrders,
-      lowStockProducts,
+
+      // groupBy returns one group per productId.
+      // Use the number of groups, not the array itself.
+      lowStockProducts: lowStockProductGroups.length,
+
       unansweredReviews,
     },
 
