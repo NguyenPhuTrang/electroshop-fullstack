@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useState, type ChangeEvent } from "react";
 import { useRouter } from "@/src/i18n/navigation";
 import { toast } from "sonner";
@@ -55,6 +56,7 @@ function SectionHeading({
 }
 
 export default function AccountPage() {
+  const t = useTranslations("AccountPage");
   const router = useRouter();
   const { user, setUser, loading } = useUser();
 
@@ -75,13 +77,41 @@ export default function AccountPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
+  const getRoleLabel = (role: string) => {
+    switch (role.toUpperCase()) {
+      case "ADMIN":
+        return t("accountRole.admin");
+      case "CUSTOMER":
+        return t("accountRole.customer");
+      case "USER":
+        return t("accountRole.user");
+      default:
+        return role;
+    }
+  };
+
+  const getAccountStatusLabel = (status: string) => {
+    switch (status.toUpperCase()) {
+      case "ACTIVE":
+        return t("accountStatus.active");
+      case "INACTIVE":
+        return t("accountStatus.inactive");
+      case "SUSPENDED":
+        return t("accountStatus.suspended");
+      case "BANNED":
+        return t("accountStatus.banned");
+      default:
+        return status.replaceAll("_", " ");
+    }
+  };
+
   // Loading State
   if (loading) {
     return (
       <main
         className="min-h-screen bg-[#f7f8fa]"
         aria-busy="true"
-        aria-label="Loading account"
+        aria-label={t("loading.ariaLabel")}
       >
         <div className="mx-auto max-w-6xl px-3 py-6 sm:px-5 lg:px-6">
           <div className="mb-6 space-y-3">
@@ -128,11 +158,11 @@ export default function AccountPage() {
           </div>
 
           <h1 className="mt-4 text-lg font-semibold text-slate-900">
-            Unable to load your account
+            {t("accountUnavailable.title")}
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Please sign in again or refresh the page to try again.
+            {t("accountUnavailable.description")}
           </p>
         </div>
       </main>
@@ -144,13 +174,13 @@ export default function AccountPage() {
     if (isSavingProfile) return;
 
     if (!name.trim() || !email.trim()) {
-      toast.error("Name and email are required.");
+      toast.error(t("errors.profileRequired"));
       return;
     }
 
     setIsSavingProfile(true);
 
-    const toastId = toast.loading("Saving profile...");
+    const toastId = toast.loading(t("toasts.savingProfile"));
 
     try {
       const updatedUser = await updateMyProfile({
@@ -161,14 +191,14 @@ export default function AccountPage() {
       setUser(updatedUser);
       setIsEditing(false);
 
-      toast.success("Your profile has been updated successfully.", {
+      toast.success(t("toasts.profileUpdated"), {
         id: toastId,
-        description: "Your account information is up to date.",
+        description: t("toasts.profileUpdatedDescription"),
       });
     } catch (error) {
       console.error("Failed to update profile:", error);
 
-      toast.error("Unable to update your profile. Please try again.", {
+      toast.error(t("errors.updateProfile"), {
         id: toastId,
       });
     } finally {
@@ -181,13 +211,13 @@ export default function AccountPage() {
     if (isSavingPassword) return;
 
     if (!currentPassword || !newPassword) {
-      toast.error("Please enter your current and new passwords.");
+      toast.error(t("errors.passwordRequired"));
       return;
     }
 
     setIsSavingPassword(true);
 
-    const toastId = toast.loading("Updating password...");
+    const toastId = toast.loading(t("toasts.updatingPassword"));
 
     try {
       await changeMyPassword({
@@ -199,19 +229,16 @@ export default function AccountPage() {
       setNewPassword("");
       setIsChangingPassword(false);
 
-      toast.success("Your password has been changed successfully.", {
+      toast.success(t("toasts.passwordChanged"), {
         id: toastId,
-        description: "Your account security settings have been updated.",
+        description: t("toasts.passwordChangedDescription"),
       });
     } catch (error) {
       console.error("Failed to change password:", error);
 
-      toast.error(
-        "Unable to change your password. Please check your current password and try again.",
-        {
-          id: toastId,
-        }
-      );
+      toast.error(t("errors.changePassword"), {
+        id: toastId,
+      });
     } finally {
       setIsSavingPassword(false);
     }
@@ -232,7 +259,7 @@ export default function AccountPage() {
     if (isUploadingAvatar) return;
 
     if (!selectedFile && !imageUrl.trim()) {
-      toast.error("Choose an image file or enter an image URL first.");
+      toast.error(t("errors.avatarRequired"));
       return;
     }
 
@@ -247,14 +274,14 @@ export default function AccountPage() {
           throw new Error("Invalid image URL");
         }
       } catch {
-        toast.error("Please enter a valid HTTP or HTTPS image URL.");
+        toast.error(t("errors.invalidImageUrl"));
         return;
       }
     }
 
     setIsUploadingAvatar(true);
 
-    const toastId = toast.loading("Updating profile avatar...");
+    const toastId = toast.loading(t("toasts.updatingAvatar"));
 
     try {
       let updatedUser: User;
@@ -277,14 +304,14 @@ export default function AccountPage() {
         fileInput.value = "";
       }
 
-      toast.success("Your profile avatar has been updated.", {
+      toast.success(t("toasts.avatarUpdated"), {
         id: toastId,
-        description: "Your new avatar is now visible on your account.",
+        description: t("toasts.avatarUpdatedDescription"),
       });
     } catch (error) {
       console.error("Failed to upload avatar:", error);
 
-      toast.error("Unable to update your avatar. Please try again.", {
+      toast.error(t("errors.updateAvatar"), {
         id: toastId,
       });
     } finally {
@@ -306,31 +333,33 @@ export default function AccountPage() {
     setIsChangingPassword(false);
   };
 
+  const roleLabel = getRoleLabel(String(user.role));
+  const accountStatusLabel = getAccountStatusLabel(String(user.status));
+
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
       <div className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-5 sm:py-7 lg:px-6 lg:py-8">
         {/* Page Heading */}
         <section className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between">
-          {/* Left: Page Heading */}
           <div className="min-w-0 flex-1">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-100 bg-cyan-50 px-3 py-1">
               <span className="size-1.5 rounded-full bg-cyan-500" />
 
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-800 sm:text-xs">
-                Your personal space
+                {t("page.badge")}
               </p>
             </div>
 
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              My Account
+              {t("page.title")}
             </h1>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Manage your profile, security settings, and order history.
+              {t("page.description")}
             </p>
           </div>
 
-          {/* Right: Account Reminder */}
+          {/* Account Reminder */}
           <div className="flex shrink-0 items-center gap-2.5 rounded-xl border border-cyan-100 bg-cyan-50/70 p-3.5 lg:max-w-lg">
             <span
               className="shrink-0 text-cyan-700"
@@ -340,8 +369,7 @@ export default function AccountPage() {
             </span>
 
             <p className="text-xs leading-5 text-slate-600">
-              Keep your account information up to date for a smoother
-              shopping experience ~~~
+              {t("page.reminder")}
             </p>
           </div>
         </section>
@@ -354,7 +382,7 @@ export default function AccountPage() {
                 {user.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}
-                    alt={`${user.name}'s profile avatar`}
+                    alt={t("avatar.alt", { name: user.name })}
                     width={96}
                     height={96}
                     priority
@@ -374,7 +402,7 @@ export default function AccountPage() {
 
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Profile Avatar
+                  {t("avatar.label")}
                 </p>
 
                 <h2 className="mt-1 break-words text-lg font-semibold text-slate-900 sm:text-xl">
@@ -387,7 +415,7 @@ export default function AccountPage() {
 
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
-                    {user.role}
+                    {roleLabel}
                   </span>
 
                   <span
@@ -397,7 +425,7 @@ export default function AccountPage() {
                         : "border border-amber-100 bg-amber-50 text-amber-700"
                     }`}
                   >
-                    {user.status}
+                    {accountStatusLabel}
                   </span>
                 </div>
               </div>
@@ -405,18 +433,18 @@ export default function AccountPage() {
 
             <div className="flex shrink-0 items-center gap-2 self-start rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-500">
               <span className="size-2 rounded-full bg-emerald-500" />
-              Account overview
+              {t("avatar.accountOverview")}
             </div>
           </div>
 
           <div className="mt-5 border-t border-slate-100 pt-5">
             <div className="mb-4">
               <h3 className="text-sm font-semibold text-slate-800">
-                Update Avatar
+                {t("avatar.updateTitle")}
               </h3>
 
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Upload an image or provide a direct image URL.
+                {t("avatar.updateDescription")}
               </p>
             </div>
 
@@ -427,7 +455,7 @@ export default function AccountPage() {
                   htmlFor="avatar-file"
                   className="mb-2 block text-sm font-medium text-slate-700"
                 >
-                  Choose an image file
+                  {t("avatar.fileLabel")}
                 </label>
 
                 <input
@@ -441,7 +469,9 @@ export default function AccountPage() {
 
                 {selectedFile && (
                   <p className="mt-3 break-all text-xs text-slate-500">
-                    Selected: {selectedFile.name}
+                    {t("avatar.selectedFile", {
+                      name: selectedFile.name,
+                    })}
                   </p>
                 )}
               </div>
@@ -452,7 +482,7 @@ export default function AccountPage() {
                   htmlFor="avatar-url"
                   className="mb-2 block text-sm font-medium text-slate-700"
                 >
-                  Or use an image URL
+                  {t("avatar.urlLabel")}
                 </label>
 
                 <input
@@ -464,12 +494,12 @@ export default function AccountPage() {
                     setSelectedFile(null);
                   }}
                   disabled={isUploadingAvatar}
-                  placeholder="Image URL"
+                  placeholder={t("avatar.urlPlaceholder")}
                   className={inputClassName}
                 />
 
                 <p className="mt-1.5 text-xs text-slate-400">
-                  Use a direct link to an image.
+                  {t("avatar.urlHint")}
                 </p>
               </div>
             </div>
@@ -490,7 +520,7 @@ export default function AccountPage() {
                       aria-hidden="true"
                       className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
                     />
-                    Uploading...
+                    {t("buttons.uploading")}
                   </>
                 ) : (
                   <>
@@ -508,13 +538,13 @@ export default function AccountPage() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Upload Avatar
+                    {t("buttons.uploadAvatar")}
                   </>
                 )}
               </button>
 
               <p className="text-xs leading-5 text-slate-400">
-                Your avatar will appear across your account.
+                {t("avatar.uploadHint")}
               </p>
             </div>
           </div>
@@ -528,8 +558,8 @@ export default function AccountPage() {
             <section className={sectionClassName}>
               <SectionHeading
                 number="01"
-                title="Profile Information"
-                description="Manage your personal account details."
+                title={t("profile.sectionTitle")}
+                description={t("profile.sectionDescription")}
               />
 
               <div className="mt-5 space-y-4">
@@ -539,7 +569,7 @@ export default function AccountPage() {
                     htmlFor="account-name"
                     className="mb-1.5 block text-sm font-medium text-slate-700"
                   >
-                    Full Name
+                    {t("profile.fields.fullName")}
                   </label>
 
                   {isEditing ? (
@@ -548,7 +578,7 @@ export default function AccountPage() {
                       type="text"
                       value={name}
                       onChange={(event) => setName(event.target.value)}
-                      placeholder="Enter your name"
+                      placeholder={t("profile.placeholders.fullName")}
                       autoComplete="name"
                       className={inputClassName}
                     />
@@ -567,7 +597,7 @@ export default function AccountPage() {
                     htmlFor="account-email"
                     className="mb-1.5 block text-sm font-medium text-slate-700"
                   >
-                    Email Address
+                    {t("profile.fields.email")}
                   </label>
 
                   {isEditing ? (
@@ -576,7 +606,7 @@ export default function AccountPage() {
                       type="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
-                      placeholder="Enter your email"
+                      placeholder={t("profile.placeholders.email")}
                       autoComplete="email"
                       className={inputClassName}
                     />
@@ -593,17 +623,17 @@ export default function AccountPage() {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
                     <p className="text-xs font-medium text-slate-500">
-                      Account Role
+                      {t("profile.accountRole")}
                     </p>
 
                     <p className="mt-1.5 text-sm font-semibold text-slate-800">
-                      {user.role}
+                      {roleLabel}
                     </p>
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
                     <p className="text-xs font-medium text-slate-500">
-                      Account Status
+                      {t("profile.accountStatus")}
                     </p>
 
                     <div className="mt-1.5 flex items-center gap-2">
@@ -616,7 +646,7 @@ export default function AccountPage() {
                       />
 
                       <p className="text-sm font-semibold text-slate-800">
-                        {user.status}
+                        {accountStatusLabel}
                       </p>
                     </div>
                   </div>
@@ -639,10 +669,10 @@ export default function AccountPage() {
                               aria-hidden="true"
                               className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
                             />
-                            Saving...
+                            {t("buttons.saving")}
                           </>
                         ) : (
-                          "Save Changes"
+                          t("buttons.saveChanges")
                         )}
                       </button>
 
@@ -652,7 +682,7 @@ export default function AccountPage() {
                         disabled={isSavingProfile}
                         className={secondaryButtonClassName}
                       >
-                        Cancel
+                        {t("buttons.cancel")}
                       </button>
                     </>
                   ) : (
@@ -680,7 +710,7 @@ export default function AccountPage() {
                         />
                       </svg>
 
-                      Edit Profile
+                      {t("buttons.editProfile")}
                     </button>
                   )}
                 </div>
@@ -691,8 +721,8 @@ export default function AccountPage() {
             <section className={sectionClassName}>
               <SectionHeading
                 number="02"
-                title="Security"
-                description="Keep your account safe by updating your password."
+                title={t("security.sectionTitle")}
+                description={t("security.sectionDescription")}
               />
 
               {!isChangingPassword ? (
@@ -723,11 +753,11 @@ export default function AccountPage() {
 
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-slate-800">
-                        Password protection
+                        {t("security.protectionTitle")}
                       </p>
 
                       <p className="mt-1 text-xs leading-5 text-slate-500">
-                        Change your password to help protect your account.
+                        {t("security.protectionDescription")}
                       </p>
                     </div>
                   </div>
@@ -737,7 +767,7 @@ export default function AccountPage() {
                     onClick={() => setIsChangingPassword(true)}
                     className={`${secondaryButtonClassName} mt-4`}
                   >
-                    Change Password
+                    {t("buttons.changePassword")}
                   </button>
                 </>
               ) : (
@@ -747,7 +777,7 @@ export default function AccountPage() {
                       htmlFor="current-password"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Current Password
+                      {t("security.fields.currentPassword")}
                     </label>
 
                     <input
@@ -758,7 +788,7 @@ export default function AccountPage() {
                       onChange={(event) =>
                         setCurrentPassword(event.target.value)
                       }
-                      placeholder="Enter current password"
+                      placeholder={t("security.placeholders.currentPassword")}
                       disabled={isSavingPassword}
                       className={inputClassName}
                     />
@@ -769,7 +799,7 @@ export default function AccountPage() {
                       htmlFor="new-password"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      New Password
+                      {t("security.fields.newPassword")}
                     </label>
 
                     <input
@@ -780,13 +810,13 @@ export default function AccountPage() {
                       onChange={(event) =>
                         setNewPassword(event.target.value)
                       }
-                      placeholder="Enter new password"
+                      placeholder={t("security.placeholders.newPassword")}
                       disabled={isSavingPassword}
                       className={inputClassName}
                     />
 
                     <p className="mt-1.5 text-xs text-slate-400">
-                      Use a password that you do not use elsewhere.
+                      {t("security.passwordHint")}
                     </p>
                   </div>
 
@@ -803,10 +833,10 @@ export default function AccountPage() {
                             aria-hidden="true"
                             className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
                           />
-                          Updating...
+                          {t("buttons.updatingPassword")}
                         </>
                       ) : (
-                        "Update Password"
+                        t("buttons.updatePassword")
                       )}
                     </button>
 
@@ -816,7 +846,7 @@ export default function AccountPage() {
                       disabled={isSavingPassword}
                       className={secondaryButtonClassName}
                     >
-                      Cancel
+                      {t("buttons.cancel")}
                     </button>
                   </div>
                 </div>
@@ -834,8 +864,8 @@ export default function AccountPage() {
             <div className="relative">
               <SectionHeading
                 number="03"
-                title="Order History"
-                description="Review your past purchases and order details."
+                title={t("orderHistory.sectionTitle")}
+                description={t("orderHistory.sectionDescription")}
               />
 
               <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-white p-4 sm:p-5">
@@ -858,17 +888,16 @@ export default function AccountPage() {
                   </div>
 
                   <span className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
-                    Orders
+                    {t("orderHistory.badge")}
                   </span>
                 </div>
 
                 <h3 className="mt-5 text-base font-semibold text-slate-900">
-                  Your purchases, all in one place
+                  {t("orderHistory.cardTitle")}
                 </h3>
 
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                  View your order history and revisit the details of your
-                  previous purchases.
+                  {t("orderHistory.cardDescription")}
                 </p>
 
                 <button
@@ -876,7 +905,7 @@ export default function AccountPage() {
                   onClick={() => router.push("/account/orders/history")}
                   className={`${primaryButtonClassName} mt-5 w-full sm:w-auto`}
                 >
-                  View Order History
+                  {t("buttons.viewOrderHistory")}
 
                   <svg
                     aria-hidden="true"

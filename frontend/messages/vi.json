@@ -1292,5 +1292,115 @@
       "title": "Bạn muốn hủy đơn hàng này?",
       "description": "Bạn có thể hủy đơn hàng khi đơn vẫn đang chờ xử lý."
     }
+  },
+  "AccountPage": {
+    "loading": {
+      "ariaLabel": "Đang tải tài khoản"
+    },
+    "accountUnavailable": {
+      "title": "Không thể tải tài khoản",
+      "description": "Vui lòng đăng nhập lại hoặc tải lại trang để thử lại."
+    },
+    "accountRole": {
+      "admin": "Quản trị viên",
+      "customer": "Khách hàng",
+      "user": "Người dùng"
+    },
+    "accountStatus": {
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động",
+      "suspended": "Đang tạm khóa",
+      "banned": "Đã bị khóa"
+    },
+    "page": {
+      "badge": "Không gian cá nhân",
+      "title": "Tài khoản của tôi",
+      "description": "Quản lý hồ sơ, cài đặt bảo mật và lịch sử đơn hàng.",
+      "reminder": "Hãy cập nhật thông tin tài khoản để có trải nghiệm mua sắm thuận tiện hơn."
+    },
+    "avatar": {
+      "alt": "Ảnh đại diện của {name}",
+      "label": "Ảnh đại diện",
+      "accountOverview": "Tổng quan tài khoản",
+      "updateTitle": "Cập nhật ảnh đại diện",
+      "updateDescription": "Tải ảnh lên hoặc cung cấp đường dẫn trực tiếp đến ảnh.",
+      "fileLabel": "Chọn tệp hình ảnh",
+      "selectedFile": "Đã chọn: {name}",
+      "urlLabel": "Hoặc sử dụng URL hình ảnh",
+      "urlPlaceholder": "URL hình ảnh",
+      "urlHint": "Sử dụng đường dẫn trực tiếp đến hình ảnh.",
+      "uploadHint": "Ảnh đại diện sẽ được hiển thị trong tài khoản của bạn."
+    },
+    "errors": {
+      "profileRequired": "Vui lòng nhập họ tên và email.",
+      "updateProfile": "Không thể cập nhật hồ sơ. Vui lòng thử lại.",
+      "passwordRequired": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới.",
+      "changePassword": "Không thể đổi mật khẩu. Vui lòng kiểm tra mật khẩu hiện tại và thử lại.",
+      "avatarRequired": "Vui lòng chọn tệp hình ảnh hoặc nhập URL hình ảnh.",
+      "invalidImageUrl": "Vui lòng nhập URL hình ảnh hợp lệ bắt đầu bằng HTTP hoặc HTTPS.",
+      "updateAvatar": "Không thể cập nhật ảnh đại diện. Vui lòng thử lại."
+    },
+    "toasts": {
+      "savingProfile": "Đang lưu hồ sơ...",
+      "profileUpdated": "Cập nhật hồ sơ thành công.",
+      "profileUpdatedDescription": "Thông tin tài khoản của bạn đã được cập nhật.",
+      "updatingPassword": "Đang cập nhật mật khẩu...",
+      "passwordChanged": "Đổi mật khẩu thành công.",
+      "passwordChangedDescription": "Cài đặt bảo mật tài khoản đã được cập nhật.",
+      "updatingAvatar": "Đang cập nhật ảnh đại diện...",
+      "avatarUpdated": "Cập nhật ảnh đại diện thành công.",
+      "avatarUpdatedDescription": "Ảnh đại diện mới đã được hiển thị trên tài khoản."
+    },
+    "buttons": {
+      "uploading": "Đang tải lên...",
+      "uploadAvatar": "Tải ảnh đại diện",
+      "saving": "Đang lưu...",
+      "saveChanges": "Lưu thay đổi",
+      "cancel": "Hủy",
+      "editProfile": "Chỉnh sửa hồ sơ",
+      "changePassword": "Đổi mật khẩu",
+      "updatingPassword": "Đang cập nhật...",
+      "updatePassword": "Cập nhật mật khẩu",
+      "viewOrderHistory": "Xem lịch sử đơn hàng"
+    },
+    "profile": {
+      "sectionTitle": "Thông tin hồ sơ",
+      "sectionDescription": "Quản lý thông tin tài khoản cá nhân.",
+      "fields": {
+        "fullName": "Họ và tên",
+        "email": "Địa chỉ email"
+      },
+      "placeholders": {
+        "fullName": "Nhập họ tên",
+        "email": "Nhập email"
+      },
+      "accountRole": "Vai trò tài khoản",
+      "accountStatus": "Trạng thái tài khoản"
+    },
+    "security": {
+      "sectionTitle": "Bảo mật",
+      "sectionDescription": "Bảo vệ tài khoản bằng cách cập nhật mật khẩu.",
+      "protectionTitle": "Bảo vệ bằng mật khẩu",
+      "protectionDescription": "Đổi mật khẩu để tăng cường bảo mật tài khoản.",
+      "fields": {
+        "currentPassword": "Mật khẩu hiện tại",
+        "newPassword": "Mật khẩu mới"
+      },
+      "placeholders": {
+        "currentPassword": "Nhập mật khẩu hiện tại",
+        "newPassword": "Nhập mật khẩu mới"
+      },
+      "passwordHint": "Nên sử dụng mật khẩu chưa dùng ở nơi khác."
+    },
+    "orderHistory": {
+      "sectionTitle": "Lịch sử đơn hàng",
+      "sectionDescription": "Xem các giao dịch mua hàng trước đây và chi tiết đơn hàng.",
+      "badge": "Đơn hàng",
+      "cardTitle": "Tất cả đơn mua hàng tại một nơi",
+      "cardDescription": "Xem lịch sử đơn hàng và xem lại chi tiết các giao dịch mua trước đây."
+    }
+  },
+  "OrderHistoryPage": {
+    "title": "Lịch sử đơn hàng"
   }
 }

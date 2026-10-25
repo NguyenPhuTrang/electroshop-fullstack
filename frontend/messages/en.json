@@ -1292,5 +1292,115 @@
       "title": "Need to cancel this order?",
       "description": "You can cancel your order while it is pending."
     }
+  },
+  "AccountPage": {
+    "loading": {
+      "ariaLabel": "Loading account"
+    },
+    "accountUnavailable": {
+      "title": "Unable to load your account",
+      "description": "Please sign in again or refresh the page to try again."
+    },
+    "accountRole": {
+      "admin": "Administrator",
+      "customer": "Customer",
+      "user": "User"
+    },
+    "accountStatus": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "banned": "Banned"
+    },
+    "page": {
+      "badge": "Your personal space",
+      "title": "My Account",
+      "description": "Manage your profile, security settings, and order history.",
+      "reminder": "Keep your account information up to date for a smoother shopping experience."
+    },
+    "avatar": {
+      "alt": "{name}'s profile avatar",
+      "label": "Profile Avatar",
+      "accountOverview": "Account overview",
+      "updateTitle": "Update Avatar",
+      "updateDescription": "Upload an image or provide a direct image URL.",
+      "fileLabel": "Choose an image file",
+      "selectedFile": "Selected: {name}",
+      "urlLabel": "Or use an image URL",
+      "urlPlaceholder": "Image URL",
+      "urlHint": "Use a direct link to an image.",
+      "uploadHint": "Your avatar will appear across your account."
+    },
+    "errors": {
+      "profileRequired": "Name and email are required.",
+      "updateProfile": "Unable to update your profile. Please try again.",
+      "passwordRequired": "Please enter your current and new passwords.",
+      "changePassword": "Unable to change your password. Please check your current password and try again.",
+      "avatarRequired": "Choose an image file or enter an image URL first.",
+      "invalidImageUrl": "Please enter a valid HTTP or HTTPS image URL.",
+      "updateAvatar": "Unable to update your avatar. Please try again."
+    },
+    "toasts": {
+      "savingProfile": "Saving profile...",
+      "profileUpdated": "Your profile has been updated successfully.",
+      "profileUpdatedDescription": "Your account information is up to date.",
+      "updatingPassword": "Updating password...",
+      "passwordChanged": "Your password has been changed successfully.",
+      "passwordChangedDescription": "Your account security settings have been updated.",
+      "updatingAvatar": "Updating profile avatar...",
+      "avatarUpdated": "Your profile avatar has been updated.",
+      "avatarUpdatedDescription": "Your new avatar is now visible on your account."
+    },
+    "buttons": {
+      "uploading": "Uploading...",
+      "uploadAvatar": "Upload Avatar",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "editProfile": "Edit Profile",
+      "changePassword": "Change Password",
+      "updatingPassword": "Updating...",
+      "updatePassword": "Update Password",
+      "viewOrderHistory": "View Order History"
+    },
+    "profile": {
+      "sectionTitle": "Profile Information",
+      "sectionDescription": "Manage your personal account details.",
+      "fields": {
+        "fullName": "Full Name",
+        "email": "Email Address"
+      },
+      "placeholders": {
+        "fullName": "Enter your name",
+        "email": "Enter your email"
+      },
+      "accountRole": "Account Role",
+      "accountStatus": "Account Status"
+    },
+    "security": {
+      "sectionTitle": "Security",
+      "sectionDescription": "Keep your account safe by updating your password.",
+      "protectionTitle": "Password protection",
+      "protectionDescription": "Change your password to help protect your account.",
+      "fields": {
+        "currentPassword": "Current Password",
+        "newPassword": "New Password"
+      },
+      "placeholders": {
+        "currentPassword": "Enter current password",
+        "newPassword": "Enter new password"
+      },
+      "passwordHint": "Use a password that you do not use elsewhere."
+    },
+    "orderHistory": {
+      "sectionTitle": "Order History",
+      "sectionDescription": "Review your past purchases and order details.",
+      "badge": "Orders",
+      "cardTitle": "Your purchases, all in one place",
+      "cardDescription": "View your order history and revisit the details of your previous purchases."
+    }
+  },
+  "OrderHistoryPage": {
+    "title": "Order History"
   }
 }

@@ -1292,5 +1292,115 @@
       "title": "需要取消此訂單嗎？",
       "description": "訂單仍在等待處理時，您可以取消訂單。"
     }
+  },
+  "AccountPage": {
+    "loading": {
+      "ariaLabel": "正在載入帳戶"
+    },
+    "accountUnavailable": {
+      "title": "無法載入您的帳戶",
+      "description": "請重新登入或重新整理頁面後再試一次。"
+    },
+    "accountRole": {
+      "admin": "管理員",
+      "customer": "顧客",
+      "user": "使用者"
+    },
+    "accountStatus": {
+      "active": "使用中",
+      "inactive": "未啟用",
+      "suspended": "已暫停",
+      "banned": "已封鎖"
+    },
+    "page": {
+      "badge": "個人專區",
+      "title": "我的帳戶",
+      "description": "管理個人資料、安全設定與訂單紀錄。",
+      "reminder": "請保持帳戶資訊更新，享有更順暢的購物體驗。"
+    },
+    "avatar": {
+      "alt": "{name} 的個人頭像",
+      "label": "個人頭像",
+      "accountOverview": "帳戶總覽",
+      "updateTitle": "更新個人頭像",
+      "updateDescription": "上傳圖片或提供圖片的直接網址。",
+      "fileLabel": "選擇圖片檔案",
+      "selectedFile": "已選擇：{name}",
+      "urlLabel": "或使用圖片網址",
+      "urlPlaceholder": "圖片網址",
+      "urlHint": "請使用圖片的直接連結。",
+      "uploadHint": "您的頭像將顯示於帳戶相關頁面。"
+    },
+    "errors": {
+      "profileRequired": "姓名與電子郵件為必填欄位。",
+      "updateProfile": "無法更新個人資料，請重試。",
+      "passwordRequired": "請輸入目前密碼與新密碼。",
+      "changePassword": "無法變更密碼。請確認目前密碼後再試一次。",
+      "avatarRequired": "請先選擇圖片檔案或輸入圖片網址。",
+      "invalidImageUrl": "請輸入有效的 HTTP 或 HTTPS 圖片網址。",
+      "updateAvatar": "無法更新頭像，請重試。"
+    },
+    "toasts": {
+      "savingProfile": "正在儲存個人資料...",
+      "profileUpdated": "個人資料已成功更新。",
+      "profileUpdatedDescription": "您的帳戶資訊已更新。",
+      "updatingPassword": "正在更新密碼...",
+      "passwordChanged": "密碼已成功變更。",
+      "passwordChangedDescription": "您的帳戶安全設定已更新。",
+      "updatingAvatar": "正在更新個人頭像...",
+      "avatarUpdated": "個人頭像已成功更新。",
+      "avatarUpdatedDescription": "新頭像已顯示於您的帳戶中。"
+    },
+    "buttons": {
+      "uploading": "正在上傳...",
+      "uploadAvatar": "上傳頭像",
+      "saving": "正在儲存...",
+      "saveChanges": "儲存變更",
+      "cancel": "取消",
+      "editProfile": "編輯個人資料",
+      "changePassword": "變更密碼",
+      "updatingPassword": "正在更新...",
+      "updatePassword": "更新密碼",
+      "viewOrderHistory": "查看訂單紀錄"
+    },
+    "profile": {
+      "sectionTitle": "個人資料",
+      "sectionDescription": "管理您的個人帳戶資訊。",
+      "fields": {
+        "fullName": "姓名",
+        "email": "電子郵件地址"
+      },
+      "placeholders": {
+        "fullName": "請輸入姓名",
+        "email": "請輸入電子郵件"
+      },
+      "accountRole": "帳戶角色",
+      "accountStatus": "帳戶狀態"
+    },
+    "security": {
+      "sectionTitle": "安全性",
+      "sectionDescription": "更新密碼以確保帳戶安全。",
+      "protectionTitle": "密碼保護",
+      "protectionDescription": "變更密碼以加強帳戶安全。",
+      "fields": {
+        "currentPassword": "目前密碼",
+        "newPassword": "新密碼"
+      },
+      "placeholders": {
+        "currentPassword": "請輸入目前密碼",
+        "newPassword": "請輸入新密碼"
+      },
+      "passwordHint": "建議使用未在其他地方使用過的密碼。"
+    },
+    "orderHistory": {
+      "sectionTitle": "訂單紀錄",
+      "sectionDescription": "查看過去的購買紀錄與訂單詳細資訊。",
+      "badge": "訂單",
+      "cardTitle": "集中管理您的所有購買紀錄",
+      "cardDescription": "查看訂單紀錄，並重新檢視過去購買的詳細資訊。"
+    }
+  },
+  "OrderHistoryPage": {
+    "title": "訂單紀錄"
   }
 }
