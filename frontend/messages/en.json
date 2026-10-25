@@ -1402,5 +1402,151 @@
   },
   "OrderHistoryPage": {
     "title": "Order History"
+  },
+  "AdminDashboardPage": {
+    "header": {
+      "brand": "Electroshop Administration",
+      "title": "Dashboard",
+      "description": "Monitor your store performance, orders, products, and customer activity."
+    },
+    "buttons": {
+      "refreshing": "Refreshing...",
+      "refresh": "Refresh Data"
+    },
+    "overview": {
+      "title": "Store Overview",
+      "description": "Key metrics and performance indicators for your store."
+    },
+    "ranges": {
+      "ariaLabel": "Sales chart date range",
+      "7Days": "7 Days",
+      "30Days": "30 Days",
+      "90Days": "90 Days"
+    },
+    "metrics": {
+      "totalUsers": {
+        "label": "Total Users",
+        "description": "Registered customers"
+      },
+      "totalProducts": {
+        "label": "Total Products",
+        "description": "Products in catalog"
+      },
+      "totalOrders": {
+        "label": "Total Orders",
+        "description": "All orders"
+      },
+      "totalRevenue": {
+        "label": "Total Revenue",
+        "description": "From delivered orders"
+      },
+      "pendingOrders": {
+        "label": "Pending Orders",
+        "description": "Awaiting confirmation"
+      },
+      "lowStockProducts": {
+        "label": "Low Stock Products",
+        "description": "10 units or fewer"
+      },
+      "totalReviews": {
+        "label": "Total Reviews",
+        "description": "Customer feedback"
+      },
+      "averageRating": {
+        "label": "Average Rating",
+        "description": "Across all reviews"
+      },
+      "unansweredReviews": {
+        "label": "Unanswered Reviews",
+        "description": "Reviews without a reply"
+      }
+    }
+  },
+  "DashboardAttentionCards": {
+    "section": {
+      "title": "Things That Need Attention",
+      "description": "Important tasks that may require your attention."
+    },
+    "cards": {
+      "pendingOrders": {
+        "title": "Pending Orders",
+        "description": "Orders awaiting confirmation",
+        "action": "View orders"
+      },
+      "lowStockProducts": {
+        "title": "Low Stock Products",
+        "description": "Products with 10 units or fewer",
+        "action": "View products"
+      },
+      "unansweredReviews": {
+        "title": "Unanswered Reviews",
+        "description": "Reviews without an Admin reply",
+        "action": "View reviews"
+      }
+    }
+  },
+  "DashboardLoadingSkeleton": {
+    "ariaLabel": "Loading dashboard"
+  },
+  "OrdersByStatusChart": {
+    "title": "Orders by Status",
+    "description": "Current order distribution.",
+    "loading": "Loading order data...",
+    "tooltip": {
+      "orders": "Orders"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  },
+  "RecentOrdersTable": {
+    "title": "Recent Orders",
+    "description": "The latest orders placed in your store.",
+    "latestOrders": "Latest 5 orders",
+    "columns": {
+      "order": "Order",
+      "customer": "Customer",
+      "total": "Total",
+      "status": "Status",
+      "date": "Date",
+      "action": "Action"
+    },
+    "empty": "No orders found.",
+    "view": "View",
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "outForDelivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "canceled": "Canceled"
+    }
+  },
+  "RecentReviews": {
+    "title": "Recent Reviews",
+    "description": "Latest customer feedback and reply status.",
+    "viewAll": "View All Reviews",
+    "empty": "No reviews found.",
+    "replied": "Replied",
+    "needsResponse": "Needs response",
+    "ratingAriaLabel": "Rating {rating} out of 5"
+  },
+  "RevenueOverviewChart": {
+    "title": "Revenue Overview",
+    "description": "Revenue from delivered orders by day.",
+    "lastDays": "Last {range} days",
+    "loading": "Loading revenue data...",
+    "empty": "No revenue data available for this period.",
+    "tooltip": {
+      "revenue": "Revenue",
+      "dateLabel": "Date: {date}"
+    }
   }
 }

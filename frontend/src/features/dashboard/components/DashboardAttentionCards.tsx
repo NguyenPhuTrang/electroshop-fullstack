@@ -1,3 +1,7 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
+
 import { Link } from "@/src/i18n/navigation";
 
 type DashboardAttentionSummary = {
@@ -10,21 +14,23 @@ type DashboardAttentionCardsProps = {
   summary: DashboardAttentionSummary | undefined;
 };
 
-const formatNumber = (value: number) =>
-  new Intl.NumberFormat("en-US").format(value);
-
 export default function DashboardAttentionCards({
   summary,
 }: DashboardAttentionCardsProps) {
+  const t = useTranslations("DashboardAttentionCards");
+  const locale = useLocale();
+
+  const formatNumber = (value: number) =>
+    new Intl.NumberFormat(locale).format(value);
+
   const cards = [
     {
-      title: "Pending Orders",
-      description: "Orders awaiting confirmation",
+      key: "pendingOrders",
+      title: t("cards.pendingOrders.title"),
+      description: t("cards.pendingOrders.description"),
       href: "/admin/orders?status=PENDING",
-      label: "View orders",
-      value: summary
-        ? formatNumber(summary.pendingOrders)
-        : "—",
+      label: t("cards.pendingOrders.action"),
+      value: summary ? formatNumber(summary.pendingOrders) : "—",
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -42,17 +48,15 @@ export default function DashboardAttentionCards({
       ),
       iconStyle: "bg-amber-50 text-amber-700",
       linkStyle: "text-amber-700",
-      hoverStyle:
-        "hover:border-amber-300 hover:bg-amber-50/30",
+      hoverStyle: "hover:border-amber-300 hover:bg-amber-50/30",
     },
     {
-      title: "Low Stock Products",
-      description: "Products with 10 units or fewer",
+      key: "lowStockProducts",
+      title: t("cards.lowStockProducts.title"),
+      description: t("cards.lowStockProducts.description"),
       href: "/admin/products?lowStock=true",
-      label: "View products",
-      value: summary
-        ? formatNumber(summary.lowStockProducts)
-        : "—",
+      label: t("cards.lowStockProducts.action"),
+      value: summary ? formatNumber(summary.lowStockProducts) : "—",
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -70,17 +74,15 @@ export default function DashboardAttentionCards({
       ),
       iconStyle: "bg-orange-50 text-orange-700",
       linkStyle: "text-orange-700",
-      hoverStyle:
-        "hover:border-orange-300 hover:bg-orange-50/30",
+      hoverStyle: "hover:border-orange-300 hover:bg-orange-50/30",
     },
     {
-      title: "Unanswered Reviews",
-      description: "Reviews without an Admin reply",
+      key: "unansweredReviews",
+      title: t("cards.unansweredReviews.title"),
+      description: t("cards.unansweredReviews.description"),
       href: "/admin/reviews?unanswered=true",
-      label: "View reviews",
-      value: summary
-        ? formatNumber(summary.unansweredReviews)
-        : "—",
+      label: t("cards.unansweredReviews.action"),
+      value: summary ? formatNumber(summary.unansweredReviews) : "—",
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -98,8 +100,7 @@ export default function DashboardAttentionCards({
       ),
       iconStyle: "bg-rose-50 text-rose-700",
       linkStyle: "text-rose-700",
-      hoverStyle:
-        "hover:border-rose-300 hover:bg-rose-50/30",
+      hoverStyle: "hover:border-rose-300 hover:bg-rose-50/30",
     },
   ];
 
@@ -107,18 +108,18 @@ export default function DashboardAttentionCards({
     <section className="mt-8">
       <div>
         <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-          Things Need Attention
+          {t("section.title")}
         </h2>
 
         <p className="mt-1 text-sm leading-5 text-slate-500">
-          Important tasks that may require your attention.
+          {t("section.description")}
         </p>
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
         {cards.map((card) => (
           <Link
-            key={card.title}
+            key={card.key}
             href={card.href}
             className={`group flex min-w-0 items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 transition-colors ${card.hoverStyle}`}
           >
@@ -137,9 +138,7 @@ export default function DashboardAttentionCards({
                 {card.description}
               </p>
 
-              <p
-                className={`mt-2 text-xs font-medium ${card.linkStyle}`}
-              >
+              <p className={`mt-2 text-xs font-medium ${card.linkStyle}`}>
                 {card.label} →
               </p>
             </div>

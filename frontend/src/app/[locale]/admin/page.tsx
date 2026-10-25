@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useAdminDashboard } from "@/src/features/dashboard/hooks/useAdminDashboard";
 import type { DashboardRange } from "@/src/features/dashboard/services/dashboard.service";
@@ -14,21 +15,23 @@ import RevenueOverviewChart from "@/src/features/dashboard/components/RevenueOve
 import OrdersByStatusChart from "@/src/features/dashboard/components/OrdersByStatusChart";
 
 const DASHBOARD_RANGES: {
-  label: string;
+  key: "7Days" | "30Days" | "90Days";
   value: DashboardRange;
 }[] = [
-  { label: "7 Days", value: 7 },
-  { label: "30 Days", value: 30 },
-  { label: "90 Days", value: 90 },
+  { key: "7Days", value: 7 },
+  { key: "30Days", value: 30 },
+  { key: "90Days", value: 90 },
 ];
 
-const formatNumber = (value: number) =>
-  new Intl.NumberFormat("en-US").format(value);
+const formatNumber = (value: number, locale: string) =>
+  new Intl.NumberFormat(locale).format(value);
 
-const formatCurrency = (value: number) =>
-  `${new Intl.NumberFormat("vi-VN", {
+const formatCurrency = (value: number, locale: string) =>
+  new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
     maximumFractionDigits: 0,
-  }).format(value)} ₫`;
+  }).format(value);
 
 type MetricIconName =
   | "users"
@@ -147,6 +150,9 @@ function SectionHeading({
 }
 
 export default function AdminPage() {
+  const t = useTranslations("AdminDashboardPage");
+  const locale = useLocale();
+
   const [range, setRange] = useState<DashboardRange>(7);
 
   const [minimumLoadingTimeElapsed, setMinimumLoadingTimeElapsed] =
@@ -165,72 +171,71 @@ export default function AdminPage() {
   const summary = data?.summary;
 
   const stats: {
-    label: string;
+    key:
+      | "totalUsers"
+      | "totalProducts"
+      | "totalOrders"
+      | "totalRevenue"
+      | "pendingOrders"
+      | "lowStockProducts"
+      | "totalReviews"
+      | "averageRating"
+      | "unansweredReviews";
     value: string;
-    description: string;
     icon: MetricIconName;
     iconStyle: string;
   }[] = [
     {
-      label: "Total Users",
-      value: summary ? formatNumber(summary.totalUsers) : "—",
-      description: "Registered customers",
+      key: "totalUsers",
+      value: summary ? formatNumber(summary.totalUsers, locale) : "—",
       icon: "users",
       iconStyle: "bg-blue-50 text-blue-700",
     },
     {
-      label: "Total Products",
-      value: summary ? formatNumber(summary.totalProducts) : "—",
-      description: "Products in catalog",
+      key: "totalProducts",
+      value: summary ? formatNumber(summary.totalProducts, locale) : "—",
       icon: "products",
       iconStyle: "bg-cyan-50 text-cyan-700",
     },
     {
-      label: "Total Orders",
-      value: summary ? formatNumber(summary.totalOrders) : "—",
-      description: "All orders",
+      key: "totalOrders",
+      value: summary ? formatNumber(summary.totalOrders, locale) : "—",
       icon: "orders",
       iconStyle: "bg-blue-50 text-blue-700",
     },
     {
-      label: "Total Revenue",
-      value: summary ? formatCurrency(summary.totalRevenue) : "—",
-      description: "From delivered orders",
+      key: "totalRevenue",
+      value: summary ? formatCurrency(summary.totalRevenue, locale) : "—",
       icon: "revenue",
       iconStyle: "bg-emerald-50 text-emerald-700",
     },
     {
-      label: "Pending Orders",
-      value: summary ? formatNumber(summary.pendingOrders) : "—",
-      description: "Awaiting confirmation",
+      key: "pendingOrders",
+      value: summary ? formatNumber(summary.pendingOrders, locale) : "—",
       icon: "pending",
       iconStyle: "bg-amber-50 text-amber-700",
     },
     {
-      label: "Low Stock Products",
-      value: summary ? formatNumber(summary.lowStockProducts) : "—",
-      description: "10 units or fewer",
+      key: "lowStockProducts",
+      value: summary ? formatNumber(summary.lowStockProducts, locale) : "—",
       icon: "stock",
       iconStyle: "bg-orange-50 text-orange-700",
     },
     {
-      label: "Total Reviews",
-      value: summary ? formatNumber(summary.totalReviews) : "—",
-      description: "Customer feedback",
+      key: "totalReviews",
+      value: summary ? formatNumber(summary.totalReviews, locale) : "—",
       icon: "reviews",
       iconStyle: "bg-cyan-50 text-cyan-700",
     },
     {
-      label: "Average Rating",
+      key: "averageRating",
       value: summary ? `${summary.averageRating.toFixed(1)} / 5` : "—",
-      description: "Across all reviews",
       icon: "rating",
       iconStyle: "bg-amber-50 text-amber-700",
     },
     {
-      label: "Unanswered Reviews",
-      value: summary ? formatNumber(summary.unansweredReviews) : "—",
-      description: "Reviews without a reply",
+      key: "unansweredReviews",
+      value: summary ? formatNumber(summary.unansweredReviews, locale) : "—",
       icon: "unanswered",
       iconStyle: "bg-rose-50 text-rose-700",
     },
@@ -262,15 +267,15 @@ export default function AdminPage() {
         <header className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-              Electroshop Administration
+              {t("header.brand")}
             </p>
 
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Dashboard
+              {t("header.title")}
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Monitor your store performance, orders, products, and customer activity.
+              {t("header.description")}
             </p>
           </div>
 
@@ -303,7 +308,7 @@ export default function AdminPage() {
               />
             </svg>
 
-            {loading ? "Refreshing..." : "Refresh Data"}
+            {loading ? t("buttons.refreshing") : t("buttons.refresh")}
           </button>
         </header>
 
@@ -325,14 +330,14 @@ export default function AdminPage() {
         <section className="mt-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <SectionHeading
-              title="Store Overview"
-              description="Key metrics and performance indicators for your store."
+              title={t("overview.title")}
+              description={t("overview.description")}
             />
 
             <div
               className="inline-flex w-fit items-center gap-1 rounded-lg border border-slate-200 bg-white p-1"
               role="group"
-              aria-label="Sales chart date range"
+              aria-label={t("ranges.ariaLabel")}
             >
               {DASHBOARD_RANGES.map((item) => (
                 <button
@@ -346,7 +351,7 @@ export default function AdminPage() {
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
-                  {item.label}
+                  {t(`ranges.${item.key}`)}
                 </button>
               ))}
             </div>
@@ -356,10 +361,10 @@ export default function AdminPage() {
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {stats.map((stat) => (
               <DashboardMetricCard
-                key={stat.label}
-                label={stat.label}
+                key={stat.key}
+                label={t(`metrics.${stat.key}.label`)}
                 value={stat.value}
-                description={stat.description}
+                description={t(`metrics.${stat.key}.description`)}
                 icon={<MetricIcon name={stat.icon} />}
                 iconStyle={stat.iconStyle}
               />

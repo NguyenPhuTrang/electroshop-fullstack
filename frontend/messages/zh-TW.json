@@ -1402,5 +1402,151 @@
   },
   "OrderHistoryPage": {
     "title": "訂單紀錄"
+  },
+  "AdminDashboardPage": {
+    "header": {
+      "brand": "Electroshop 管理後台",
+      "title": "儀表板",
+      "description": "監控商店績效、訂單、商品與顧客活動。"
+    },
+    "buttons": {
+      "refreshing": "正在重新整理...",
+      "refresh": "重新整理資料"
+    },
+    "overview": {
+      "title": "商店概覽",
+      "description": "商店的重要指標與績效數據。"
+    },
+    "ranges": {
+      "ariaLabel": "銷售圖表的日期範圍",
+      "7Days": "近 7 天",
+      "30Days": "近 30 天",
+      "90Days": "近 90 天"
+    },
+    "metrics": {
+      "totalUsers": {
+        "label": "使用者總數",
+        "description": "已註冊的顧客"
+      },
+      "totalProducts": {
+        "label": "商品總數",
+        "description": "目錄中的商品"
+      },
+      "totalOrders": {
+        "label": "訂單總數",
+        "description": "所有訂單"
+      },
+      "totalRevenue": {
+        "label": "總營收",
+        "description": "來自已送達的訂單"
+      },
+      "pendingOrders": {
+        "label": "待處理訂單",
+        "description": "等待確認"
+      },
+      "lowStockProducts": {
+        "label": "低庫存商品",
+        "description": "庫存不超過 10 件"
+      },
+      "totalReviews": {
+        "label": "評價總數",
+        "description": "顧客回饋"
+      },
+      "averageRating": {
+        "label": "平均評分",
+        "description": "所有評價的平均分數"
+      },
+      "unansweredReviews": {
+        "label": "尚未回覆的評價",
+        "description": "尚未收到回覆的評價"
+      }
+    }
+  },
+  "DashboardAttentionCards": {
+    "section": {
+      "title": "需要關注的事項",
+      "description": "需要您留意的重要工作。"
+    },
+    "cards": {
+      "pendingOrders": {
+        "title": "待處理訂單",
+        "description": "等待確認的訂單",
+        "action": "查看訂單"
+      },
+      "lowStockProducts": {
+        "title": "低庫存商品",
+        "description": "庫存剩餘 10 件或更少的商品",
+        "action": "查看商品"
+      },
+      "unansweredReviews": {
+        "title": "尚未回覆的評價",
+        "description": "管理員尚未回覆的顧客評價",
+        "action": "查看評價"
+      }
+    }
+  },
+  "DashboardLoadingSkeleton": {
+    "ariaLabel": "正在載入儀表板"
+  },
+  "OrdersByStatusChart": {
+    "title": "訂單狀態分布",
+    "description": "目前的訂單分布情況。",
+    "loading": "正在載入訂單資料...",
+    "tooltip": {
+      "orders": "訂單"
+    },
+    "statuses": {
+      "pending": "待處理",
+      "confirmed": "已確認",
+      "processing": "處理中",
+      "shipped": "已出貨",
+      "delivered": "已送達",
+      "cancelled": "已取消"
+    }
+  },
+  "RecentOrdersTable": {
+    "title": "近期訂單",
+    "description": "商店最新建立的訂單。",
+    "latestOrders": "最新 5 筆訂單",
+    "columns": {
+      "order": "訂單",
+      "customer": "顧客",
+      "total": "總金額",
+      "status": "狀態",
+      "date": "日期",
+      "action": "操作"
+    },
+    "empty": "找不到訂單。",
+    "view": "查看",
+    "statuses": {
+      "pending": "待處理",
+      "confirmed": "已確認",
+      "processing": "處理中",
+      "shipped": "已出貨",
+      "outForDelivery": "配送中",
+      "delivered": "已送達",
+      "cancelled": "已取消",
+      "canceled": "已取消"
+    }
+  },
+  "RecentReviews": {
+    "title": "近期評價",
+    "description": "最新顧客回饋與回覆狀態。",
+    "viewAll": "查看所有評價",
+    "empty": "找不到評價。",
+    "replied": "已回覆",
+    "needsResponse": "需要回覆",
+    "ratingAriaLabel": "評分為 5 分中的 {rating} 分"
+  },
+  "RevenueOverviewChart": {
+    "title": "營收概覽",
+    "description": "依日期顯示已送達訂單的營收。",
+    "lastDays": "最近 {range} 天",
+    "loading": "正在載入營收資料...",
+    "empty": "此期間沒有可用的營收資料。",
+    "tooltip": {
+      "revenue": "營收",
+      "dateLabel": "日期：{date}"
+    }
   }
 }

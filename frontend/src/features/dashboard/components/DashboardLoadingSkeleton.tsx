@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
 
 function SkeletonBlock({
@@ -26,11 +27,13 @@ function SkeletonBlock({
 }
 
 export default function DashboardLoadingSkeleton() {
+  const t = useTranslations("DashboardLoadingSkeleton");
+
   return (
     <main
       className="min-h-full bg-[#f7f8fa] p-4 sm:p-6 lg:p-8"
       aria-busy="true"
-      aria-label="Loading dashboard"
+      aria-label={t("ariaLabel")}
     >
       <motion.div
         initial={{ opacity: 0, y: 16 }}

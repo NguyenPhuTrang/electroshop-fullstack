@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import {
   Area,
   AreaChart,
@@ -23,33 +25,71 @@ type RevenueOverviewChartProps = {
   range: DashboardRange;
 };
 
-function formatCurrency(value: number) {
-  return `${new Intl.NumberFormat("vi-VN", {
-    maximumFractionDigits: 0,
-  }).format(value)} ₫`;
-}
-
 export default function RevenueOverviewChart({
   data,
   loading,
   range,
 }: RevenueOverviewChartProps) {
+  const t = useTranslations("RevenueOverviewChart");
+  const locale = useLocale();
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  const formatDate = (
+    value: string,
+    options: Intl.DateTimeFormatOptions,
+  ) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+    const date = match
+      ? new Date(
+          Number(match[1]),
+          Number(match[2]) - 1,
+          Number(match[3]),
+        )
+      : new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat(locale, options).format(date);
+  };
+
+  const formatAxisDate = (value: string) =>
+    formatDate(value, {
+      month: "short",
+      day: "numeric",
+    });
+
+  const formatTooltipDate = (value: string) =>
+    formatDate(value, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
   return (
     <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
       {/* Header */}
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-            Revenue Overview
+            {t("title")}
           </h2>
 
           <p className="mt-1 text-sm leading-5 text-slate-500">
-            Revenue from delivered orders by day.
+            {t("description")}
           </p>
         </div>
 
         <span className="w-fit rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
-          Last {range} days
+          {t("lastDays", { range })}
         </span>
       </div>
 
@@ -58,11 +98,11 @@ export default function RevenueOverviewChart({
         {loading && !data ? (
           <div className="flex h-full items-center justify-center gap-3 text-sm text-slate-500">
             <span className="size-4 animate-spin rounded-full border-2 border-blue-100 border-t-blue-600" />
-            Loading revenue data...
+            {t("loading")}
           </div>
         ) : !data?.length ? (
           <div className="flex h-full items-center justify-center text-sm text-slate-500">
-            No revenue data available for this period.
+            {t("empty")}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
@@ -83,10 +123,7 @@ export default function RevenueOverviewChart({
 
               <XAxis
                 dataKey="date"
-                tickFormatter={(value: string) => {
-                  const [, month, day] = value.split("-");
-                  return month && day ? `${month}/${day}` : value;
-                }}
+                tickFormatter={(value: string) => formatAxisDate(value)}
                 tick={{ fontSize: 12, fill: "#64748b" }}
                 axisLine={false}
                 tickLine={false}
@@ -96,8 +133,10 @@ export default function RevenueOverviewChart({
               <YAxis
                 tickFormatter={(value: number) =>
                   value >= 1000
-                    ? `${(value / 1000).toFixed(0)}k`
-                    : String(value)
+                    ? `${new Intl.NumberFormat(locale, {
+                        maximumFractionDigits: 0,
+                      }).format(value / 1000)}k`
+                    : new Intl.NumberFormat(locale).format(value)
                 }
                 tick={{ fontSize: 12, fill: "#64748b" }}
                 axisLine={false}
@@ -108,9 +147,13 @@ export default function RevenueOverviewChart({
               <Tooltip
                 formatter={(value) => [
                   formatCurrency(Number(value ?? 0)),
-                  "Revenue",
+                  t("tooltip.revenue"),
                 ]}
-                labelFormatter={(label) => `Date: ${String(label)}`}
+                labelFormatter={(label) =>
+                  t("tooltip.dateLabel", {
+                    date: formatTooltipDate(String(label)),
+                  })
+                }
                 contentStyle={{
                   borderRadius: 8,
                   border: "1px solid #e2e8f0",
@@ -122,7 +165,7 @@ export default function RevenueOverviewChart({
               <Area
                 type="monotone"
                 dataKey="revenue"
-                name="Revenue"
+                name={t("tooltip.revenue")}
                 stroke="#2563eb"
                 strokeWidth={2}
                 fill="#dbeafe"

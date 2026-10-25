@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import {
   Bar,
   BarChart,
@@ -24,16 +26,31 @@ export default function OrdersByStatusChart({
   data,
   loading,
 }: OrdersByStatusChartProps) {
+  const t = useTranslations("OrdersByStatusChart");
+  const locale = useLocale();
+
+  const statusLabels: Record<string, string> = {
+    PENDING: t("statuses.pending"),
+    CONFIRMED: t("statuses.confirmed"),
+    PROCESSING: t("statuses.processing"),
+    SHIPPED: t("statuses.shipped"),
+    DELIVERED: t("statuses.delivered"),
+    CANCELLED: t("statuses.cancelled"),
+  };
+
+  const formatStatus = (status: string) =>
+    statusLabels[status] ?? status.replaceAll("_", " ");
+
   return (
     <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-          Orders by Status
+          {t("title")}
         </h2>
 
         <p className="mt-1 text-sm leading-5 text-slate-500">
-          Current order distribution.
+          {t("description")}
         </p>
       </div>
 
@@ -42,7 +59,7 @@ export default function OrdersByStatusChart({
         {loading && !data ? (
           <div className="flex h-full items-center justify-center gap-3 text-sm text-slate-500">
             <span className="size-4 animate-spin rounded-full border-2 border-blue-100 border-t-blue-600" />
-            Loading order data...
+            {t("loading")}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
@@ -65,6 +82,9 @@ export default function OrdersByStatusChart({
               <XAxis
                 type="number"
                 allowDecimals={false}
+                tickFormatter={(value: number) =>
+                  new Intl.NumberFormat(locale).format(value)
+                }
                 tick={{ fontSize: 12, fill: "#64748b" }}
                 axisLine={false}
                 tickLine={false}
@@ -74,9 +94,7 @@ export default function OrdersByStatusChart({
                 type="category"
                 dataKey="status"
                 width={100}
-                tickFormatter={(value: string) =>
-                  value.replaceAll("_", " ")
-                }
+                tickFormatter={(value: string) => formatStatus(value)}
                 tick={{ fontSize: 10, fill: "#64748b" }}
                 axisLine={false}
                 tickLine={false}
@@ -85,7 +103,7 @@ export default function OrdersByStatusChart({
               <Tooltip
                 formatter={(value) => [
                   Number(value ?? 0),
-                  "Orders",
+                  t("tooltip.orders"),
                 ]}
                 contentStyle={{
                   borderRadius: 8,
@@ -97,7 +115,7 @@ export default function OrdersByStatusChart({
 
               <Bar
                 dataKey="count"
-                name="Orders"
+                name={t("tooltip.orders")}
                 fill="#2563eb"
                 radius={[0, 4, 4, 0]}
                 maxBarSize={24}

@@ -1402,5 +1402,151 @@
   },
   "OrderHistoryPage": {
     "title": "Lịch sử đơn hàng"
+  },
+  "AdminDashboardPage": {
+    "header": {
+      "brand": "Trang quản trị Electroshop",
+      "title": "Tổng quan",
+      "description": "Theo dõi hiệu suất cửa hàng, đơn hàng, sản phẩm và hoạt động của khách hàng."
+    },
+    "buttons": {
+      "refreshing": "Đang làm mới...",
+      "refresh": "Làm mới dữ liệu"
+    },
+    "overview": {
+      "title": "Tổng quan cửa hàng",
+      "description": "Các chỉ số quan trọng và hiệu suất hoạt động của cửa hàng."
+    },
+    "ranges": {
+      "ariaLabel": "Khoảng thời gian của biểu đồ doanh thu",
+      "7Days": "7 ngày",
+      "30Days": "30 ngày",
+      "90Days": "90 ngày"
+    },
+    "metrics": {
+      "totalUsers": {
+        "label": "Tổng số người dùng",
+        "description": "Khách hàng đã đăng ký"
+      },
+      "totalProducts": {
+        "label": "Tổng số sản phẩm",
+        "description": "Sản phẩm trong danh mục"
+      },
+      "totalOrders": {
+        "label": "Tổng số đơn hàng",
+        "description": "Tất cả đơn hàng"
+      },
+      "totalRevenue": {
+        "label": "Tổng doanh thu",
+        "description": "Từ các đơn hàng đã giao"
+      },
+      "pendingOrders": {
+        "label": "Đơn hàng đang chờ",
+        "description": "Đang chờ xác nhận"
+      },
+      "lowStockProducts": {
+        "label": "Sản phẩm sắp hết hàng",
+        "description": "Còn không quá 10 đơn vị"
+      },
+      "totalReviews": {
+        "label": "Tổng số đánh giá",
+        "description": "Phản hồi từ khách hàng"
+      },
+      "averageRating": {
+        "label": "Điểm đánh giá trung bình",
+        "description": "Trên tất cả đánh giá"
+      },
+      "unansweredReviews": {
+        "label": "Đánh giá chưa phản hồi",
+        "description": "Đánh giá chưa có phản hồi"
+      }
+    }
+  },
+  "DashboardAttentionCards": {
+    "section": {
+      "title": "Các mục cần chú ý",
+      "description": "Những công việc quan trọng cần được bạn xử lý."
+    },
+    "cards": {
+      "pendingOrders": {
+        "title": "Đơn hàng đang chờ",
+        "description": "Đơn hàng đang chờ xác nhận",
+        "action": "Xem đơn hàng"
+      },
+      "lowStockProducts": {
+        "title": "Sản phẩm sắp hết hàng",
+        "description": "Sản phẩm còn không quá 10 đơn vị",
+        "action": "Xem sản phẩm"
+      },
+      "unansweredReviews": {
+        "title": "Đánh giá chưa phản hồi",
+        "description": "Đánh giá chưa có phản hồi từ quản trị viên",
+        "action": "Xem đánh giá"
+      }
+    }
+  },
+  "DashboardLoadingSkeleton": {
+    "ariaLabel": "Đang tải bảng điều khiển"
+  },
+  "OrdersByStatusChart": {
+    "title": "Đơn hàng theo trạng thái",
+    "description": "Phân bố đơn hàng hiện tại.",
+    "loading": "Đang tải dữ liệu đơn hàng...",
+    "tooltip": {
+      "orders": "Đơn hàng"
+    },
+    "statuses": {
+      "pending": "Đang chờ",
+      "confirmed": "Đã xác nhận",
+      "processing": "Đang xử lý",
+      "shipped": "Đã gửi hàng",
+      "delivered": "Đã giao hàng",
+      "cancelled": "Đã hủy"
+    }
+  },
+  "RecentOrdersTable": {
+    "title": "Đơn hàng gần đây",
+    "description": "Những đơn hàng mới nhất được đặt tại cửa hàng.",
+    "latestOrders": "5 đơn hàng mới nhất",
+    "columns": {
+      "order": "Đơn hàng",
+      "customer": "Khách hàng",
+      "total": "Tổng tiền",
+      "status": "Trạng thái",
+      "date": "Ngày đặt",
+      "action": "Thao tác"
+    },
+    "empty": "Không tìm thấy đơn hàng.",
+    "view": "Xem",
+    "statuses": {
+      "pending": "Đang chờ",
+      "confirmed": "Đã xác nhận",
+      "processing": "Đang xử lý",
+      "shipped": "Đã gửi hàng",
+      "outForDelivery": "Đang giao hàng",
+      "delivered": "Đã giao hàng",
+      "cancelled": "Đã hủy",
+      "canceled": "Đã hủy"
+    }
+  },
+  "RecentReviews": {
+    "title": "Đánh giá gần đây",
+    "description": "Phản hồi mới nhất của khách hàng và trạng thái trả lời.",
+    "viewAll": "Xem tất cả đánh giá",
+    "empty": "Không tìm thấy đánh giá.",
+    "replied": "Đã phản hồi",
+    "needsResponse": "Cần phản hồi",
+    "ratingAriaLabel": "Điểm đánh giá {rating} trên 5"
+  },
+  "RevenueOverviewChart": {
+    "title": "Tổng quan doanh thu",
+    "description": "Doanh thu theo ngày từ các đơn hàng đã giao.",
+    "lastDays": "{range} ngày gần nhất",
+    "loading": "Đang tải dữ liệu doanh thu...",
+    "empty": "Không có dữ liệu doanh thu trong khoảng thời gian này.",
+    "tooltip": {
+      "revenue": "Doanh thu",
+      "dateLabel": "Ngày: {date}"
+    }
   }
 }

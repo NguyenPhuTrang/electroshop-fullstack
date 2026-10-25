@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import { Link } from "@/src/i18n/navigation";
 
 type RecentOrder = {
@@ -28,39 +30,56 @@ const STATUS_STYLES: Record<string, string> = {
   CANCELED: "border-rose-200 bg-rose-50 text-rose-700",
 };
 
-function formatCurrency(value: number) {
-  return `${new Intl.NumberFormat("vi-VN", {
-    maximumFractionDigits: 0,
-  }).format(value)} ₫`;
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 export default function RecentOrdersTable({
   orders,
 }: RecentOrdersTableProps) {
+  const t = useTranslations("RecentOrdersTable");
+  const locale = useLocale();
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  const formatDate = (value: string) =>
+    new Date(value).toLocaleDateString(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+  const statusLabels: Record<string, string> = {
+    PENDING: t("statuses.pending"),
+    CONFIRMED: t("statuses.confirmed"),
+    PROCESSING: t("statuses.processing"),
+    SHIPPED: t("statuses.shipped"),
+    OUT_FOR_DELIVERY: t("statuses.outForDelivery"),
+    DELIVERED: t("statuses.delivered"),
+    CANCELLED: t("statuses.cancelled"),
+    CANCELED: t("statuses.canceled"),
+  };
+
+  const formatStatus = (status: string) =>
+    statusLabels[status] ?? status.replaceAll("_", " ");
+
   return (
     <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* Header */}
       <div className="flex flex-col justify-between gap-2 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-            Recent Orders
+            {t("title")}
           </h2>
 
           <p className="mt-1 text-sm leading-5 text-slate-500">
-            The latest orders placed in your store.
+            {t("description")}
           </p>
         </div>
 
         <span className="w-fit text-xs font-medium text-slate-500">
-          Latest 5 orders
+          {t("latestOrders")}
         </span>
       </div>
 
@@ -70,27 +89,27 @@ export default function RecentOrdersTable({
           <thead className="bg-slate-50">
             <tr>
               <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Order
+                {t("columns.order")}
               </th>
 
               <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Customer
+                {t("columns.customer")}
               </th>
 
               <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Total
+                {t("columns.total")}
               </th>
 
               <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Status
+                {t("columns.status")}
               </th>
 
               <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Date
+                {t("columns.date")}
               </th>
 
               <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Action
+                {t("columns.action")}
               </th>
             </tr>
           </thead>
@@ -102,7 +121,7 @@ export default function RecentOrdersTable({
                   colSpan={6}
                   className="px-5 py-10 text-center text-sm text-slate-500"
                 >
-                  No orders found.
+                  {t("empty")}
                 </td>
               </tr>
             ) : (
@@ -130,7 +149,7 @@ export default function RecentOrdersTable({
                         "border-slate-200 bg-white text-slate-600"
                       }`}
                     >
-                      {order.status.replaceAll("_", " ")}
+                      {formatStatus(order.status)}
                     </span>
                   </td>
 
@@ -143,7 +162,7 @@ export default function RecentOrdersTable({
                       href={`/admin/orders/${order.id}`}
                       className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:border-blue-300 hover:bg-blue-50"
                     >
-                      View
+                      {t("view")}
                     </Link>
                   </td>
                 </tr>

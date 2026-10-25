@@ -1,3 +1,7 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
+
 import { Link } from "@/src/i18n/navigation";
 
 type RecentReview = {
@@ -18,28 +22,30 @@ type RecentReviewsProps = {
   reviews: RecentReview[];
 };
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 export default function RecentReviews({
   reviews,
 }: RecentReviewsProps) {
+  const t = useTranslations("RecentReviews");
+  const locale = useLocale();
+
+  const formatDate = (value: string) =>
+    new Date(value).toLocaleDateString(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
   return (
     <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* Header */}
       <div className="flex flex-col justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-            Recent Reviews
+            {t("title")}
           </h2>
 
           <p className="mt-1 text-sm leading-5 text-slate-500">
-            Latest customer feedback and reply status.
+            {t("description")}
           </p>
         </div>
 
@@ -47,7 +53,7 @@ export default function RecentReviews({
           href="/admin/reviews"
           className="inline-flex min-h-9 w-fit items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-50"
         >
-          View All Reviews
+          {t("viewAll")}
           <span aria-hidden="true">→</span>
         </Link>
       </div>
@@ -56,7 +62,7 @@ export default function RecentReviews({
       <div className="divide-y divide-slate-100">
         {reviews.length === 0 ? (
           <div className="px-5 py-10 text-center text-sm text-slate-500">
-            No reviews found.
+            {t("empty")}
           </div>
         ) : (
           reviews.map((review) => (
@@ -91,7 +97,9 @@ export default function RecentReviews({
               <div className="flex shrink-0 flex-wrap items-center gap-3">
                 <span
                   className="text-sm font-semibold text-amber-600"
-                  aria-label={`Rating ${review.rating} out of 5`}
+                  aria-label={t("ratingAriaLabel", {
+                    rating: review.rating,
+                  })}
                 >
                   {"★".repeat(review.rating)}
                   <span className="ml-1 text-slate-500">
@@ -106,7 +114,7 @@ export default function RecentReviews({
                       : "border-amber-200 bg-amber-50 text-amber-700"
                   }`}
                 >
-                  {review.reply ? "Replied" : "Needs response"}
+                  {review.reply ? t("replied") : t("needsResponse")}
                 </span>
               </div>
             </article>
