@@ -228,10 +228,8 @@ export default function CartPage() {
   const [isClearing, setIsClearing] = useState(false);
 
   // Keep the initial skeleton visible for at least 700 ms.
-  const [minimumLoadingTimeElapsed, setMinimumLoadingTimeElapsed] =
-    useState(false);
-  const [hasInitialFetchSettled, setHasInitialFetchSettled] =
-    useState(false);
+  const [minimumLoadingTimeElapsed, setMinimumLoadingTimeElapsed] = useState(false);
+  const [hasInitialFetchSettled, setHasInitialFetchSettled] = useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {

@@ -9,6 +9,8 @@ import { addCartItem } from "@/src/features/cart/services/cart.service";
 import { useProductVariants } from "@/src/features/product/hooks/useProductVariants";
 import type { ProductVariant } from "@/src/features/product/types/product";
 import type { Review } from "@/src/features/review/types/review";
+import axios from "axios";
+import { useRouter } from "@/src/i18n/navigation";
 
 type ProductInforProps = {
   productId: number;
@@ -79,7 +81,7 @@ export default function ProductInfor({
 }: ProductInforProps) {
   const t = useTranslations("ProductInfo");
   const locale = useLocale();
-
+  const router = useRouter();
   const { flyToCart } = useCart();
   const addButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -376,15 +378,23 @@ export default function ProductInfor({
           ? t("toast.addedDescription", { name, configuration })
           : name,
       });
-    } catch (error) {
-      console.error("Failed to add product to cart", error);
+        } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          toast.error(t("toast.loginRequired"), {
+            id: toastId,
+            description: t("toast.loginRequiredDescription"),
+          });
+          return;
+        }
 
-      toast.error(t("toast.addError"), {
-        id: toastId,
-      });
-    } finally {
-      setAddingToCart(false);
-    }
+        console.error("Failed to add product to cart", error);
+
+        toast.error(t("toast.addError"), {
+          id: toastId,
+        });
+      } finally {
+        setAddingToCart(false);
+      }
   };
 
   return (

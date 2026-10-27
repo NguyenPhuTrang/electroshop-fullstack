@@ -53,7 +53,12 @@
     "logout": "Đăng xuất"
   },
   "LogoutButton": {
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "confirmTitle": "Đăng xuất?",
+    "confirmDescription": "Bạn sẽ cần đăng nhập lại để truy cập tài khoản.",
+    "cancel": "Hủy",
+    "confirm": "Đăng xuất",
+    "loggingOut": "Đang đăng xuất..."
   },
   "Navigation": {
     "mainNavigation": "Điều hướng chính",
@@ -181,7 +186,10 @@
       "configurationOutOfStock": "Cấu hình sản phẩm này đã hết hàng.",
       "addedToCart": "Đã thêm sản phẩm vào giỏ hàng.",
       "addedDescription": "{name} — {configuration}",
-      "addError": "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại."
+      "addError": "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.",
+      "loginRequired": "Vui lòng đăng nhập",
+      "loginRequiredDescription": "Đăng nhập để thêm sản phẩm vào giỏ hàng.",
+      "signIn": "Đăng nhập"
     }
   },
   "ProductImageManager": {

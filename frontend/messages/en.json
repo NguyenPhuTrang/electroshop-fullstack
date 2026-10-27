@@ -53,7 +53,12 @@
     "logout": "Logout"
   },
   "LogoutButton": {
-    "logout": "Logout"
+    "logout": "Logout",
+    "confirmTitle": "Sign out?",
+    "confirmDescription": "You will need to sign in again to access your account.",
+    "cancel": "Cancel",
+    "confirm": "Sign out",
+    "loggingOut": "Signing out..."
   },
   "Navigation": {
     "mainNavigation": "Main navigation",
@@ -181,7 +186,10 @@
       "configurationOutOfStock": "This product configuration is out of stock.",
       "addedToCart": "Product added to your cart.",
       "addedDescription": "{name} — {configuration}",
-      "addError": "Unable to add this product to your cart. Please try again."
+      "addError": "Unable to add this product to your cart. Please try again.",
+      "loginRequired": "Please sign in",
+      "loginRequiredDescription": "Sign in to add products to your cart.",
+      "signIn": "Sign in"
     }
   },
   "ProductImageManager": {

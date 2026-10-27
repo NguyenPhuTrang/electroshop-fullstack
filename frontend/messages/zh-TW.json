@@ -53,7 +53,12 @@
     "logout": "登出"
   },
   "LogoutButton": {
-    "logout": "登出"
+    "logout": "登出",
+    "confirmTitle": "確定要登出嗎？",
+    "confirmDescription": "您需要重新登入才能使用您的帳戶。",
+    "cancel": "取消",
+    "confirm": "登出",
+    "loggingOut": "登出中..."
   },
   "Navigation": {
     "mainNavigation": "主要導覽",
@@ -181,7 +186,10 @@
       "configurationOutOfStock": "此商品規格目前缺貨。",
       "addedToCart": "商品已加入購物車。",
       "addedDescription": "{name} — {configuration}",
-      "addError": "無法將商品加入購物車，請再試一次。"
+      "addError": "無法將商品加入購物車，請再試一次。",
+      "loginRequired": "請先登入",
+      "loginRequiredDescription": "登入後才能將商品加入購物車。",
+      "signIn": "登入"
     }
   },
   "ProductImageManager": {
