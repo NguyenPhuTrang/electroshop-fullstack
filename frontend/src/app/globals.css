@@ -46,3 +46,20 @@ html {
     scroll-behavior: auto !important;
   }
 }
+
+@media (max-width: 600px) {
+  [data-sonner-toaster] {
+    left: 50% !important;
+    right: auto !important;
+    width: calc(100% - 32px) !important;
+    max-width: 380px;
+    transform: translateX(-50%) !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}

@@ -16,7 +16,7 @@
     "showProduct": "Show product {index}: {name}",
     "explorePossibilities": "Explore possibilities",
     "welcome": "Welcome ~~~",
-    "findTech": "Find tech for everyday life",
+    "findTech": "Discover Technology !",
     "carefullySelected": "Carefully selected",
     "collectionTitle": "Find your next favorite.",
     "collectionDescription": "Explore our latest products for work, entertainment, and everyday life.",
@@ -31,7 +31,8 @@
     "navAria": "Main navigation",
     "home": "Home",
     "products": "Products",
-    "cart": "Cart"
+    "cart": "Cart",
+    "menuAria": "Menu"
   },
   "Metadata": {
     "title": "Electroshop",
@@ -558,7 +559,9 @@
       "minimumPrice": "Minimum price",
       "maximumPrice": "Maximum price",
       "minimumPlaceholder": "Min",
-      "maximumPlaceholder": "Max"
+      "maximumPlaceholder": "Max",
+      "close": "Close",
+      "showResults": "Show results"
     },
     "results": {
       "ariaLabel": "Product results",

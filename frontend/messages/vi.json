@@ -16,7 +16,7 @@
     "showProduct": "Hiển thị sản phẩm {index}: {name}",
     "explorePossibilities": "Khám phá khả năng",
     "welcome": "Chào mừng ~~~",
-    "findTech": "Tìm công nghệ cho cuộc sống hằng ngày",
+    "findTech": "Khám phá công nghệ !",
     "carefullySelected": "Tuyển chọn kỹ lưỡng",
     "collectionTitle": "Tìm món yêu thích tiếp theo của bạn.",
     "collectionDescription": "Khám phá các sản phẩm mới nhất cho công việc, giải trí và cuộc sống hằng ngày.",
@@ -31,7 +31,8 @@
     "navAria": "Điều hướng chính",
     "home": "Trang chủ",
     "products": "Sản phẩm",
-    "cart": "Giỏ hàng"
+    "cart": "Giỏ hàng",
+    "menuAria": "Menu"
   },
   "Metadata": {
     "title": "Electroshop",
@@ -558,7 +559,9 @@
       "minimumPrice": "Giá tối thiểu",
       "maximumPrice": "Giá tối đa",
       "minimumPlaceholder": "Tối thiểu",
-      "maximumPlaceholder": "Tối đa"
+      "maximumPlaceholder": "Tối đa",
+      "close": "Đóng",
+      "showResults": "Xem kết quả"
     },
     "results": {
       "ariaLabel": "Kết quả sản phẩm",

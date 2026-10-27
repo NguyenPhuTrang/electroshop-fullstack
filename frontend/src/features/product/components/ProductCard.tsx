@@ -85,7 +85,7 @@ export default function ProductCard({
                 src={image}
                 alt={name}
                 fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
                 priority={priority}
                 className="object-contain p-4 sm:p-5"
               />
@@ -118,7 +118,7 @@ export default function ProductCard({
         </div>
 
         <div className="flex flex-1 flex-col p-2.5 sm:p-3">
-          <h2 className="min-h-[2.25rem] line-clamp-2 text-sm font-semibold leading-5 tracking-tight text-slate-900 transition-colors duration-200 group-hover:text-blue-700 sm:text-base">
+          <h2 className="min-h-[2.5rem] line-clamp-2 text-sm font-semibold leading-5 tracking-tight text-slate-900 transition-colors duration-200 group-hover:text-blue-700 sm:text-base">
             {name}
           </h2>
 

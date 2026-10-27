@@ -16,7 +16,7 @@
     "showProduct": "顯示第 {index} 項產品：{name}",
     "explorePossibilities": "探索無限可能",
     "welcome": "歡迎光臨 ~~~",
-    "findTech": "找到適合日常生活的科技",
+    "findTech": "探索科技!",
     "carefullySelected": "精心挑選",
     "collectionTitle": "找到您的下一個最愛。",
     "collectionDescription": "探索我們最新的產品，適用於工作、娛樂與日常生活。",
@@ -31,7 +31,8 @@
     "navAria": "主要導覽",
     "home": "首頁",
     "products": "產品",
-    "cart": "購物車"
+    "cart": "購物車",
+    "menuAria": "選單"
   },
   "Metadata": {
     "title": "Electroshop",
@@ -558,7 +559,9 @@
       "minimumPrice": "最低價格",
       "maximumPrice": "最高價格",
       "minimumPlaceholder": "最低",
-      "maximumPlaceholder": "最高"
+      "maximumPlaceholder": "最高",
+      "close": "關閉",
+      "showResults": "查看結果"
     },
     "results": {
       "ariaLabel": "產品搜尋結果",

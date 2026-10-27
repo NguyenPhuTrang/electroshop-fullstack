@@ -245,7 +245,7 @@ export default function Home() {
                     delay: Math.min(index * 0.06, 0.24),
                     ease: "easeOut",
                   }}
-                  className="min-w-0 flex-1"
+               className={`min-w-0 flex-1 ${index >= 2 ? "hidden md:block" : ""}`}
                 >
                   <motion.div
                     animate={{ opacity: [0.4, 0.8, 0.4] }}
@@ -593,23 +593,23 @@ export default function Home() {
                     ease: "easeInOut",
                   },
                 }}
-                className="absolute right-3 top-4 z-20 rounded-xl border border-white/10 bg-slate-950/75 px-3 py-2.5 shadow-lg backdrop-blur-xl sm:right-6 sm:top-6 sm:px-4"
+                className="absolute right-3 top-3 z-20 hidden max-w-[60%] rounded-lg border border-white/10 bg-slate-950/75 px-2 py-1.5 shadow-lg backdrop-blur-xl sm:block md:right-5 md:top-5 md:rounded-xl md:px-3 md:py-2.5 lg:right-3 lg:top-3 lg:px-2.5 lg:py-2 xl:right-6 xl:top-6 xl:px-4 xl:py-2.5"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-cyan-300/15 text-lg text-cyan-200">
-                    ✨
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-semibold text-white sm:text-sm">
-                      {t("welcome")}
-                    </p>
-
-                    <p className="mt-1 text-[9px] text-slate-300 sm:text-[10px]">
-                      {t("findTech")}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-2 xl:gap-2.5">
+                <div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-cyan-300/15 text-sm text-cyan-200 md:size-9 md:rounded-lg md:text-lg lg:size-7 lg:text-base xl:size-9 xl:text-lg">
+                  ✨
                 </div>
+
+                <div className="min-w-0">
+                  <p className="truncate text-[11px] font-semibold text-white md:text-sm lg:text-xs xl:text-sm">
+                    {t("welcome")}
+                  </p>
+
+                  <p className="mt-0.5 truncate text-[8px] text-slate-300 md:mt-1 md:text-[10px] lg:text-[9px] xl:text-[10px]">
+                    {t("findTech")}
+                  </p>
+                </div>
+              </div>
               </motion.div>
             </motion.div>
           </div>
@@ -722,7 +722,7 @@ export default function Home() {
               ref={productsScrollerRef}
               onScroll={updateProductScrollButtons}
               aria-label={t("latestProducts")}
-              className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {products.map((product, index) => {
                 const priceVariant = getLowestPriceVariant(product);
@@ -741,7 +741,7 @@ export default function Home() {
                       ease: "easeOut",
                     }}
                     whileHover={{ y: -4 }}
-                    className="min-w-0 basis-[86%] shrink-0 snap-start sm:basis-[calc(50%_-_0.625rem)] lg:basis-[calc(33.333%_-_0.833rem)] xl:basis-[calc(25%_-_0.9375rem)]"
+                    className="min-w-0 shrink-0 basis-[calc(50%_-_0.5rem)] snap-start md:basis-[calc(33.333%_-_0.667rem)] xl:basis-[calc(25%_-_0.75rem)]"
                   >
                     <ProductCard
                       name={product.name}

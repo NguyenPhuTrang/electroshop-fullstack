@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -83,16 +82,24 @@ export default function ProductInfor({
 
   const { flyToCart } = useCart();
   const addButtonRef = useRef<HTMLButtonElement>(null);
+
   const {
     variants,
     loading: variantsLoading,
     error: variantsError,
   } = useProductVariants(productId);
 
-  const [selectedStorage, setSelectedStorage] = useState<string | null>(null);
-  const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
+  const [selectedStorage, setSelectedStorage] = useState<string | null>(
+    null
+  );
+  const [selectedColorId, setSelectedColorId] = useState<number | null>(
+    null
+  );
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+
+  // The sticky mobile bar only shows when the main button is off-screen.
+  const [isMainButtonVisible, setIsMainButtonVisible] = useState(true);
 
   useEffect(() => {
     setSelectedStorage(null);
@@ -103,6 +110,20 @@ export default function ProductInfor({
   useEffect(() => {
     onSelectedColorChange?.(selectedColorId);
   }, [selectedColorId, onSelectedColorChange]);
+
+  useEffect(() => {
+    const button = addButtonRef.current;
+
+    if (!button) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsMainButtonVisible(entry.isIntersecting);
+    });
+
+    observer.observe(button);
+
+    return () => observer.disconnect();
+  }, []);
 
   const visibleVariants = variants.filter(
     (variant) => variant.status !== "INACTIVE"
@@ -257,6 +278,13 @@ export default function ProductInfor({
         reviews.length
       : 0;
 
+  const isAddDisabled =
+    !selectedVariant ||
+    !selectedVariantAvailable ||
+    addingToCart ||
+    variantsLoading ||
+    Boolean(variantsError);
+
   const handleStorageChange = (storage: string) => {
     const colorIsAvailable =
       selectedColorId !== null &&
@@ -313,11 +341,25 @@ export default function ProductInfor({
         quantity,
         selectedVariant.id
       );
-      const flySource =
-      document.querySelector<HTMLElement>("[data-fly-source]") ??
-      addButtonRef.current;
+
+      // Fly the product image if it is on screen; otherwise fly from
+      // the sticky bar button (or the main button as a last resort).
+      const image = document.querySelector<HTMLElement>(
+        "[data-fly-source]"
+      );
+      const rect = image?.getBoundingClientRect();
+      const isImageVisible =
+        rect !== undefined &&
+        rect.bottom > 0 &&
+        rect.top < window.innerHeight;
+
+      const flySource = isImageVisible
+        ? image
+        : (document.querySelector<HTMLElement>("[data-sticky-add]") ??
+          addButtonRef.current);
 
       if (flySource) flyToCart(flySource, quantity);
+
       const configuration = [
         selectedVariant.storage &&
         !isStandardStorage(selectedVariant.storage)
@@ -660,13 +702,7 @@ export default function ProductInfor({
         ref={addButtonRef}
         onClick={handleAddToCart}
         type="button"
-        disabled={
-          !selectedVariant ||
-          !selectedVariantAvailable ||
-          addingToCart ||
-          variantsLoading ||
-          Boolean(variantsError)
-        }
+        disabled={isAddDisabled}
         className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
       >
         {addingToCart ? (
@@ -703,12 +739,49 @@ export default function ProductInfor({
             {t("addToCart")}
           </>
         )}
-        
       </button>
 
       <p className="mt-4 text-center text-xs leading-5 text-slate-500">
         {t("trustLine")}
       </p>
+
+      {/* Sticky add-to-cart bar (mobile only, shown when the main button is off-screen) */}
+      {!isMainButtonVisible && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-3 pt-3 shadow-[0_-4px_12px_rgba(15,23,42,0.06)] backdrop-blur md:hidden"
+          style={{
+            paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))",
+          }}
+        >
+          <div className="mx-auto flex max-w-xl items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs text-slate-500">{name}</p>
+
+              {formattedEffectivePrice && (
+                <p className="text-base font-bold text-slate-950">
+                  {formattedEffectivePrice}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              data-sticky-add
+              onClick={handleAddToCart}
+              disabled={isAddDisabled}
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+            >
+              {addingToCart
+                ? t("addingToCart")
+                : !selectedVariant
+                  ? t("selectOptions")
+                  : !selectedVariantAvailable
+                    ? t("outOfStock")
+                    : t("addToCart")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

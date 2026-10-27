@@ -13,6 +13,7 @@ export default function CartLink({ label }: { label: string }) {
   return (
     <Link
       href="/cart"
+      aria-label={label}
       className={`${navLinkClassName} inline-flex items-center gap-1.5`}
     >
       <span data-cart-icon className="relative inline-flex">
@@ -37,14 +38,14 @@ export default function CartLink({ label }: { label: string }) {
             initial={{ scale: 1.8 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 18 }}
-            className="absolute -right-2 -top-2 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-[9px] font-bold leading-none text-white"
+            className="absolute -right-1.5 -top-1.5 flex h-3 min-w-3 items-center justify-center rounded-full bg-red-500 px-0.5 text-[8px] font-bold leading-none text-white"
           >
             {count > 99 ? "99+" : count}
           </motion.span>
         )}
       </span>
 
-      <span>{label}</span>
+      <span className="hidden sm:inline">{label}</span>
     </Link>
   );
 }

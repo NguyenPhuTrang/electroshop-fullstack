@@ -3,6 +3,7 @@ import { Link } from "@/src/i18n/navigation";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../languages/LanguageSwitcher";
 import CartLink from "./CartLink";
+import MobileMenu from "./MobileMenu";
 
 const navLinkClassName =
   "rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
@@ -39,34 +40,42 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Navigation */}
-        <nav aria-label={t("navAria")}>
-          <ul className="flex items-center gap-1 sm:gap-2">
-            <li>
-              <Link href="/" className={navLinkClassName}>
-                {t("home")}
-              </Link>
-            </li>
-
-            <li>
-              <Link href="/products" className={navLinkClassName}>
-                {t("products")}
-              </Link>
-            </li>
-
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Desktop/tablet links */}
+          <nav aria-label={t("navAria")} className="hidden md:block">
+            <ul className="flex items-center gap-2">
               <li>
-                  <CartLink label={t("cart")} />
+                <Link href="/" className={navLinkClassName}>
+                  {t("home")}
+                </Link>
               </li>
+              <li>
+                <Link href="/products" className={navLinkClassName}>
+                  {t("products")}
+                </Link>
+              </li>
+            </ul>
+          </nav>
 
-            <li className="ml-1 border-l border-slate-200 pl-2 sm:ml-2 sm:pl-3">
-              <LanguageSwitcher />
-            </li>
+          {/* Cart: always visible, rendered once */}
+          <CartLink label={t("cart")} />
 
-            <li>
-              <UserMenu />
-            </li>
-          </ul>
-        </nav>
+          {/* Desktop/tablet: language + account */}
+          <div className="ml-1 hidden items-center gap-2 md:flex">
+            <LanguageSwitcher align="right" />
+            <UserMenu />
+          </div>
+
+          {/* Mobile: hamburger */}
+          <MobileMenu
+            menuLabel={t("menuAria")}
+            homeLabel={t("home")}
+            productsLabel={t("products")}
+          >
+           <LanguageSwitcher className="flex-1" align="left" />
+            <UserMenu />
+          </MobileMenu>
+        </div>
       </div>
     </header>
   );
