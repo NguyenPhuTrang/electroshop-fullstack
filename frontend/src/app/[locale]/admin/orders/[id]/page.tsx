@@ -378,7 +378,7 @@ export default function AdminOrderDetailPage() {
                 </p>
               </div>
 
-              <h1 className="break-words text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+             <h1 className="break-words text-xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                 {t("header.orderNumber", {
                   orderNumber: order.orderNumber,
                 })}

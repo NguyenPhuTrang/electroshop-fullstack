@@ -38,7 +38,7 @@ export default function RecentReviews({
   return (
     <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* Header */}
-      <div className="flex flex-col justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
+      <div className="flex flex-col justify-between gap-3 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-slate-900">
             {t("title")}
@@ -68,12 +68,12 @@ export default function RecentReviews({
           reviews.map((review) => (
             <article
               key={review.id}
-              className="flex flex-col justify-between gap-4 px-5 py-4 transition-colors hover:bg-slate-50 sm:flex-row sm:items-center sm:px-6"
+              className="flex flex-col justify-between gap-3 px-4 py-4 transition-colors hover:bg-slate-50 sm:flex-row sm:items-center sm:gap-4 sm:px-6"
             >
               {/* Review Information */}
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="break-words text-sm font-semibold text-slate-900">
                     {review.user.name}
                   </p>
 
@@ -82,8 +82,8 @@ export default function RecentReviews({
                   </span>
                 </div>
 
-                <p className="mt-1 text-sm text-slate-500">
-                  {review.product.name}
+                <p className="mt-1 break-words text-sm text-slate-500">
+                    {review.product.name}
                 </p>
 
                 {review.comment && (

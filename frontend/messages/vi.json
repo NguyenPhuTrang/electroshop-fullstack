@@ -2196,7 +2196,8 @@
     "description": "Quản lý cửa hàng Electroshop",
     "selectLanguage": "Chọn ngôn ngữ",
     "workspace": "Không gian quản trị",
-    "administrator": "Quản trị viên"
+    "administrator": "Quản trị viên",
+    "openMenu": "Mở menu"
   },
   "AdminSidebar": {
     "adminPanel": "Bảng quản trị",
@@ -2211,7 +2212,8 @@
     "reviews": "Đánh giá",
     "administration": "Quản trị",
     "storeManagement": "Quản lý cửa hàng",
-    "footer": "Trang quản trị Electroshop"
+    "footer": "Trang quản trị Electroshop",
+    "closeMenu": "Đóng menu"
   },
   "AdminFooter": {
     "adminPanel": "Bảng quản trị",

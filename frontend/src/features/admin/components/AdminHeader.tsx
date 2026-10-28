@@ -1,32 +1,45 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter, Link } from "@/src/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { Link } from "@/src/i18n/navigation";
 
-export default function AdminHeader() {
+type AdminHeaderProps = {
+    onMenuClick: () => void;
+};
+
+export default function AdminHeader({
+    onMenuClick,
+}: AdminHeaderProps) {
     const t = useTranslations("AdminHeader");
-    const locale = useLocale();
-
-    const router = useRouter();
-    const pathname = usePathname();
-
-    const handleLocaleChange = (
-        event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        const nextLocale = event.target.value;
-
-        router.replace(pathname, {
-            locale: nextLocale,
-        });
-    };
 
     return (
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
-            {/* Back to Store */}
-            <div className="flex min-w-0 items-center gap-4">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+                {/* Open sidebar (mobile/tablet only) */}
+                <button
+                    type="button"
+                    onClick={onMenuClick}
+                    aria-label={t("openMenu")}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 lg:hidden"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.8}
+                        strokeLinecap="round"
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                    >
+                        <path d="M4 7h16M4 12h16M4 17h16" />
+                    </svg>
+                </button>
+
+                {/* Back to Store (icon only on very small screens) */}
                 <Link
                     href="/"
-                    className="group inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-600 transition-colors duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                    aria-label={t("backToStore")}
+                    className="group inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition-colors duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 sm:px-3.5"
                 >
                     <svg
                         viewBox="0 0 24 24"
@@ -42,31 +55,26 @@ export default function AdminHeader() {
                         <path d="m12 19-7-7 7-7" />
                     </svg>
 
-                    <span>{t("backToStore")}</span>
+                    <span className="hidden min-[400px]:inline">
+                        {t("backToStore")}
+                    </span>
                 </Link>
 
-                <div className="hidden h-7 w-px bg-slate-200 sm:block" />
+                <div className="hidden h-7 w-px bg-slate-200 md:block" />
 
-                <div className="hidden min-w-0 sm:block">
+                <div className="hidden min-w-0 md:block">
                     <p className="truncate text-sm font-semibold text-slate-800">
                         {t("title")}
                     </p>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 truncate text-xs text-slate-500">
                         {t("description")}
                     </p>
                 </div>
             </div>
 
-            {/* Language Switcher + Admin Badge */}
+            {/* Workspace badge + Admin badge */}
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                <label
-                    htmlFor="admin-language"
-                    className="sr-only"
-                >
-                    {t("selectLanguage")}
-                </label>
-
                 <div className="hidden items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 sm:flex">
                     <span className="h-2 w-2 rounded-full bg-emerald-500" />
 

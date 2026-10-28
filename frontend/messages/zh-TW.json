@@ -2196,7 +2196,8 @@
     "description": "管理您的 Electroshop 商店",
     "selectLanguage": "選擇語言",
     "workspace": "管理工作區",
-    "administrator": "管理員"
+    "administrator": "管理員",
+    "openMenu": "開啟選單"
   },
   "AdminSidebar": {
     "adminPanel": "管理面板",
@@ -2211,7 +2212,8 @@
     "reviews": "評價",
     "administration": "管理",
     "storeManagement": "商店管理",
-    "footer": "Electroshop 管理後台"
+    "footer": "Electroshop 管理後台",
+    "closeMenu": "關閉選單"
   },
   "AdminFooter": {
     "adminPanel": "管理面板",

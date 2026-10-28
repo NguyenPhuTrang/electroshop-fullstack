@@ -2196,7 +2196,8 @@
     "description": "Manage your Electroshop store",
     "selectLanguage": "Select language",
     "workspace": "Admin Workspace",
-    "administrator": "Administrator"
+    "administrator": "Administrator",
+    "openMenu": "Open menu"
   },
   "AdminSidebar": {
     "adminPanel": "Admin Panel",
@@ -2211,7 +2212,8 @@
     "reviews": "Reviews",
     "administration": "Administration",
     "storeManagement": "Store Management",
-    "footer": "Electroshop Admin"
+    "footer": "Electroshop Admin",
+    "closeMenu": "Close menu"
   },
   "AdminFooter": {
     "adminPanel": "Admin Panel",

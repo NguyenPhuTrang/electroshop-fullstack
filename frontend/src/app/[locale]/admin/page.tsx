@@ -261,7 +261,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-full bg-[#f7f8fa] p-4 sm:p-6 lg:p-8">
+    <main className="min-h-full bg-[#f7f8fa]">
       <div className="mx-auto max-w-7xl">
         {/* Page Header */}
         <header className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
@@ -283,7 +283,7 @@ export default function AdminPage() {
             type="button"
             onClick={() => void refetch()}
             disabled={loading}
-            className="group inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="group inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             <svg
               className={`h-4 w-4 transition-transform duration-300 ${

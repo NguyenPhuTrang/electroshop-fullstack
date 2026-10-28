@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Link, usePathname } from "@/src/i18n/navigation";
@@ -13,6 +12,11 @@ type SidebarIconName =
     | "orders"
     | "users"
     | "reviews";
+
+type AdminSidebarProps = {
+    isOpen: boolean;
+    onClose: () => void;
+};
 
 const NAV_ITEMS: {
     labelKey: string;
@@ -132,7 +136,10 @@ function SidebarIcon({
     );
 }
 
-export default function AdminSidebar() {
+export default function AdminSidebar({
+    isOpen,
+    onClose,
+}: AdminSidebarProps) {
     const t = useTranslations("AdminSidebar");
     const pathname = usePathname();
 
@@ -148,108 +155,30 @@ export default function AdminSidebar() {
     };
 
     return (
-        <aside className="sticky top-0 z-40 flex h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white">
-            {/* Brand */}
-            <div className="border-b border-slate-100 px-5 py-6">
-                <Link
-                    href="/admin"
-                    className="group flex items-center gap-3 rounded-xl"
-                >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm transition group-hover:bg-blue-700">
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-6 w-6"
-                            aria-hidden="true"
-                        >
-                            <path d="M13 2 4 14h7l-1 8 10-12h-7l1-8Z" />
-                        </svg>
-                    </div>
+        <>
+            {/* Backdrop behind the drawer (mobile/tablet only) */}
+            {isOpen && (
+                <div
+                    aria-hidden="true"
+                    onClick={onClose}
+                    className="fixed inset-0 z-[55] bg-slate-900/40 lg:hidden"
+                />
+            )}
 
-                    <div className="min-w-0">
-                        <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                            Electroshop
-                        </h2>
-
-                        <p className="mt-0.5 text-xs font-medium text-slate-500">
-                            {t("adminPanel")}
-                        </p>
-                    </div>
-                </Link>
-            </div>
-
-            {/* Navigation */}
-            <nav
-                aria-label={t("navigationLabel")}
-                className="flex-1 px-3 py-6"
+            {/* Drawer below 1024px, sticky sidebar from 1024px up */}
+            <aside
+                className={`fixed inset-y-0 left-0 z-[60] flex w-64 max-w-[85vw] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white transition-transform duration-300 ${
+                    isOpen ? "translate-x-0" : "-translate-x-full"
+                } lg:sticky lg:top-0 lg:z-40 lg:h-screen lg:max-w-none lg:translate-x-0`}
             >
-                <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                    {t("workspace")}
-                </p>
-
-                <div className="space-y-1">
-                    {NAV_ITEMS.map((item) => {
-                        const active = isActive(item.href);
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                aria-current={active ? "page" : undefined}
-                                className={`group relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-colors duration-200 ${
-                                    active
-                                        ? "bg-blue-50 text-blue-700"
-                                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                                }`}
-                            >
-                                {active && (
-                                    <motion.span
-                                        layoutId="admin-sidebar-active"
-                                        className="absolute bottom-2 left-0 top-2 w-1 rounded-r-full bg-blue-600"
-                                        transition={{
-                                            type: "spring",
-                                            stiffness: 380,
-                                            damping: 30,
-                                        }}
-                                    />
-                                )}
-
-                                <span
-                                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                                        active
-                                            ? "bg-white text-blue-600 shadow-sm"
-                                            : "text-slate-400 group-hover:bg-white group-hover:text-blue-600"
-                                    }`}
-                                >
-                                    <SidebarIcon name={item.icon} />
-                                </span>
-
-                                <span className="flex-1">
-                                    {t(item.labelKey)}
-                                </span>
-
-                                {active && (
-                                    <motion.span
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        className="h-1.5 w-1.5 rounded-full bg-cyan-500"
-                                    />
-                                )}
-                            </Link>
-                        );
-                    })}
-                </div>
-            </nav>
-
-            {/* Footer */}
-            <div className="border-t border-slate-100 p-4">
-                <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-3.5">
-                    <div className="flex items-center gap-2.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600">
+                {/* Brand */}
+                <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-6">
+                    <Link
+                        href="/admin"
+                        onClick={onClose}
+                        className="group flex min-w-0 items-center gap-3 rounded-xl"
+                    >
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm transition group-hover:bg-blue-700">
                             <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -257,30 +186,146 @@ export default function AdminSidebar() {
                                 strokeWidth="1.8"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="h-4 w-4"
+                                className="h-6 w-6"
                                 aria-hidden="true"
                             >
-                                <path d="M12 3 4 6v5c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V6l-8-3Z" />
-                                <path d="m9 12 2 2 4-4" />
+                                <path d="M13 2 4 14h7l-1 8 10-12h-7l1-8Z" />
                             </svg>
                         </div>
 
                         <div className="min-w-0">
-                            <p className="text-xs font-semibold text-slate-800">
-                                {t("administration")}
-                            </p>
+                            <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                                Electroshop
+                            </h2>
 
-                            <p className="mt-0.5 text-[11px] text-slate-500">
-                                {t("storeManagement")}
+                            <p className="mt-0.5 text-xs font-medium text-slate-500">
+                                {t("adminPanel")}
                             </p>
                         </div>
-                    </div>
+                    </Link>
+
+                    {/* Close button (drawer only) */}
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label={t("closeMenu")}
+                        className="flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 lg:hidden"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            className="size-5"
+                            aria-hidden="true"
+                        >
+                            <path d="M6 6l12 12M18 6L6 18" />
+                        </svg>
+                    </button>
                 </div>
 
-                <p className="mt-4 text-center text-[11px] text-slate-400">
-                    {t("footer")}
-                </p>
-            </div>
-        </aside>
+                {/* Navigation */}
+                <nav
+                    aria-label={t("navigationLabel")}
+                    className="flex-1 px-3 py-6"
+                >
+                    <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                        {t("workspace")}
+                    </p>
+
+                    <div className="space-y-1">
+                        {NAV_ITEMS.map((item) => {
+                            const active = isActive(item.href);
+
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={onClose}
+                                    aria-current={active ? "page" : undefined}
+                                    className={`group relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-colors duration-200 ${
+                                        active
+                                            ? "bg-blue-50 text-blue-700"
+                                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                    }`}
+                                >
+                                    {active && (
+                                        <motion.span
+                                            layoutId="admin-sidebar-active"
+                                            className="absolute bottom-2 left-0 top-2 w-1 rounded-r-full bg-blue-600"
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 380,
+                                                damping: 30,
+                                            }}
+                                        />
+                                    )}
+
+                                    <span
+                                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                                            active
+                                                ? "bg-white text-blue-600 shadow-sm"
+                                                : "text-slate-400 group-hover:bg-white group-hover:text-blue-600"
+                                        }`}
+                                    >
+                                        <SidebarIcon name={item.icon} />
+                                    </span>
+
+                                    <span className="flex-1">
+                                        {t(item.labelKey)}
+                                    </span>
+
+                                    {active && (
+                                        <motion.span
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            className="h-1.5 w-1.5 rounded-full bg-cyan-500"
+                                        />
+                                    )}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </nav>
+
+                {/* Footer */}
+                <div className="border-t border-slate-100 p-4">
+                    <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-3.5">
+                        <div className="flex items-center gap-2.5">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="h-4 w-4"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M12 3 4 6v5c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V6l-8-3Z" />
+                                    <path d="m9 12 2 2 4-4" />
+                                </svg>
+                            </div>
+
+                            <div className="min-w-0">
+                                <p className="text-xs font-semibold text-slate-800">
+                                    {t("administration")}
+                                </p>
+
+                                <p className="mt-0.5 text-[11px] text-slate-500">
+                                    {t("storeManagement")}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="mt-4 text-center text-[11px] text-slate-400">
+                        {t("footer")}
+                    </p>
+                </div>
+            </aside>
+        </>
     );
 }
