@@ -247,10 +247,29 @@ export default function ProductsPage() {
   const [maxPrice, setMaxPrice] = useState("");
 
   const [sort, setSort] = useState<ProductSort | "">("");
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [brandDropdownOpen, setBrandDropdownOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   // Mobile filter drawer
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Close custom dropdowns with Escape.
+  useEffect(() => {
+    if (!sortDropdownOpen && !categoryDropdownOpen && !brandDropdownOpen) return;
+
+    const handleDropdownKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSortDropdownOpen(false);
+        setCategoryDropdownOpen(false);
+        setBrandDropdownOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleDropdownKeyDown);
+    return () => window.removeEventListener("keydown", handleDropdownKeyDown);
+  }, [sortDropdownOpen, categoryDropdownOpen, brandDropdownOpen]);
 
   // Initial loading animation
   const [minimumLoadingTimeElapsed, setMinimumLoadingTimeElapsed] =
@@ -463,7 +482,7 @@ export default function ProductsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
           aria-label={t("searchSort.ariaLabel")}
-          className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_240px] sm:items-end sm:p-5"
+          className={`relative grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_240px] sm:items-end sm:p-5 ${sortDropdownOpen ? "z-[70]" : "z-0"}`}
         >
           {/* Search */}
           <div>
@@ -502,7 +521,7 @@ export default function ProductsPage() {
           </div>
 
           {/* Sort By */}
-          <div>
+          <div className={`relative min-w-0 ${sortDropdownOpen ? "z-[70]" : "z-0"}`}>
             <label
               htmlFor="product-sort"
               className="mb-2 block text-sm font-semibold text-slate-800"
@@ -510,20 +529,93 @@ export default function ProductsPage() {
               {t("searchSort.sortLabel")}
             </label>
 
-            <select
+            <button
               id="product-sort"
-              value={sort}
-              onChange={(event) => {
-                setSort(event.target.value as ProductSort | "");
-                setPage(1);
+              type="button"
+              aria-label={t("searchSort.sortLabel")}
+              aria-haspopup="listbox"
+              aria-expanded={sortDropdownOpen}
+              onClick={() => {
+                setSortDropdownOpen((open) => !open);
+                setCategoryDropdownOpen(false);
+                setBrandDropdownOpen(false);
               }}
-              className={inputClassName}
+              className={`flex h-11 w-full items-center justify-between gap-3 rounded-xl border bg-white px-3 text-left text-sm text-slate-800 outline-none transition hover:border-slate-300 focus:border-slate-800 focus:ring-4 focus:ring-slate-900/5 ${sortDropdownOpen ? "border-slate-500 ring-4 ring-slate-900/5" : "border-slate-200"}`}
             >
-              <option value="">{t("sort.default")}</option>
-              <option value="newest">{t("sort.newest")}</option>
-              <option value="price_asc">{t("sort.priceAscending")}</option>
-              <option value="price_desc">{t("sort.priceDescending")}</option>
-            </select>
+              <span className="min-w-0 flex-1 truncate">
+                {sort === "newest"
+                  ? t("sort.newest")
+                  : sort === "price_asc"
+                    ? t("sort.priceAscending")
+                    : sort === "price_desc"
+                      ? t("sort.priceDescending")
+                      : t("sort.default")}
+              </span>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className={`size-4 shrink-0 text-slate-400 transition-transform ${sortDropdownOpen ? "rotate-180" : ""}`}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {sortDropdownOpen && (
+              <>
+                <button
+                  type="button"
+                  aria-label={t("searchSort.sortLabel")}
+                  className="fixed inset-0 z-40 cursor-default"
+                  onClick={() => setSortDropdownOpen(false)}
+                />
+                <div
+                  role="listbox"
+                  aria-label={t("searchSort.sortLabel")}
+                  className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 w-full overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/60"
+                >
+                  {[
+                    { value: "", label: t("sort.default") },
+                    { value: "newest", label: t("sort.newest") },
+                    { value: "price_asc", label: t("sort.priceAscending") },
+                    { value: "price_desc", label: t("sort.priceDescending") },
+                  ].map((option) => (
+                    <button
+                      key={option.value || "default"}
+                      type="button"
+                      role="option"
+                      aria-selected={sort === option.value}
+                      onClick={() => {
+                        setSort(option.value as ProductSort | "");
+                        setPage(1);
+                        setSortDropdownOpen(false);
+                      }}
+                      className={`flex min-h-10 w-full items-center rounded-lg px-3 py-2 text-left text-sm transition-colors ${sort === option.value ? "bg-slate-100 font-semibold text-slate-900" : "text-slate-700 hover:bg-slate-50"}`}
+                    >
+                      <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                      {sort === option.value && (
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                          className="ml-2 size-4 shrink-0 text-slate-700"
+                        >
+                          <path d="m5 12 4 4L19 6" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </motion.section>
 
@@ -542,7 +634,7 @@ export default function ProductsPage() {
           <aside
             className={`fixed inset-y-0 left-0 z-[60] w-[88%] min-w-0 max-w-sm overflow-y-auto bg-white p-4 shadow-xl transition-transform duration-300 sm:p-5 ${
               isFilterOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:static lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:overflow-visible lg:rounded-2xl lg:border lg:border-slate-200 lg:shadow-sm`}
+            } lg:static lg:z-10 lg:w-auto lg:max-w-none lg:translate-x-0 lg:overflow-visible lg:rounded-2xl lg:border lg:border-slate-200 lg:shadow-sm`}
           >
             {/* Header */}
             <div className="mb-5 flex items-center justify-between gap-2">
@@ -609,7 +701,7 @@ export default function ProductsPage() {
 
             <div className="space-y-4">
               {/* Category */}
-              <div className="min-w-0">
+              <div className={`relative min-w-0 ${categoryDropdownOpen ? "z-[70]" : "z-0"}`}>
                 <label
                   htmlFor="product-category-filter"
                   className="mb-1.5 block text-xs font-medium text-slate-600"
@@ -617,47 +709,92 @@ export default function ProductsPage() {
                   {t("filters.category")}
                 </label>
 
-                <div className="relative">
-                  <select
-                    id="product-category-filter"
-                    value={categoryId}
-                    onChange={(event) => {
-                      setCategoryId(event.target.value);
-                      setPage(1);
-                    }}
-                    className={`${inputClassName} appearance-none pr-9`}
-                  >
-                    <option value="">{t("filters.allCategories")}</option>
-
-                    {categories.map((category) => (
-                      <option
-                        key={category.id}
-                        value={category.id}
-                      >
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-
+                <button
+                  id="product-category-filter"
+                  type="button"
+                  aria-label={t("filters.category")}
+                  aria-haspopup="listbox"
+                  aria-expanded={categoryDropdownOpen}
+                  onClick={() => {
+                    setCategoryDropdownOpen((open) => !open);
+                    setBrandDropdownOpen(false);
+                    setSortDropdownOpen(false);
+                  }}
+                  className={`flex h-10 w-full items-center justify-between gap-3 rounded-xl border bg-white px-3 text-left text-sm text-slate-800 outline-none transition hover:border-slate-300 focus:border-slate-800 focus:ring-4 focus:ring-slate-900/5 ${categoryDropdownOpen ? "border-slate-500 ring-4 ring-slate-900/5" : "border-slate-200"}`}
+                >
+                  <span className="min-w-0 flex-1 truncate">
+                    {categories.find((category) => String(category.id) === categoryId)?.name ?? t("filters.allCategories")}
+                  </span>
                   <svg
-                    aria-hidden="true"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
-                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    className={`size-4 shrink-0 text-slate-400 transition-transform ${categoryDropdownOpen ? "rotate-180" : ""}`}
                   >
-                    <path
-                      d="m6 9 6 6 6-6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                    <path d="m6 9 6 6 6-6" />
                   </svg>
-                </div>
+                </button>
+
+                {categoryDropdownOpen && (
+                  <>
+                    <button
+                      type="button"
+                      aria-label={t("filters.category")}
+                      className="fixed inset-0 z-40 cursor-default"
+                      onClick={() => setCategoryDropdownOpen(false)}
+                    />
+                    <div
+                      role="listbox"
+                      aria-label={t("filters.category")}
+                      className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 w-full overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/60"
+                    >
+                      {[
+                        { value: "", label: t("filters.allCategories") },
+                        ...categories.map((category) => ({
+                          value: String(category.id),
+                          label: category.name,
+                        })),
+                      ].map((option) => (
+                        <button
+                          key={option.value || "all-categories"}
+                          type="button"
+                          role="option"
+                          aria-selected={categoryId === option.value}
+                          onClick={() => {
+                            setCategoryId(option.value);
+                            setPage(1);
+                            setCategoryDropdownOpen(false);
+                          }}
+                          className={`flex min-h-10 w-full items-center rounded-lg px-3 py-2 text-left text-sm transition-colors ${categoryId === option.value ? "bg-slate-100 font-semibold text-slate-900" : "text-slate-700 hover:bg-slate-50"}`}
+                        >
+                          <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                          {categoryId === option.value && (
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                              className="ml-2 size-4 shrink-0 text-slate-700"
+                            >
+                              <path d="m5 12 4 4L19 6" />
+                            </svg>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Brand */}
-              <div className="min-w-0">
+              <div className={`relative min-w-0 ${brandDropdownOpen ? "z-[70]" : "z-0"}`}>
                 <label
                   htmlFor="product-brand-filter"
                   className="mb-1.5 block text-xs font-medium text-slate-600"
@@ -665,40 +802,88 @@ export default function ProductsPage() {
                   {t("filters.brand")}
                 </label>
 
-                <div className="relative">
-                  <select
-                    id="product-brand-filter"
-                    value={brandId}
-                    onChange={(event) => {
-                      setBrandId(event.target.value);
-                      setPage(1);
-                    }}
-                    className={`${inputClassName} appearance-none pr-9`}
-                  >
-                    <option value="">{t("filters.allBrands")}</option>
-
-                    {brands.map((brand) => (
-                      <option key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </option>
-                    ))}
-                  </select>
-
+                <button
+                  id="product-brand-filter"
+                  type="button"
+                  aria-label={t("filters.brand")}
+                  aria-haspopup="listbox"
+                  aria-expanded={brandDropdownOpen}
+                  onClick={() => {
+                    setBrandDropdownOpen((open) => !open);
+                    setCategoryDropdownOpen(false);
+                    setSortDropdownOpen(false);
+                  }}
+                  className={`flex h-10 w-full items-center justify-between gap-3 rounded-xl border bg-white px-3 text-left text-sm text-slate-800 outline-none transition hover:border-slate-300 focus:border-slate-800 focus:ring-4 focus:ring-slate-900/5 ${brandDropdownOpen ? "border-slate-500 ring-4 ring-slate-900/5" : "border-slate-200"}`}
+                >
+                  <span className="min-w-0 flex-1 truncate">
+                    {brands.find((brand) => String(brand.id) === brandId)?.name ?? t("filters.allBrands")}
+                  </span>
                   <svg
-                    aria-hidden="true"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
-                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    className={`size-4 shrink-0 text-slate-400 transition-transform ${brandDropdownOpen ? "rotate-180" : ""}`}
                   >
-                    <path
-                      d="m6 9 6 6 6-6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                    <path d="m6 9 6 6 6-6" />
                   </svg>
-                </div>
+                </button>
+
+                {brandDropdownOpen && (
+                  <>
+                    <button
+                      type="button"
+                      aria-label={t("filters.brand")}
+                      className="fixed inset-0 z-40 cursor-default"
+                      onClick={() => setBrandDropdownOpen(false)}
+                    />
+                    <div
+                      role="listbox"
+                      aria-label={t("filters.brand")}
+                      className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 w-full overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/60"
+                    >
+                      {[
+                        { value: "", label: t("filters.allBrands") },
+                        ...brands.map((brand) => ({
+                          value: String(brand.id),
+                          label: brand.name,
+                        })),
+                      ].map((option) => (
+                        <button
+                          key={option.value || "all-brands"}
+                          type="button"
+                          role="option"
+                          aria-selected={brandId === option.value}
+                          onClick={() => {
+                            setBrandId(option.value);
+                            setPage(1);
+                            setBrandDropdownOpen(false);
+                          }}
+                          className={`flex min-h-10 w-full items-center rounded-lg px-3 py-2 text-left text-sm transition-colors ${brandId === option.value ? "bg-slate-100 font-semibold text-slate-900" : "text-slate-700 hover:bg-slate-50"}`}
+                        >
+                          <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                          {brandId === option.value && (
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                              className="ml-2 size-4 shrink-0 text-slate-700"
+                            >
+                              <path d="m5 12 4 4L19 6" />
+                            </svg>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Price Range */}
