@@ -28,6 +28,9 @@ export default function AdminCategoriesPage() {
 
     const [search, setSearch] = useState("");
     const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+        null
+    );
     const [minimumLoadingElapsed, setMinimumLoadingElapsed] = useState(false);
 
     const [modalMode, setModalMode] = useState<CategoryModalMode>(null);
@@ -67,6 +70,23 @@ export default function AdminCategoriesPage() {
 
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [modalMode, submitting]);
+
+    // Close the delete confirmation dialog with Escape.
+    useEffect(() => {
+        if (!categoryToDelete) {
+            return;
+        }
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && deletingId === null) {
+                setCategoryToDelete(null);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [categoryToDelete, deletingId]);
 
     const showLoading = loading || !minimumLoadingElapsed;
 
@@ -221,15 +241,15 @@ export default function AdminCategoriesPage() {
         }
     };
 
-    // Delete a category.
-    const handleDeleteCategory = async (id: number) => {
-        const confirmed = window.confirm(t("deleteConfirmation"));
-
-        if (!confirmed) {
+    // Delete the category chosen in the confirmation dialog.
+    const handleConfirmDelete = async () => {
+        if (!categoryToDelete || deletingId !== null) {
             return;
         }
 
+        const id = categoryToDelete.id;
         const toastId = toast.loading(t("toasts.deleting"));
+
         setDeletingId(id);
 
         try {
@@ -238,6 +258,8 @@ export default function AdminCategoriesPage() {
             toast.success(t("toasts.deleted"), {
                 id: toastId,
             });
+
+            setCategoryToDelete(null);
 
             try {
                 await refetch();
@@ -298,7 +320,7 @@ export default function AdminCategoriesPage() {
 
             <button
                 type="button"
-                onClick={() => void handleDeleteCategory(category.id)}
+                onClick={() => setCategoryToDelete(category)}
                 disabled={deletingId === category.id}
                 className={`inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 ${
                     fullWidth ? "min-h-10" : "py-2"
@@ -974,6 +996,100 @@ export default function AdminCategoriesPage() {
                                     </button>
                                 </div>
                             </form>
+                        </motion.section>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Category Confirmation */}
+            <AnimatePresence>
+                {categoryToDelete && (
+                    <motion.div
+                        key="category-delete-backdrop"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onMouseDown={(event) => {
+                            if (
+                                event.target === event.currentTarget &&
+                                deletingId === null
+                            ) {
+                                setCategoryToDelete(null);
+                            }
+                        }}
+                        className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-[2px]"
+                    >
+                        <motion.section
+                            role="alertdialog"
+                            aria-modal="true"
+                            aria-labelledby="category-delete-title"
+                            aria-describedby="category-delete-description"
+                            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                            transition={{ duration: 0.22, ease: "easeOut" }}
+                            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl"
+                        >
+                            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={1.7}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="size-6"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
+                                </svg>
+                            </div>
+
+                            <h2
+                                id="category-delete-title"
+                                className="mt-4 text-lg font-semibold text-slate-900"
+                            >
+                                {t("deleteTitle")}
+                            </h2>
+
+                            <p className="mt-1 break-words text-sm font-semibold text-slate-800">
+                                {categoryToDelete.name}
+                            </p>
+
+                            <p
+                                id="category-delete-description"
+                                className="mt-2 text-sm leading-6 text-slate-500"
+                            >
+                                {t("deleteConfirmation")}
+                            </p>
+
+                            <div className="mt-6 grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setCategoryToDelete(null)}
+                                    disabled={deletingId !== null}
+                                    className="h-11 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {t("buttons.cancel")}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => void handleConfirmDelete()}
+                                    disabled={deletingId !== null}
+                                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-rose-600 text-sm font-semibold text-white transition-colors hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {deletingId !== null ? (
+                                        <>
+                                            <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                                            {t("buttons.deleting")}
+                                        </>
+                                    ) : (
+                                        t("buttons.delete")
+                                    )}
+                                </button>
+                            </div>
                         </motion.section>
                     </motion.div>
                 )}

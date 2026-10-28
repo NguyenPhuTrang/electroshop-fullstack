@@ -1,8 +1,9 @@
-
 "use client";
+
 import { useCart } from "@/src/features/cart/context/CartContext";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import axios from "axios";
 import { Link } from "@/src/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -189,9 +190,7 @@ function CartLoadingSkeleton() {
 }
 
 // Variant price is the source of truth for each cart row.
-function getCartItemPrice(
-  item: Cart["items"][number]
-): number | null {
+function getCartItemPrice(item: Cart["items"][number]): number | null {
   if (!item.variant) return null;
 
   const regularPrice = Number(item.variant.price);
@@ -226,10 +225,13 @@ export default function CartPage() {
   const [requiresLogin, setRequiresLogin] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 
   // Keep the initial skeleton visible for at least 700 ms.
-  const [minimumLoadingTimeElapsed, setMinimumLoadingTimeElapsed] = useState(false);
-  const [hasInitialFetchSettled, setHasInitialFetchSettled] = useState(false);
+  const [minimumLoadingTimeElapsed, setMinimumLoadingTimeElapsed] =
+    useState(false);
+  const [hasInitialFetchSettled, setHasInitialFetchSettled] =
+    useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -248,10 +250,7 @@ export default function CartPage() {
       const data = await getCart();
       setCart(data);
     } catch (error) {
-      if (
-        axios.isAxiosError(error) &&
-        error.response?.status === 401
-      ) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
         setRequiresLogin(true);
         return;
       }
@@ -269,16 +268,25 @@ export default function CartPage() {
   }, [fetchCart]);
 
   useEffect(() => {
-  void fetchCart();
-  }, [fetchCart]);
+    if (!isClearConfirmOpen || isClearing) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsClearConfirmOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isClearConfirmOpen, isClearing]);
 
   const { setCount } = useCart();
 
   useEffect(() => {
-  if (!cart) return;
+    if (!cart) return;
 
-  setCount(cart.items.reduce((sum, item) => sum + item.quantity, 0));
-}, [cart, setCount]);
+    setCount(cart.items.reduce((sum, item) => sum + item.quantity, 0));
+  }, [cart, setCount]);
 
   // CartItem callbacks use the cart row ID, not the product ID.
   const handleRemoveItem = (cartItemId: number) => {
@@ -287,31 +295,25 @@ export default function CartPage() {
 
       return {
         ...currentCart,
-        items: currentCart.items.filter(
-          (item) => item.id !== cartItemId
-        ),
+        items: currentCart.items.filter((item) => item.id !== cartItemId),
       };
     });
   };
 
-  const handleQuantityChange = (
-    cartItemId: number,
-    quantity: number
-  ) => {
+  const handleQuantityChange = (cartItemId: number, quantity: number) => {
     setCart((currentCart) => {
       if (!currentCart) return currentCart;
 
       return {
         ...currentCart,
         items: currentCart.items.map((item) =>
-          item.id === cartItemId
-            ? { ...item, quantity }
-            : item
+          item.id === cartItemId ? { ...item, quantity } : item
         ),
       };
     });
   };
 
+  // Called only after the user confirms clearing the entire cart.
   const handleClearCart = async () => {
     if (!cart || cart.items.length === 0 || isClearing) return;
 
@@ -330,17 +332,14 @@ export default function CartPage() {
         };
       });
 
-      toast.success(t("toast.cleared"), {
-        id: toastId,
-      });
+      toast.success(t("toast.cleared"), { id: toastId });
     } catch (error) {
       console.error("Failed to clear cart", error);
 
-      toast.error(t("toast.clearFailed"), {
-        id: toastId,
-      });
+      toast.error(t("toast.clearFailed"), { id: toastId });
     } finally {
       setIsClearing(false);
+      setIsClearConfirmOpen(false);
     }
   };
 
@@ -373,10 +372,7 @@ export default function CartPage() {
                 className="size-7"
               >
                 <circle cx="12" cy="8" r="4" />
-                <path
-                  d="M4 21a8 8 0 0 1 16 0"
-                  strokeLinecap="round"
-                />
+                <path d="M4 21a8 8 0 0 1 16 0" strokeLinecap="round" />
               </svg>
             </div>
 
@@ -454,10 +450,7 @@ export default function CartPage() {
 
   const total = cart.items.reduce((sum, item) => {
     const price = getCartItemPrice(item);
-
-    return price === null
-      ? sum
-      : sum + price * item.quantity;
+    return price === null ? sum : sum + price * item.quantity;
   }, 0);
 
   const formatPrice = (value: number) =>
@@ -630,16 +623,14 @@ export default function CartPage() {
                         </h2>
 
                         <p className="mt-1 text-xs text-slate-500">
-                          {t("counts.products", {
-                            count: cart.items.length,
-                          })}
+                          {t("counts.products", { count: cart.items.length })}
                         </p>
                       </div>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => void handleClearCart()}
+                      onClick={() => setIsClearConfirmOpen(true)}
                       disabled={isClearing}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-rose-100 px-3 py-2 text-xs font-semibold text-rose-600 transition hover:border-rose-200 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -827,10 +818,7 @@ export default function CartPage() {
                       className="size-4 text-emerald-600"
                     >
                       <rect x="4" y="10" width="16" height="11" rx="2" />
-                      <path
-                        d="M8 10V7a4 4 0 0 1 8 0v3"
-                        strokeLinecap="round"
-                      />
+                      <path d="M8 10V7a4 4 0 0 1 8 0v3" strokeLinecap="round" />
                     </svg>
 
                     {t("summary.secureCheckout")}
@@ -840,6 +828,94 @@ export default function CartPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Custom confirmation dialog for clearing the full cart */}
+        {isClearConfirmOpen &&
+          createPortal(
+            <div
+              className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 px-4"
+              onMouseDown={(event) => {
+                if (
+                  event.target === event.currentTarget &&
+                  !isClearing
+                ) {
+                  setIsClearConfirmOpen(false);
+                }
+              }}
+            >
+              <motion.div
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="clear-cart-confirm-title"
+                aria-describedby="clear-cart-confirm-description"
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-xl"
+              >
+                <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="size-6"
+                  >
+                    <path d="M3 6h18M8 6V4h8v2m3 0-.9 14H5.9L5 6" />
+                  </svg>
+                </div>
+
+                <h2
+                  id="clear-cart-confirm-title"
+                  className="mt-4 text-lg font-semibold text-slate-900"
+                >
+                  Clear your cart?
+                </h2>
+
+                <p
+                  id="clear-cart-confirm-description"
+                  className="mt-2 text-sm leading-6 text-slate-500"
+                >
+                  Are you sure you want to remove all items from your cart? This action cannot be undone.
+                </p>
+
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsClearConfirmOpen(false)}
+                    disabled={isClearing}
+                    className="h-11 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void handleClearCart()}
+                    disabled={isClearing}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-rose-600 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isClearing ? (
+                      <>
+                        <span
+                          aria-hidden="true"
+                          className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                        />
+                        {t("buttons.clearing")}
+                      </>
+                    ) : (
+                      "Clear Cart"
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            </div>,
+            document.body
+          )}
 
         <div className="h-5 sm:h-8" />
       </div>

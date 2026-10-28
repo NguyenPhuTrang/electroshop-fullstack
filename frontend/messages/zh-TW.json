@@ -615,7 +615,8 @@
       "edit": "編輯",
       "deleting": "正在刪除...",
       "delete": "刪除",
-      "manage": "管理"
+      "manage": "管理",
+      "cancel": "取消"
     },
     "filters": {
       "ariaLabel": "產品篩選條件",
@@ -693,7 +694,8 @@
       "deleted": "產品已成功刪除。",
       "deleteFailed": "無法刪除產品，請再試一次。",
       "refreshFailedAfterDelete": "產品已刪除，但無法重新整理清單，請再試一次。"
-    }
+    },
+    "deleteTitle": "要刪除此商品嗎？"
   },
   "AdminProductModal": {
     "loadingProduct": "正在載入產品...",
@@ -1696,7 +1698,8 @@
       "slugFormat": "僅可使用小寫英文字母、數字與連字號。",
       "logoProtocol": "標誌網址必須以 http:// 或 https:// 開頭。",
       "logoInvalid": "請輸入有效的標誌網址。"
-    }
+    },
+    "deleteTitle": "要刪除此品牌嗎？"
   },
   "EditBrandPage": {
     "header": {
@@ -1877,7 +1880,8 @@
       "nameRequired": "請輸入分類名稱。",
       "slugRequired": "請輸入分類 slug。",
       "slugFormat": "僅可使用小寫英文字母、數字與連字號。"
-    }
+    },
+    "deleteTitle": "要刪除此分類嗎？"
   },
   "EditCategoryPage": {
     "header": {

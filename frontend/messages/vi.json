@@ -615,7 +615,8 @@
       "edit": "Chỉnh sửa",
       "deleting": "Đang xóa...",
       "delete": "Xóa",
-      "manage": "Quản lý"
+      "manage": "Quản lý",
+      "cancel": "Hủy"
     },
     "filters": {
       "ariaLabel": "Bộ lọc sản phẩm",
@@ -693,7 +694,8 @@
       "deleted": "Xóa sản phẩm thành công.",
       "deleteFailed": "Không thể xóa sản phẩm. Vui lòng thử lại.",
       "refreshFailedAfterDelete": "Đã xóa sản phẩm nhưng không thể làm mới danh sách. Vui lòng thử lại."
-    }
+    },
+    "deleteTitle": "Xóa sản phẩm này?"
   },
   "AdminProductModal": {
     "loadingProduct": "Đang tải thông tin sản phẩm...",
@@ -1696,7 +1698,8 @@
       "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang.",
       "logoProtocol": "URL logo phải bắt đầu bằng http:// hoặc https://.",
       "logoInvalid": "Vui lòng nhập URL logo hợp lệ."
-    }
+    },
+    "deleteTitle": "Xóa thương hiệu này?"
   },
   "EditBrandPage": {
     "header": {
@@ -1877,7 +1880,8 @@
       "nameRequired": "Tên danh mục là bắt buộc.",
       "slugRequired": "Slug danh mục là bắt buộc.",
       "slugFormat": "Chỉ sử dụng chữ thường, chữ số và dấu gạch ngang."
-    }
+    },
+    "deleteTitle": "Xóa danh mục này?"
   },
   "EditCategoryPage": {
     "header": {

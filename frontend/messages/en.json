@@ -615,7 +615,8 @@
       "edit": "Edit",
       "deleting": "Deleting...",
       "delete": "Delete",
-      "manage": "Manage"
+      "manage": "Manage",
+      "cancel": "Cancel"
     },
     "filters": {
       "ariaLabel": "Product filters",
@@ -693,7 +694,8 @@
       "deleted": "Product deleted successfully.",
       "deleteFailed": "Unable to delete product. Please try again.",
       "refreshFailedAfterDelete": "Product deleted, but the list could not be refreshed. Please try again."
-    }
+    },
+    "deleteTitle": "Delete this product?"
   },
   "AdminProductModal": {
     "loadingProduct": "Loading product...",
@@ -1696,7 +1698,8 @@
       "slugFormat": "Use lowercase letters, numbers, and hyphens only.",
       "logoProtocol": "Logo URL must start with http:// or https://.",
       "logoInvalid": "Please enter a valid logo URL."
-    }
+    },
+    "deleteTitle": "Delete this brand?"
   },
   "EditBrandPage": {
     "header": {
@@ -1877,7 +1880,8 @@
       "nameRequired": "Category name is required.",
       "slugRequired": "Category slug is required.",
       "slugFormat": "Use lowercase letters, numbers, and hyphens only."
-    }
+    },
+    "deleteTitle": "Delete this category?"
   },
   "EditCategoryPage": {
     "header": {
