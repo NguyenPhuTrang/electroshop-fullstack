@@ -170,6 +170,7 @@ function AdminReviewsContent() {
 
     const [search, setSearch] = useState("");
     const [rating, setRating] = useState("");
+    const [ratingDropdownOpen, setRatingDropdownOpen] = useState(false);
     const [page, setPage] = useState(1);
 
     const [selectedReview, setSelectedReview] =
@@ -269,6 +270,7 @@ function AdminReviewsContent() {
     const clearFilters = () => {
         setSearch("");
         setRating("");
+        setRatingDropdownOpen(false);
         setPage(1);
     };
 
@@ -277,15 +279,15 @@ function AdminReviewsContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="min-h-screen bg-slate-50/70 px-4 py-8 sm:px-10 lg:px-40"
+            className="min-h-full bg-[#f7f8fa] p-4 sm:p-6 lg:p-8"
         >
-            <div className="mx-auto max-w-[1600px] space-y-6">
+            <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.05 }}
-                    className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-6"
                 >
                     <div>
                         <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-600">
@@ -293,7 +295,7 @@ function AdminReviewsContent() {
                             {t("adminWorkspace")}
                         </div>
 
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                        <h1 className="break-words text-xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                             {t("title")}
                         </h1>
 
@@ -330,7 +332,7 @@ function AdminReviewsContent() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+                    className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
                 >
                     <div className="mb-5">
                         <h2 className="text-base font-semibold text-slate-800">
@@ -342,7 +344,7 @@ function AdminReviewsContent() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
+                    <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
                         {/* Search */}
                         <div>
                             <label
@@ -390,27 +392,91 @@ function AdminReviewsContent() {
                                 {t("rating")}
                             </label>
 
-                            <select
-                                id="review-rating"
-                                value={rating}
-                                onChange={(event) =>
-                                    handleRatingChange(event.target.value)
-                                }
-                                className={inputClassName}
-                            >
-                                <option value="">{t("allRatings")}</option>
-
-                                {REVIEW_RATINGS.map((reviewRating) => (
-                                    <option
-                                        key={reviewRating}
-                                        value={reviewRating}
+                            <div className="relative min-w-0">
+                                <button
+                                    id="review-rating"
+                                    type="button"
+                                    aria-label={t("rating")}
+                                    aria-haspopup="listbox"
+                                    aria-expanded={ratingDropdownOpen}
+                                    onClick={() =>
+                                        setRatingDropdownOpen((open) => !open)
+                                    }
+                                    className={`flex h-11 w-full items-center justify-between gap-3 rounded-lg border bg-white px-3 text-left text-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 ${ratingDropdownOpen ? "border-blue-500 ring-2 ring-blue-100" : "border-slate-200"}`}
+                                >
+                                    <span className="min-w-0 truncate text-slate-700">
+                                        {rating
+                                            ? t("starsOption", { count: Number(rating) })
+                                            : t("allRatings")}
+                                    </span>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden="true"
+                                        className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${ratingDropdownOpen ? "rotate-180" : ""}`}
                                     >
-                                        {t("starsOption", {
-                                            count: reviewRating,
-                                        })}
-                                    </option>
-                                ))}
-                            </select>
+                                        <path d="m6 9 6 6 6-6" />
+                                    </svg>
+                                </button>
+
+                                {ratingDropdownOpen && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            aria-label={t("rating")}
+                                            className="fixed inset-0 z-40 cursor-default"
+                                            onClick={() => setRatingDropdownOpen(false)}
+                                        />
+                                        <div
+                                            role="listbox"
+                                            aria-label={t("rating")}
+                                            className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 w-full overflow-y-auto overscroll-contain rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/60"
+                                        >
+                                            {[
+                                                { value: "", label: t("allRatings") },
+                                                ...REVIEW_RATINGS.map((reviewRating) => ({
+                                                    value: String(reviewRating),
+                                                    label: t("starsOption", { count: reviewRating }),
+                                                })),
+                                            ].map((option) => (
+                                                <button
+                                                    key={option.value || "all-ratings"}
+                                                    type="button"
+                                                    role="option"
+                                                    aria-selected={rating === option.value}
+                                                    onClick={() => {
+                                                        handleRatingChange(option.value);
+                                                        setRatingDropdownOpen(false);
+                                                    }}
+                                                    className={`flex min-h-10 w-full items-center rounded-md px-3 py-2 text-left text-sm transition-colors ${rating === option.value ? "bg-blue-50 font-medium text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+                                                >
+                                                    <span className="min-w-0 flex-1 truncate">
+                                                        {option.label}
+                                                    </span>
+                                                    {rating === option.value && (
+                                                        <svg
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            aria-hidden="true"
+                                                            className="ml-2 h-4 w-4 shrink-0 text-blue-600"
+                                                        >
+                                                            <path d="m5 12 4 4L19 6" />
+                                                        </svg>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -464,9 +530,9 @@ function AdminReviewsContent() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.15 }}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                    className="overflow-hidden rounded-xl border border-slate-200 bg-white"
                 >
-                    <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col justify-between gap-2 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
                         <div>
                             <h2 className="font-semibold text-slate-800">
                                 {t("customerReviews")}
@@ -490,7 +556,115 @@ function AdminReviewsContent() {
                         </span>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    {/* Phones and tablets (below 1280px): review cards in 1 column on phones and 2 columns on tablets */}
+                    {loading ? (
+                        <ul className="grid grid-cols-1 gap-3 p-3 sm:p-4 md:grid-cols-2 xl:hidden">
+                            {Array.from({ length: 5 }).map((_, index) => (
+                                <li
+                                    key={index}
+                                    className="animate-pulse space-y-4 rounded-xl border border-slate-200 p-4"
+                                >
+                                    <div className="space-y-2">
+                                        <div className="h-4 w-2/3 rounded bg-slate-200" />
+                                        <div className="h-3 w-1/2 rounded bg-slate-100" />
+                                        <div className="h-3 w-3/4 rounded bg-slate-100" />
+                                    </div>
+                                    <div className="h-7 w-24 rounded-lg bg-slate-100" />
+                                    <div className="space-y-2">
+                                        <div className="h-3 w-full rounded bg-slate-100" />
+                                        <div className="h-3 w-5/6 rounded bg-slate-100" />
+                                        <div className="h-3 w-2/3 rounded bg-slate-100" />
+                                    </div>
+                                    <div className="h-10 w-full rounded-lg bg-slate-100" />
+                                </li>
+                            ))}
+                        </ul>
+                    ) : reviews.length === 0 ? (
+                        <div className="xl:hidden">
+                            <EmptyReviews
+                                unanswered={unanswered}
+                                hasFilters={hasFilters}
+                                onClearFilters={clearFilters}
+                            />
+                        </div>
+                    ) : (
+                        <ul className="grid grid-cols-1 gap-3 p-3 sm:p-4 md:grid-cols-2 xl:hidden">
+                            {reviews.map((review, index) => (
+                                <motion.li
+                                    key={review.id}
+                                    initial={{ opacity: 0, y: 6 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        duration: 0.2,
+                                        delay: Math.min(index * 0.025, 0.2),
+                                    }}
+                                    className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-blue-200"
+                                >
+                                    <div className="flex min-w-0 items-start justify-between gap-3">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="break-words text-sm font-semibold leading-5 text-slate-900">
+                                                {review.user.name}
+                                            </p>
+                                            <p className="mt-1 break-all text-xs text-slate-500">
+                                                {review.user.email}
+                                            </p>
+                                            <p className="mt-3 break-words text-sm font-semibold text-slate-800">
+                                                {review.product.name}
+                                            </p>
+                                            <p className="mt-1 text-xs text-slate-400">
+                                                {t("productId", { id: review.product.id })}
+                                            </p>
+                                        </div>
+                                        <ReplyStatusBadge hasReply={Boolean(review.reply)} />
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center justify-between gap-3 border-y border-slate-100 py-3">
+                                        <div>
+                                            <ReviewRating rating={review.rating} />
+                                            <p className="mt-1.5 text-xs font-medium text-slate-500">
+                                                {review.rating}/5
+                                            </p>
+                                        </div>
+                                        <p className="text-right text-xs text-slate-500">
+                                            {formatDate(review.createdAt)}
+                                        </p>
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-600">
+                                            {review.comment || t("noComment")}
+                                        </p>
+                                        {review.reply?.comment && (
+                                            <p className="mt-2 break-words text-xs leading-5 text-emerald-700">
+                                                {t("replyLine", { comment: review.reply.comment })}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOpenReply(review)}
+                                        className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                                    >
+                                        {review.reply ? t("editReply") : t("reply")}
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="1.8"
+                                            className="h-4 w-4"
+                                            aria-hidden="true"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m10 17 5-5-5-5M4 12h11" />
+                                        </svg>
+                                    </button>
+                                </motion.li>
+                            ))}
+                        </ul>
+                    )}
+
+                    {/* Wide screens (from 1280px): full review table */}
+                    <div className="hidden overflow-x-auto xl:block">
                         <table className="min-w-[1050px] w-full">
                             <thead>
                                 <tr className="border-b border-slate-200 bg-slate-50/80">
@@ -665,14 +839,14 @@ function AdminReviewsContent() {
                             })}
                         </p>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex w-full items-center gap-2 sm:w-auto">
                             <button
                                 type="button"
                                 disabled={page <= 1}
                                 onClick={() =>
                                     setPage((current) => current - 1)
                                 }
-                                className={buttonClassName}
+                                className={`${buttonClassName} min-h-10 flex-1 px-3 sm:flex-none sm:px-4`}
                             >
                                 <svg
                                     viewBox="0 0 24 24"
@@ -697,7 +871,7 @@ function AdminReviewsContent() {
                                 onClick={() =>
                                     setPage((current) => current + 1)
                                 }
-                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                                className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-blue-600 bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:flex-none sm:px-4"
                             >
                                 {t("next")}
                                 <svg
