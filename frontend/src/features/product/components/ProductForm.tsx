@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { useCategories } from "../../category/hooks/useCategories";
@@ -51,6 +50,163 @@ const inputClassName = (hasError = false) =>
 
 const errorClassName = "mt-1.5 text-xs leading-5 text-red-600";
 
+type DropdownOption = {
+  value: string;
+  label: string;
+};
+
+type FormDropdownProps = {
+  id: string;
+  value: string;
+  options: DropdownOption[];
+  placeholder: string;
+  hasError?: boolean;
+  describedBy?: string;
+  onChange: (value: string) => void;
+};
+
+// Custom dropdown (same look as the filter dropdowns on the admin list pages).
+// The list opens right under the button and has a controlled width and height.
+function FormDropdown({
+  id,
+  value,
+  options,
+  placeholder,
+  hasError = false,
+  describedBy,
+  onChange,
+}: FormDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selected = options.find((option) => option.value === value);
+
+  // Close on outside click or Escape.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        // Do not let Escape also close a surrounding modal.
+        event.stopPropagation();
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [open]);
+
+  return (
+    <div ref={containerRef} className="relative min-w-0">
+      <button
+        id={id}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-invalid={hasError}
+        aria-describedby={describedBy}
+        onClick={() => setOpen((current) => !current)}
+        className={`flex h-10 w-full items-center justify-between gap-3 rounded-xl border bg-white px-3 text-left text-sm outline-none transition focus:ring-4 ${
+          hasError
+            ? "border-red-400 focus:border-red-500 focus:ring-red-500/10"
+            : open
+              ? "border-blue-500 ring-4 ring-blue-500/10"
+              : "border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-blue-500/10"
+        }`}
+      >
+        <span
+          className={`min-w-0 truncate ${
+            selected ? "text-slate-900" : "text-slate-400"
+          }`}
+        >
+          {selected?.label ?? placeholder}
+        </span>
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className={`size-4 shrink-0 text-slate-400 transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          role="listbox"
+          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 w-full overflow-y-auto overscroll-contain rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/60"
+        >
+          {options.length === 0 ? (
+            <p className="px-3 py-2 text-sm text-slate-400">—</p>
+          ) : (
+            options.map((option) => {
+              const isSelected = option.value === value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => {
+                    onChange(option.value);
+                    setOpen(false);
+                  }}
+                  className={`flex min-h-10 w-full items-center rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                    isSelected
+                      ? "bg-blue-50 font-medium text-blue-700"
+                      : "text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <span className="min-w-0 flex-1 truncate">
+                    {option.label}
+                  </span>
+
+                  {isSelected && (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="ml-2 size-4 shrink-0 text-blue-600"
+                    >
+                      <path d="m5 12 4 4L19 6" />
+                    </svg>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProductForm({
   mode,
   initialValues,
@@ -95,6 +251,18 @@ export default function ProductForm({
     mode === "create"
       ? t("creatingProduct")
       : t("updatingProduct");
+
+  const brandOptions: DropdownOption[] = brands.map((brand) => ({
+    value: String(brand.id),
+    label: brand.name,
+  }));
+
+  const categoryOptions: DropdownOption[] = categories.map(
+    (category) => ({
+      value: String(category.id),
+      label: category.name,
+    })
+  );
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
@@ -211,37 +379,23 @@ export default function ProductForm({
                 <span className="ml-1 text-red-500">*</span>
               </label>
 
-              <select
+              <FormDropdown
                 id="product-brand"
-                required
                 value={brandId}
-                onChange={(event) => {
-                  setBrandId(event.target.value);
+                options={brandOptions}
+                placeholder={t("selectBrand")}
+                hasError={Boolean(errors.brandId)}
+                describedBy={
+                  errors.brandId ? "product-brand-error" : undefined
+                }
+                onChange={(nextValue) => {
+                  setBrandId(nextValue);
                   setErrors((previous) => ({
                     ...previous,
                     brandId: "",
                   }));
                 }}
-                aria-invalid={Boolean(errors.brandId)}
-                aria-describedby={
-                  errors.brandId
-                    ? "product-brand-error"
-                    : undefined
-                }
-                className={inputClassName(
-                  Boolean(errors.brandId)
-                )}
-              >
-                <option value="" disabled>
-                  {t("selectBrand")}
-                </option>
-
-                {brands.map((brand) => (
-                  <option key={brand.id} value={brand.id}>
-                    {brand.name}
-                  </option>
-                ))}
-              </select>
+              />
 
               {errors.brandId && (
                 <p
@@ -263,37 +417,25 @@ export default function ProductForm({
                 <span className="ml-1 text-red-500">*</span>
               </label>
 
-              <select
+              <FormDropdown
                 id="product-category"
-                required
                 value={categoryId}
-                onChange={(event) => {
-                  setCategoryId(event.target.value);
+                options={categoryOptions}
+                placeholder={t("selectCategory")}
+                hasError={Boolean(errors.categoryId)}
+                describedBy={
+                  errors.categoryId
+                    ? "product-category-error"
+                    : undefined
+                }
+                onChange={(nextValue) => {
+                  setCategoryId(nextValue);
                   setErrors((previous) => ({
                     ...previous,
                     categoryId: "",
                   }));
                 }}
-                aria-invalid={Boolean(errors.categoryId)}
-                aria-describedby={
-                  errors.categoryId
-                    ? "product-category-error"
-                    : undefined
-                }
-                className={inputClassName(
-                  Boolean(errors.categoryId)
-                )}
-              >
-                <option value="" disabled>
-                  {t("selectCategory")}
-                </option>
-
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              />
 
               {errors.categoryId && (
                 <p
