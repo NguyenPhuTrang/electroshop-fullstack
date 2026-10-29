@@ -196,7 +196,10 @@
     "aria": {
       "productImageManagement": "商品圖片管理",
       "closeImageEditor": "關閉圖片編輯器",
-      "chooseNewProductColor": "選擇新的商品顏色"
+      "chooseNewProductColor": "選擇新的商品顏色",
+      "editColor": "編輯顏色 {name}",
+      "deleteColor": "刪除顏色 {name}",
+      "closeColorEditor": "關閉顏色編輯視窗"
     },
     "productManagement": "商品管理",
     "title": "商品圖片",
@@ -234,8 +237,8 @@
     "generalImageNoColor": "一般商品圖片（不指定顏色）",
     "selectedColorUnavailable": "所選顏色目前無法使用",
     "noExistingColors": "目前沒有可用的顏色。",
-    "createNewColor": "建立新顏色",
-    "createColorDescription": "為此商品建立顏色，並套用至圖片。",
+    "createNewColor": "新增顏色",
+    "createColorDescription": "為此商品新增顏色。",
     "colorName": "顏色名稱",
     "colorNamePlaceholder": "例如：午夜藍",
     "color": "顏色",
@@ -267,8 +270,8 @@
     },
     "confirmDeleteImage": "確定要刪除此圖片嗎？",
     "toast": {
-      "creatingColor": "正在建立商品顏色...",
-      "colorCreated": "商品顏色建立成功。",
+      "creatingColor": "正在新增顏色...",
+      "colorCreated": "顏色新增成功！",
       "createColorError": "無法建立商品顏色。",
       "addingImage": "正在新增商品圖片...",
       "updatingImage": "正在更新商品圖片...",
@@ -280,8 +283,23 @@
       "primaryUpdateError": "無法更新主圖片，請再試一次。",
       "deletingImage": "正在刪除商品圖片...",
       "imageDeleted": "商品圖片刪除成功。",
-      "deleteImageError": "無法刪除商品圖片，請再試一次。"
-    }
+      "deleteImageError": "無法刪除商品圖片，請再試一次。",
+      "updatingColor": "正在更新顏色...",
+      "colorUpdated": "顏色更新成功！",
+      "colorUpdateFailed": "無法更新顏色。",
+      "colorCreateFailed": "無法新增顏色。",
+      "deletingColor": "正在刪除顏色...",
+      "deleteColorError": "無法刪除顏色。此顏色可能仍在使用中。"
+    },
+    "colorManagementTitle": "顏色管理",
+    "colorManagementSubtitle": "新增、編輯及管理商品顏色。",
+    "colorCount": "{count} 種顏色",
+    "addColor": "新增顏色",
+    "deleteColorTitle": "刪除顏色",
+    "deleteColorConfirm": "確定要刪除此顏色嗎？",
+    "deleteImageTitle": "刪除圖片",
+    "editColor": "編輯顏色",
+    "colorEditDescription": "更新顏色名稱、色碼及顯示順序。"
   },
   "ProductPromotionalVideo": {
     "sectionLabel": "產品介紹影片",
@@ -1655,7 +1673,7 @@
       "actions": "操作"
     },
     "brandLogoAlt": "{name} 標誌",
-    "deleteConfirmation": "確定要刪除此品牌嗎？此操作無法復原。",
+    "deleteConfirmation": "確定要刪除此品牌嗎？",
     "toasts": {
       "deleting": "正在刪除品牌...",
       "deleted": "品牌已成功刪除。",
@@ -1845,7 +1863,7 @@
       "createdAt": "建立日期",
       "actions": "操作"
     },
-    "deleteConfirmation": "確定要刪除此分類嗎？此操作無法復原。",
+    "deleteConfirmation": "確定要刪除此分類嗎？",
     "toasts": {
       "deleting": "正在刪除分類...",
       "deleted": "分類已成功刪除。",

@@ -196,7 +196,10 @@
     "aria": {
       "productImageManagement": "Quản lý hình ảnh sản phẩm",
       "closeImageEditor": "Đóng trình chỉnh sửa ảnh",
-      "chooseNewProductColor": "Chọn màu sản phẩm mới"
+      "chooseNewProductColor": "Chọn màu sản phẩm mới",
+      "editColor": "Chỉnh sửa màu {name}",
+      "deleteColor": "Xóa màu {name}",
+      "closeColorEditor": "Đóng cửa sổ chỉnh sửa màu sắc"
     },
     "productManagement": "Quản lý sản phẩm",
     "title": "Hình ảnh sản phẩm",
@@ -234,8 +237,8 @@
     "generalImageNoColor": "Ảnh sản phẩm chung (không gắn màu)",
     "selectedColorUnavailable": "Màu đã chọn không còn khả dụng",
     "noExistingColors": "Chưa có màu nào.",
-    "createNewColor": "Tạo màu mới",
-    "createColorDescription": "Tạo màu cho sản phẩm này để sử dụng cho hình ảnh.",
+    "createNewColor": "Tạo màu sắc mới",
+    "createColorDescription": "Thêm màu sắc mới cho sản phẩm.",
     "colorName": "Tên màu",
     "colorNamePlaceholder": "Ví dụ: Xanh đêm",
     "color": "Màu sắc",
@@ -267,8 +270,8 @@
     },
     "confirmDeleteImage": "Bạn có chắc chắn muốn xóa hình ảnh này không?",
     "toast": {
-      "creatingColor": "Đang tạo màu sản phẩm...",
-      "colorCreated": "Tạo màu sản phẩm thành công.",
+      "creatingColor": "Đang tạo màu sắc...",
+      "colorCreated": "Tạo màu sắc thành công!",
       "createColorError": "Không thể tạo màu sản phẩm.",
       "addingImage": "Đang thêm hình ảnh sản phẩm...",
       "updatingImage": "Đang cập nhật hình ảnh sản phẩm...",
@@ -280,8 +283,23 @@
       "primaryUpdateError": "Không thể cập nhật ảnh chính. Vui lòng thử lại.",
       "deletingImage": "Đang xóa hình ảnh sản phẩm...",
       "imageDeleted": "Đã xóa hình ảnh sản phẩm thành công.",
-      "deleteImageError": "Không thể xóa hình ảnh sản phẩm. Vui lòng thử lại."
-    }
+      "deleteImageError": "Không thể xóa hình ảnh sản phẩm. Vui lòng thử lại.",
+      "updatingColor": "Đang cập nhật màu sắc...",
+      "colorUpdated": "Cập nhật màu sắc thành công!",
+      "colorUpdateFailed": "Không thể cập nhật màu sắc.",
+      "colorCreateFailed": "Không thể tạo màu sắc.",
+      "deletingColor": "Đang xóa màu sắc...",
+      "deleteColorError": "Không thể xóa màu sắc. Màu có thể đang được sử dụng."
+    },
+    "colorManagementTitle": "Quản lý màu sắc",
+    "colorManagementSubtitle": "Thêm, chỉnh sửa và quản lý màu sắc sản phẩm.",
+    "colorCount": "{count} màu",
+    "addColor": "Thêm màu",
+    "deleteColorTitle": "Xóa màu sắc",
+    "deleteColorConfirm": "Bạn có chắc chắn muốn xóa màu sắc này không?",
+    "deleteImageTitle": "Xóa hình ảnh",
+    "editColor": "Chỉnh sửa màu sắc",
+    "colorEditDescription": "Cập nhật tên, mã màu và thứ tự hiển thị."
   },
   "ProductPromotionalVideo": {
     "sectionLabel": "Video giới thiệu sản phẩm",
@@ -1655,7 +1673,7 @@
       "actions": "Thao tác"
     },
     "brandLogoAlt": "Logo {name}",
-    "deleteConfirmation": "Bạn có chắc chắn muốn xóa thương hiệu này không? Hành động này không thể hoàn tác.",
+    "deleteConfirmation": "Bạn có chắc chắn xóa thương hiệu này không?",
     "toasts": {
       "deleting": "Đang xóa thương hiệu...",
       "deleted": "Đã xóa thương hiệu thành công.",
@@ -1845,7 +1863,7 @@
       "createdAt": "Ngày tạo",
       "actions": "Thao tác"
     },
-    "deleteConfirmation": "Bạn có chắc chắn muốn xóa danh mục này không? Hành động này không thể hoàn tác.",
+    "deleteConfirmation": "Bạn có chắc chắn muốn xóa danh mục này không?",
     "toasts": {
       "deleting": "Đang xóa danh mục...",
       "deleted": "Đã xóa danh mục thành công.",

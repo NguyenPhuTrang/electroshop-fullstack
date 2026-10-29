@@ -196,7 +196,10 @@
     "aria": {
       "productImageManagement": "Product image management",
       "closeImageEditor": "Close image editor",
-      "chooseNewProductColor": "Choose new product color"
+      "chooseNewProductColor": "Choose new product color",
+      "editColor": "Edit color {name}",
+      "deleteColor": "Delete color {name}",
+      "closeColorEditor": "Close color editor"
     },
     "productManagement": "Product Management",
     "title": "Product Images",
@@ -235,7 +238,7 @@
     "selectedColorUnavailable": "Selected color unavailable",
     "noExistingColors": "No existing colors are available.",
     "createNewColor": "Create New Color",
-    "createColorDescription": "Create a color for this product and use it for the image.",
+    "createColorDescription": "Add a new color to this product.",
     "colorName": "Color Name",
     "colorNamePlaceholder": "e.g. Midnight Blue",
     "color": "Color",
@@ -267,8 +270,8 @@
     },
     "confirmDeleteImage": "Are you sure you want to delete this image?",
     "toast": {
-      "creatingColor": "Creating product color...",
-      "colorCreated": "Product color created successfully.",
+      "creatingColor": "Creating color...",
+      "colorCreated": "Color created successfully!",
       "createColorError": "Unable to create product color.",
       "addingImage": "Adding product image...",
       "updatingImage": "Updating product image...",
@@ -280,8 +283,23 @@
       "primaryUpdateError": "Unable to update primary image. Please try again.",
       "deletingImage": "Deleting product image...",
       "imageDeleted": "Product image deleted successfully.",
-      "deleteImageError": "Unable to delete product image. Please try again."
-    }
+      "deleteImageError": "Unable to delete product image. Please try again.",
+      "updatingColor": "Updating color...",
+      "colorUpdated": "Color updated successfully!",
+      "colorUpdateFailed": "Failed to update color.",
+      "colorCreateFailed": "Failed to create color.",
+      "deletingColor": "Deleting color...",
+      "deleteColorError": "Unable to delete color. This color may still be in use."
+    },
+    "colorManagementTitle": "Color Management",
+    "colorManagementSubtitle": "Add, edit, and manage product colors.",
+    "colorCount": "{count, plural, one {# color} other {# colors}}",
+    "addColor": "Add Color",
+    "deleteColorTitle": "Delete Color",
+    "deleteColorConfirm": "Are you sure you want to delete this color?",
+    "deleteImageTitle": "Delete Image",
+    "editColor": "Edit Color",
+    "colorEditDescription": "Update the color name, hex code, and display order."
   },
   "ProductPromotionalVideo": {
     "sectionLabel": "Product promotional video",
@@ -1655,7 +1673,7 @@
       "actions": "Actions"
     },
     "brandLogoAlt": "{name} logo",
-    "deleteConfirmation": "Are you sure you want to delete this brand? This action cannot be undone.",
+    "deleteConfirmation": "Are you sure you want to delete this brand?",
     "toasts": {
       "deleting": "Deleting brand...",
       "deleted": "Brand deleted successfully.",
@@ -1845,7 +1863,7 @@
       "createdAt": "Created At",
       "actions": "Actions"
     },
-    "deleteConfirmation": "Are you sure you want to delete this category? This action cannot be undone.",
+    "deleteConfirmation": "Are you sure you want to delete this category?",
     "toasts": {
       "deleting": "Deleting category...",
       "deleted": "Category deleted successfully.",
