@@ -1,5 +1,6 @@
 "use client";
 
+import { useCart } from "@/src/features/cart/context/CartContext";
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/src/i18n/navigation";
@@ -72,6 +73,7 @@ export default function CheckoutPage() {
   const t = useTranslations("CheckoutPage");
   const locale = useLocale();
   const router = useRouter();
+  const { refreshCart } = useCart();
 
   // Shipping Information
   const [shippingName, setShippingName] = useState("");
@@ -230,22 +232,22 @@ export default function CheckoutPage() {
     const toastId = toast.loading(t("toast.placingOrder"));
 
     try {
-      const result = await createOrder({
-        shippingName: shippingName.trim(),
-        shippingPhone: shippingPhone.trim(),
-        shippingAddress: shippingAddress.trim(),
-        shippingCity: shippingCity.trim(),
-        shippingDistrict: shippingDistrict.trim(),
-        note: note.trim(),
-        paymentMethod,
-      });
-
-      toast.success(t("toast.orderPlaced"), {
+    const result = await createOrder({
+    shippingName: shippingName.trim(),
+    shippingPhone: shippingPhone.trim(),
+    shippingAddress: shippingAddress.trim(),
+    shippingCity: shippingCity.trim(),
+    shippingDistrict: shippingDistrict.trim(),
+    note: note.trim(),
+    paymentMethod,
+    });
+    await refreshCart();
+    toast.success(t("toast.orderPlaced"), {
         id: toastId,
         description: t("toast.redirecting"),
-      });
+    });
+    router.push(`/orders/${result.order.id}`);
 
-      router.push(`/orders/${result.order.id}`);
     } catch (error) {
       console.error("Failed to create order:", error);
 

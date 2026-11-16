@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,11 +8,13 @@ import { useTranslations } from "next-intl";
 import { logout } from "../services/auth.service";
 import { clearAccessToken } from "../services/auth-token";
 import { useUser } from "@/src/hooks/useUser";
+import { useCart } from "@/src/features/cart/context/CartContext";
 
 export default function LogoutButton() {
     const t = useTranslations("LogoutButton");
     const router = useRouter();
     const { setUser } = useUser(); // lấy hàm setUser ra khỏi UserProvider để LogoutButton có thể thay đổi state user.
+    const { clearCart } = useCart();
 
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -39,6 +42,10 @@ export default function LogoutButton() {
             await logout();
 
             clearAccessToken();
+
+            // Reset CartContext khi đăng xuất.
+            clearCart();
+
             setUser(null);
             setIsConfirmOpen(false);
 
