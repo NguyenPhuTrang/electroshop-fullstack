@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { loginSchema, registerSchema } from "../validations/auth.validation";
 import {
   loginUser,
+  loginWithGoogle,
   registerUser,
 } from "../services/auth.service";
 import {
@@ -9,6 +10,7 @@ import {
   generateToken,
   verifyRefreshToken,
 } from "../utils/token";
+import z from "zod";
 
 export const registerController = async (
   req: Request,
@@ -140,3 +142,47 @@ export const logoutController = async (
     next(error);
   } 
 };
+
+export const googleLoginController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = googleLoginSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Google login data",
+        errors: result.error.issues,
+      });
+    }
+
+    const user = await loginWithGoogle(result.data.idToken);
+    const accessToken = generateToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id, user.role);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      data: {
+        user,
+        accessToken,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleLoginSchema = z.object({
+  idToken: z.string().min(1, "Google ID Token is required"),
+});

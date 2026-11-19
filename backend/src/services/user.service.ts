@@ -98,14 +98,21 @@ export const changeMyPassword = async (
     },
   });
 
-  if (!user) {
+    if (!user) {
     throw new AppError("User not found", 404);
-  }
+    }
 
-  const isPasswordValid = await bcrypt.compare(
+    if (!user.password) {
+    throw new AppError(
+        "This account does not have a password. Please set up a password first.",
+        400
+    );
+    }
+
+    const isPasswordValid = await bcrypt.compare(
     currentPassword,
     user.password
-  );
+    );
 
   if (!isPasswordValid) {
     throw new AppError("Current password is incorrect", 400);

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  googleLoginController,
   loginController,
   logoutController,
   refreshTokenController,
@@ -15,6 +16,8 @@ router.post("/register", registerController);
 router.post("/login", loginController);
 
 router.post("/refresh-token", refreshTokenController);
+
+router.post("/google", googleLoginController);
 
 router.get("/me", authMiddleware, (req, res) => {
   return res.status(200).json({
