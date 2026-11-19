@@ -85,7 +85,8 @@
     "footerNote": "Sign in to manage your account and track your orders.",
     "toastLoading": "Signing in...",
     "toastSuccess": "Signed in successfully!",
-    "toastError": "Unable to sign in. Please check your email and password and try again."
+    "toastError": "Unable to sign in. Please check your email and password and try again.",
+    "orContinueWith": "Or continue with"
   },
   "Register": {
     "title": "Create account",

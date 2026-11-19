@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
+import GoogleAuthProvider from "@/src/components/providers/GoogleAuthProvider";
 
 import "../globals.css";
 
@@ -59,9 +60,11 @@ export default async function RootLayout({
     >
       <body className="min-h-full">
         <NextIntlClientProvider>
+           <GoogleAuthProvider>
           <AuthProvider>
             <UserProvider>{children}</UserProvider>
           </AuthProvider>
+        </GoogleAuthProvider>
 
           <Toaster
             position="top-right"

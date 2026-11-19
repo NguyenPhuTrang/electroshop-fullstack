@@ -85,7 +85,8 @@
     "footerNote": "登入以管理您的帳戶並追蹤訂單。",
     "toastLoading": "登入中...",
     "toastSuccess": "登入成功！",
-    "toastError": "無法登入。請確認電子郵件和密碼後再試一次。"
+    "toastError": "無法登入。請確認電子郵件和密碼後再試一次。",
+    "orContinueWith": "或使用以下方式繼續"
   },
   "Register": {
     "title": "建立帳戶",

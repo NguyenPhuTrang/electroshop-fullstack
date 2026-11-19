@@ -27,17 +27,17 @@ export default function UserMenu() {
                 <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:px-4"
+                        className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:px-5"
                     >
                         {t("login")}
                     </Link>
 
-                    <Link
+                    {/* <Link
                         href="/register"
                         className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:px-5"
                     >
                         {t("register")}
-                    </Link>
+                    </Link> */}
                 </div>
             ) : (
                 // 3. Logged in
@@ -48,11 +48,11 @@ export default function UserMenu() {
                         aria-haspopup="menu"
                         aria-expanded={isOpen}
                         aria-controls="user-menu-dropdown"
-                        className={`flex max-w-[220px] items-center gap-2 rounded-xl border px-2 py-1.5 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/10 sm:gap-3 sm:px-3 ${
+                        className={`flex w-fit max-w-none items-center gap-2 rounded-xl border px-2 py-1.5 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/10 sm:gap-3 sm:px-3 ${
                             isOpen
                                 ? "border-blue-200 bg-blue-50"
                                 : "border-transparent bg-white hover:border-slate-200 hover:bg-slate-50"
-                        }`}
+                            }`}
                     >
                         {user.avatarUrl ? (
                             <Image
@@ -68,7 +68,7 @@ export default function UserMenu() {
                             </div>
                         )}
 
-                        <span className="max-w-[110px] truncate text-sm font-semibold text-slate-700">
+                        <span className="whitespace-nowrap text-sm font-semibold text-slate-700">
                             {user.name}
                         </span>
 

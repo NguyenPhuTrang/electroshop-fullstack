@@ -1,14 +1,26 @@
 
-import axios from "axios";
+import axios, {
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
+
 import {
   getAccessToken,
   setAccessToken,
   clearAccessToken,
 } from "@/src/features/auth/services/auth-token";
 
+interface RetryableRequest extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+const backendUrl = (
+  process.env.BACKEND_URL || "http://localhost:5000"
+).replace(/\/$/, "");
+
 const apiBaseURL =
   typeof window === "undefined"
-    ? `${(process.env.BACKEND_URL || "http://localhost:5000").replace(/\/$/, "")}/api`
+    ? `${backendUrl}/api`
     : "/api";
 
 const refreshTokenURL = `${apiBaseURL}/auth/refresh-token`;
@@ -18,6 +30,12 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Dùng riêng Axios instance để refresh, tránh interceptor lặp.
+const refreshClient = axios.create({
+  withCredentials: true,
+});
+
+// Request Interceptor
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
 
@@ -28,40 +46,64 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Quản lý các request refresh đồng thời.
+let refreshPromise: Promise<string> | null = null;
+
+// Response Interceptor
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
 
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry
-    ) {
-      originalRequest._retry = true;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as RetryableRequest | undefined;
 
-      try {
-        const res = await axios.post(
-          refreshTokenURL,
-          {},
-          { withCredentials: true }
-        );
-
-        const newAccessToken = res.data.data.accessToken;
-
-        setAccessToken(newAccessToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-        return api(originalRequest);
-      } catch {
-        clearAccessToken();
-
-        return Promise.reject(error);
-      }
+    if (!originalRequest || error.response?.status !== 401) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    // Không refresh nếu chính request refresh thất bại.
+    if (originalRequest.url?.includes("/auth/refresh-token")) {
+      clearAccessToken();
+      return Promise.reject(error);
+    }
+
+    // Không retry request quá một lần.
+    if (originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    originalRequest._retry = true;
+
+    try {
+      if (!refreshPromise) {
+        refreshPromise = refreshClient
+          .post(refreshTokenURL, {})
+          .then((response) => {
+            const newAccessToken =
+              response.data.data.accessToken;
+
+            setAccessToken(newAccessToken);
+
+            return newAccessToken;
+          })
+          .catch((refreshError) => {
+            clearAccessToken();
+            throw refreshError;
+          })
+          .finally(() => {
+            refreshPromise = null;
+          });
+      }
+
+      const newAccessToken = await refreshPromise;
+
+      originalRequest.headers.Authorization =
+        `Bearer ${newAccessToken}`;
+
+      return api(originalRequest);
+    } catch (refreshError) {
+      clearAccessToken();
+      return Promise.reject(refreshError);
+    }
   }
 );
 

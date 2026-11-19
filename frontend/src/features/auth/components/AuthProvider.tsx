@@ -1,23 +1,26 @@
-"use client"; // khôi phục trạng thái đăng nhập mỗi khi trang được tải lại.
 
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { setAccessToken } from "@/src/features/auth/services/auth-token";
+"use client";
 
-export default function AuthProvider({ children }: { children: React.ReactNode }) {
+import { useEffect, useState, type ReactNode } from "react";
+
+import api from "@/src/lib/axios";
+import { clearAccessToken, setAccessToken } from "@/src/features/auth/services/auth-token";
+
+export default function AuthProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const bootstrapAuth = async () => {
       try {
-       const res = await axios.post(
-          "/api/auth/refresh-token",
-          {},
-          { withCredentials: true }
-        );
-        setAccessToken(res.data.data.accessToken);
+        const response = await api.post("/auth/refresh-token");
+
+        setAccessToken(response.data.data.accessToken);
       } catch {
-       
+        clearAccessToken();
       } finally {
         setIsReady(true);
       }
@@ -26,7 +29,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     bootstrapAuth();
   }, []);
 
-  if (!isReady) return null; 
+  if (!isReady) return null;
 
   return <>{children}</>;
 }

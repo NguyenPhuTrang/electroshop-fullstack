@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -8,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
-import axios from "axios";
+import { getAccessToken } from "@/src/features/auth/services/auth-token";
 import type { User } from "@/src/features/user/types/user";
 import { getMyProfile } from "@/src/features/user/services/user.service";
 
@@ -32,18 +33,18 @@ export function UserProvider({
   const [loading, setLoading] = useState(true);
 
   const refreshUser = useCallback(async () => {
+    if (!getAccessToken()) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const data = await getMyProfile();
       setUser(data);
     } catch (error) {
-      if (
-        axios.isAxiosError(error) &&
-        error.response?.status === 401
-      ) {
-        setUser(null);
-        return;
-      }
-
       console.error("Failed to get current user:", error);
       setUser(null);
     } finally {
@@ -51,24 +52,9 @@ export function UserProvider({
     }
   }, []);
 
-    useEffect(() => {
-        let ignore = false;
-
-        getMyProfile()
-          .then((data) => {
-            if (!ignore) setUser(data);
-          })
-          .catch(() => {
-            if (!ignore) setUser(null);
-          })
-          .finally(() => {
-            if (!ignore) setLoading(false);
-          });
-
-        return () => {
-          ignore = true;
-        };
-    }, []);
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
   return (
     <UserContext.Provider

@@ -1,14 +1,18 @@
 
 "use client";
 
+import { GoogleLogin } from "@react-oauth/google";
 import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter as useLocalizedRouter } from "@/src/i18n/navigation";
 import { useRouter as useNextRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import {
+  googleLogin,
+  login,
+} from "@/src/features/auth/services/auth.service";
 import { setAccessToken } from "@/src/features/auth/services/auth-token";
-import { login } from "@/src/features/auth/services/auth.service";
 import { useUser } from "@/src/hooks/useUser";
 
 export default function LoginPage() {
@@ -55,6 +59,39 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error("Login failed:", error);
+
+      toast.error(t("toastError"), {
+        id: toastId,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleLogin = async (idToken: string) => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    const toastId = toast.loading(t("toastLoading"));
+
+    try {
+      const result = await googleLogin(idToken);
+
+      setAccessToken(result.data.accessToken);
+      setUser(result.data.user);
+
+      toast.success(t("toastSuccess"), {
+        id: toastId,
+      });
+
+      if (result.data.user.role === "ADMIN") {
+        router.replace("/admin");
+      } else {
+        localizedRouter.replace("/");
+      }
+    } catch (error) {
+      console.error("Google login failed:", error);
 
       toast.error(t("toastError"), {
         id: toastId,
@@ -184,8 +221,44 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+
+            <div className="relative flex justify-center">
+              <span className="bg-white px-4 text-xs font-medium text-slate-400">
+                {t("orContinueWith")}
+              </span>
+            </div>
+          </div>
+
+          {/* Google Login */}
+          <div
+            className={`flex justify-center ${
+              isSubmitting ? "pointer-events-none opacity-50" : ""
+            }`}
+          >
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                if (credentialResponse.credential) {
+                  handleGoogleLogin(credentialResponse.credential);
+                }
+              }}
+              onError={() => {
+                toast.error(t("toastError"));
+              }}
+              theme="outline"
+              size="large"
+              shape="rectangular"
+              text="signin_with"
+              width="320"
+            />
+          </div>
+
           {/* Footer */}
-          <div className="mt-7 border-t border-slate-100 pt-5 text-center">
+          <div className="pt-5 text-center">
             <p className="text-xs leading-5 text-slate-500">
               {t("footerNote")}
             </p>

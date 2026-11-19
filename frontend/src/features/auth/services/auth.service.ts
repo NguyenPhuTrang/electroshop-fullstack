@@ -1,3 +1,4 @@
+
 import api from "@/src/lib/axios";
 
 type RegisterData = {
@@ -7,17 +8,18 @@ type RegisterData = {
   avatarUrl?: string;
 };
 
-export const register = async (data: RegisterData) => {
-  const response = await api.post("/auth/register", data);
-
-  return response.data;
-};
-
 type LoginData = {
   email: string;
   password: string;
 };
 
+// Register
+export const register = async (data: RegisterData) => {
+  const response = await api.post("/auth/register", data);
+  return response.data;
+};
+
+// Login with Email / Password
 export const login = async (data: LoginData) => {
   const response = await api.post("/auth/login", data, {
     withCredentials: true,
@@ -26,8 +28,24 @@ export const login = async (data: LoginData) => {
   return response.data;
 };
 
-export const logout = async () => {
-  const responce = await api.post("/auth/logout");
+// Login with Google
+export const googleLogin = async (idToken: string) => {
+  const response = await api.post(
+    "/auth/google",
+    { idToken },
+    { withCredentials: true }
+  );
 
-  return responce.data;
+  return response.data;
+};
+
+// Logout
+export const logout = async () => {
+  const response = await api.post(
+    "/auth/logout",
+    {},
+    { withCredentials: true }
+  );
+
+  return response.data;
 };

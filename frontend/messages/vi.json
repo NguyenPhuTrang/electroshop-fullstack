@@ -85,7 +85,8 @@
     "footerNote": "Đăng nhập để quản lý tài khoản và theo dõi đơn hàng.",
     "toastLoading": "Đang đăng nhập...",
     "toastSuccess": "Đăng nhập thành công!",
-    "toastError": "Không thể đăng nhập. Vui lòng kiểm tra email và mật khẩu rồi thử lại."
+    "toastError": "Không thể đăng nhập. Vui lòng kiểm tra email và mật khẩu rồi thử lại.",
+    "orContinueWith": "Hoặc tiếp tục với"
   },
   "Register": {
     "title": "Tạo tài khoản",
