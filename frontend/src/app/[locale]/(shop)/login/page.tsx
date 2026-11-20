@@ -14,6 +14,7 @@ import {
 } from "@/src/features/auth/services/auth.service";
 import { setAccessToken } from "@/src/features/auth/services/auth-token";
 import { useUser } from "@/src/hooks/useUser";
+import { useCart } from "@/src/features/cart/context/CartContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -29,6 +30,7 @@ export default function LoginPage() {
   const router = useNextRouter();
 
   const { setUser } = useUser();
+  const { refreshCart } = useCart();
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,6 +49,7 @@ export default function LoginPage() {
 
       setAccessToken(result.data.accessToken);
       setUser(result.data.user);
+      await refreshCart(); 
 
       toast.success(t("toastSuccess"), {
         id: toastId,
@@ -80,6 +83,7 @@ export default function LoginPage() {
 
       setAccessToken(result.data.accessToken);
       setUser(result.data.user);
+      await refreshCart();
 
       toast.success(t("toastSuccess"), {
         id: toastId,
