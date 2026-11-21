@@ -164,6 +164,7 @@ export const uploadAvatarController = async (
           name: true,
           email: true,
           avatarUrl: true,
+          googleId: true,
           role: true,
           status: true,
           createdAt: true,
