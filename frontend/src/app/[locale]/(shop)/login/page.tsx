@@ -114,7 +114,7 @@ export default function LoginPage() {
       />
 
       <main className="relative z-0 w-full max-w-md">
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-900/[0.04] sm:p-9">
+        <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-900/[0.04] sm:p-9 mt-[-60px]">
           {/* Header */}
           <div className="mb-8 text-center">
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600">
@@ -269,9 +269,6 @@ export default function LoginPage() {
           </div>
         </section>
 
-        <p className="mt-6 text-center text-xs text-slate-400">
-          © {new Date().getFullYear()} Electroshop
-        </p>
       </main>
     </div>
   );

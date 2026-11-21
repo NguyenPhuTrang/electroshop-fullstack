@@ -7,6 +7,7 @@ export type User = {
   status: string;
   createdAt: string;
   updatedAt: string;
+  googleId?: string | null;
 };
 
 export type UpdateProfileData = {

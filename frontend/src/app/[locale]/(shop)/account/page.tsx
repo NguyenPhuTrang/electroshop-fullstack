@@ -335,6 +335,7 @@ export default function AccountPage() {
 
   const roleLabel = getRoleLabel(String(user.role));
   const accountStatusLabel = getAccountStatusLabel(String(user.status));
+  const isGoogleAccount = Boolean(user.googleId); 
 
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
@@ -718,140 +719,145 @@ export default function AccountPage() {
             </section>
 
             {/* Change Password */}
-            <section className={sectionClassName}>
-              <SectionHeading
-                number="02"
-                title={t("security.sectionTitle")}
-                description={t("security.sectionDescription")}
-              />
 
-              {!isChangingPassword ? (
-                <>
-                  <div className="mt-5 flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.7"
-                        className="size-5"
-                      >
-                        <rect
-                          x="4"
-                          y="10"
-                          width="16"
-                          height="11"
-                          rx="2"
-                        />
-                        <path
-                          d="M8 10V7a4 4 0 0 1 8 0v3"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
+            {!isGoogleAccount && (
 
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-800">
-                        {t("security.protectionTitle")}
-                      </p>
+              <section className={sectionClassName}>
+                <SectionHeading
+                  number="02"
+                  title={t("security.sectionTitle")}
+                  description={t("security.sectionDescription")}
+                />
 
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
-                        {t("security.protectionDescription")}
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsChangingPassword(true)}
-                    className={`${secondaryButtonClassName} mt-4`}
-                  >
-                    {t("buttons.changePassword")}
-                  </button>
-                </>
-              ) : (
-                <div className="mt-5 space-y-4">
-                  <div>
-                    <label
-                      htmlFor="current-password"
-                      className="mb-1.5 block text-sm font-medium text-slate-700"
-                    >
-                      {t("security.fields.currentPassword")}
-                    </label>
-
-                    <input
-                      id="current-password"
-                      type="password"
-                      autoComplete="current-password"
-                      value={currentPassword}
-                      onChange={(event) =>
-                        setCurrentPassword(event.target.value)
-                      }
-                      placeholder={t("security.placeholders.currentPassword")}
-                      disabled={isSavingPassword}
-                      className={inputClassName}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="new-password"
-                      className="mb-1.5 block text-sm font-medium text-slate-700"
-                    >
-                      {t("security.fields.newPassword")}
-                    </label>
-
-                    <input
-                      id="new-password"
-                      type="password"
-                      autoComplete="new-password"
-                      value={newPassword}
-                      onChange={(event) =>
-                        setNewPassword(event.target.value)
-                      }
-                      placeholder={t("security.placeholders.newPassword")}
-                      disabled={isSavingPassword}
-                      className={inputClassName}
-                    />
-
-                    <p className="mt-1.5 text-xs text-slate-400">
-                      {t("security.passwordHint")}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void handleChangePassword()}
-                      disabled={isSavingPassword}
-                      className={primaryButtonClassName}
-                    >
-                      {isSavingPassword ? (
-                        <>
-                          <span
-                            aria-hidden="true"
-                            className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                {!isChangingPassword ? (
+                  <>
+                    <div className="mt-5 flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.7"
+                          className="size-5"
+                        >
+                          <rect
+                            x="4"
+                            y="10"
+                            width="16"
+                            height="11"
+                            rx="2"
                           />
-                          {t("buttons.updatingPassword")}
-                        </>
-                      ) : (
-                        t("buttons.updatePassword")
-                      )}
-                    </button>
+                          <path
+                            d="M8 10V7a4 4 0 0 1 8 0v3"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-800">
+                          {t("security.protectionTitle")}
+                        </p>
+
+                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                          {t("security.protectionDescription")}
+                        </p>
+                      </div>
+                    </div>
 
                     <button
                       type="button"
-                      onClick={handleCancelPasswordChange}
-                      disabled={isSavingPassword}
-                      className={secondaryButtonClassName}
+                      onClick={() => setIsChangingPassword(true)}
+                      className={`${secondaryButtonClassName} mt-4`}
                     >
-                      {t("buttons.cancel")}
+                      {t("buttons.changePassword")}
                     </button>
+                  </>
+                ) : (
+                  <div className="mt-5 space-y-4">
+                    <div>
+                      <label
+                        htmlFor="current-password"
+                        className="mb-1.5 block text-sm font-medium text-slate-700"
+                      >
+                        {t("security.fields.currentPassword")}
+                      </label>
+
+                      <input
+                        id="current-password"
+                        type="password"
+                        autoComplete="current-password"
+                        value={currentPassword}
+                        onChange={(event) =>
+                          setCurrentPassword(event.target.value)
+                        }
+                        placeholder={t("security.placeholders.currentPassword")}
+                        disabled={isSavingPassword}
+                        className={inputClassName}
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="new-password"
+                        className="mb-1.5 block text-sm font-medium text-slate-700"
+                      >
+                        {t("security.fields.newPassword")}
+                      </label>
+
+                      <input
+                        id="new-password"
+                        type="password"
+                        autoComplete="new-password"
+                        value={newPassword}
+                        onChange={(event) =>
+                          setNewPassword(event.target.value)
+                        }
+                        placeholder={t("security.placeholders.newPassword")}
+                        disabled={isSavingPassword}
+                        className={inputClassName}
+                      />
+
+                      <p className="mt-1.5 text-xs text-slate-400">
+                        {t("security.passwordHint")}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void handleChangePassword()}
+                        disabled={isSavingPassword}
+                        className={primaryButtonClassName}
+                      >
+                        {isSavingPassword ? (
+                          <>
+                            <span
+                              aria-hidden="true"
+                              className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                            />
+                            {t("buttons.updatingPassword")}
+                          </>
+                        ) : (
+                          t("buttons.updatePassword")
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleCancelPasswordChange}
+                        disabled={isSavingPassword}
+                        className={secondaryButtonClassName}
+                      >
+                        {t("buttons.cancel")}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </section>
+                )}
+              </section>
+          
+            )}
           </div>
 
           {/* Right Column: Order History */}
@@ -862,11 +868,11 @@ export default function AccountPage() {
             />
 
             <div className="relative">
-              <SectionHeading
-                number="03"
-                title={t("orderHistory.sectionTitle")}
-                description={t("orderHistory.sectionDescription")}
-              />
+             <SectionHeading
+              number={isGoogleAccount ? "02" : "03"}
+              title={t("orderHistory.sectionTitle")}
+              description={t("orderHistory.sectionDescription")}
+            />
 
               <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-white p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">

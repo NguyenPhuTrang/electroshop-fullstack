@@ -27,17 +27,17 @@ export default function UserMenu() {
                 <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:px-5"
+                         className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:px-4"
                     >
                         {t("login")}
                     </Link>
 
-                    {/* <Link
+                    <Link
                         href="/register"
                         className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:px-5"
                     >
                         {t("register")}
-                    </Link> */}
+                    </Link>
                 </div>
             ) : (
                 // 3. Logged in
